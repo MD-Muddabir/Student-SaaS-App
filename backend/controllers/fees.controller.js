@@ -43,6 +43,7 @@ exports.getAllFeeStructures = async (req, res) => {
 
         const feeStructures = await FeesStructure.findAll({
             where: whereClause,
+            include: [{ model: require("../models").Class, attributes: ["name", "section"] }],
             order: [["due_date", "ASC"]],
         });
 
@@ -61,17 +62,17 @@ exports.getAllFeeStructures = async (req, res) => {
 
 exports.recordPayment = async (req, res) => {
     try {
-        const { student_id, amount, payment_method, transaction_id, payment_date } = req.body;
+        const { student_id, amount, payment_method, transaction_id, payment_date, remarks } = req.body;
         const institute_id = req.user.institute_id;
 
         const payment = await Payment.create({
             institute_id,
             student_id,
-            amount,
+            amount_paid: amount,
             payment_method,
             transaction_id,
             payment_date: payment_date || new Date(),
-            status: "completed",
+            status: "success",
         });
 
         res.status(201).json({
@@ -84,6 +85,38 @@ exports.recordPayment = async (req, res) => {
             success: false,
             message: error.message,
         });
+    }
+};
+
+exports.getAllPayments = async (req, res) => {
+    try {
+        const { page = 1, limit = 20, student_id } = req.query;
+        const institute_id = req.user.institute_id;
+        const offset = (page - 1) * limit;
+
+        const whereClause = { institute_id };
+        if (student_id) whereClause.student_id = student_id;
+
+        const { count, rows } = await Payment.findAndCountAll({
+            where: whereClause,
+            limit: parseInt(limit),
+            offset: parseInt(offset),
+            order: [["payment_date", "DESC"]],
+            include: [
+                {
+                    model: Student,
+                    include: [{ model: User, attributes: ["name", "email"] }]
+                }
+            ]
+        });
+
+        res.status(200).json({
+            success: true,
+            data: rows,
+            count
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 

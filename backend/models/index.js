@@ -55,6 +55,20 @@ Faculty.belongsTo(User, { foreignKey: "user_id" });
 User.hasOne(Student, { foreignKey: "user_id" });
 Student.belongsTo(User, { foreignKey: "user_id" });
 
+// Fees Structure Associations
+FeesStructure.belongsTo(Class, { foreignKey: "class_id" });
+Class.hasMany(FeesStructure, { foreignKey: "class_id" });
+
+FeesStructure.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasMany(FeesStructure, { foreignKey: "institute_id" });
+
+// Payment Associations
+Payment.belongsTo(Student, { foreignKey: "student_id" });
+Student.hasMany(Payment, { foreignKey: "student_id" });
+
+Payment.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasMany(Payment, { foreignKey: "institute_id" });
+
 module.exports = {
     sequelize,
     Plan,

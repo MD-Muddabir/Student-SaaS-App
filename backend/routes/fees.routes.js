@@ -10,7 +10,8 @@ const allowRoles = require("../middlewares/role.middleware");
 
 router.post("/structure", verifyToken, allowRoles("admin"), feesController.createFeeStructure);
 router.get("/structure", verifyToken, allowRoles("admin", "faculty"), feesController.getAllFeeStructures);
-router.post("/payment", verifyToken, allowRoles("admin"), feesController.recordPayment);
+router.post("/pay", verifyToken, allowRoles("admin"), feesController.recordPayment);
+router.get("/payments", verifyToken, allowRoles("admin"), feesController.getAllPayments);
 router.get("/payment/:student_id", verifyToken, allowRoles("admin", "faculty", "student"), feesController.getStudentPayments);
 
 module.exports = router;
