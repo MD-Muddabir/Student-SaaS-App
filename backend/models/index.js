@@ -41,8 +41,19 @@ Student.belongsTo(Class, { foreignKey: "class_id" });
 Faculty.hasMany(Subject, { foreignKey: "faculty_id" });
 Subject.belongsTo(Faculty, { foreignKey: "faculty_id" });
 
+Class.hasMany(Subject, { foreignKey: "class_id" });
+Subject.belongsTo(Class, { foreignKey: "class_id" });
+
 Exam.hasMany(Mark, { foreignKey: "exam_id" });
 Mark.belongsTo(Exam, { foreignKey: "exam_id" });
+
+// User <-> Faculty Association
+User.hasOne(Faculty, { foreignKey: "user_id" });
+Faculty.belongsTo(User, { foreignKey: "user_id" });
+
+// User <-> Student Association
+User.hasOne(Student, { foreignKey: "user_id" });
+Student.belongsTo(User, { foreignKey: "user_id" });
 
 module.exports = {
     sequelize,

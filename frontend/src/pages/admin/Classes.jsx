@@ -11,6 +11,7 @@ import "./Dashboard.css";
 function Classes() {
     const { user } = useContext(AuthContext);
     const [classes, setClasses] = useState([]);
+    const [totalCount, setTotalCount] = useState(0);
     const [faculty, setFaculty] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -31,6 +32,7 @@ function Classes() {
         try {
             const response = await api.get("/classes");
             setClasses(response.data.data || []);
+            setTotalCount(response.data.count || 0);
         } catch (error) {
             console.error("Error fetching classes:", error);
         } finally {
@@ -151,21 +153,24 @@ function Classes() {
                 <div className="stat-card">
                     <div className="stat-icon">🏫</div>
                     <div className="stat-content">
-                        <h3>{classes.length}</h3>
+                        <h3>{totalCount}</h3>
                         <p>Total Classes</p>
                     </div>
                 </div>
                 <div className="stat-card">
-                    <div className="stat-icon">👩‍🏫</div>
+                    <div className="stat-icon">👨‍🎓</div>
                     <div className="stat-content">
-                        <h3>{faculty.length}</h3>
-                        <p>Total Faculty</p>
+                        {/* Calculate total students across all classes */}
+                        <h3>
+                            {classes.reduce((acc, curr) => acc + (curr.Students?.length || 0), 0)}
+                        </h3>
+                        <p>Enrolled Students</p>
                     </div>
                 </div>
             </div>
 
             {/* Classes Grid */}
-            <div className="stats-grid">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.5rem" }}>
                 {filteredClasses.length === 0 ? (
                     <div className="card" style={{ padding: "2rem", textAlign: "center", gridColumn: "1 / -1" }}>
                         <p>No classes found. Click "Add Class" to create one.</p>
@@ -202,12 +207,16 @@ function Classes() {
 
                             <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: "1rem", marginTop: "1rem" }}>
                                 <div style={{ display: "grid", gap: "0.5rem" }}>
-                                    <div>
-                                        <strong>Class ID:</strong> {classItem.id}
+                                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                        <strong>Students:</strong>
+                                        <span className="badge badge-info">{classItem.Students?.length || 0}</span>
                                     </div>
-                                    <div>
-                                        <strong>Created:</strong>{" "}
-                                        {new Date(classItem.created_at).toLocaleDateString()}
+                                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                        <strong>Subjects:</strong>
+                                        <span>{classItem.Subjects?.length || 0}</span>
+                                    </div>
+                                    <div style={{ fontSize: "0.875rem", color: "#9ca3af", marginTop: "0.5rem" }}>
+                                        Created: {new Date(classItem.created_at).toLocaleDateString()}
                                     </div>
                                 </div>
                             </div>

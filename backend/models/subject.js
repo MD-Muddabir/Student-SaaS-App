@@ -6,6 +6,11 @@ const Subject = sequelize.define("Subject", {
     class_id: DataTypes.INTEGER,
     name: DataTypes.STRING,
     faculty_id: DataTypes.INTEGER,
+}, {
+    tableName: 'subjects',
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: false
 });
 
 module.exports = Subject;

@@ -128,10 +128,12 @@ exports.getAllStudents = async (req, res) => {
                     model: User,
                     attributes: ["id", "name", "email", "phone", "status"],
                     where: userWhereClause,
+                    required: search ? true : false, // Use INNER JOIN only when searching
                 },
                 {
                     model: Class,
-                    attributes: ["id", "name"],
+                    attributes: ["id", "name", "section"],
+                    required: false,
                 },
             ],
         });
@@ -139,15 +141,8 @@ exports.getAllStudents = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Students retrieved successfully",
-            data: {
-                students: rows,
-                pagination: {
-                    total: count,
-                    page: parseInt(page),
-                    limit: parseInt(limit),
-                    totalPages: Math.ceil(count / limit),
-                },
-            },
+            data: rows,
+            count: count
         });
     } catch (error) {
         res.status(500).json({

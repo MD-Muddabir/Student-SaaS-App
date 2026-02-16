@@ -14,14 +14,13 @@ const { Op } = require("sequelize");
  */
 exports.createClass = async (req, res) => {
     try {
-        const { name, section, description } = req.body;
+        const { name, section } = req.body;
         const institute_id = req.user.institute_id;
 
         const classData = await Class.create({
             institute_id,
             name,
             section,
-            description,
         });
 
         res.status(201).json({
@@ -44,7 +43,7 @@ exports.createClass = async (req, res) => {
  */
 exports.getAllClasses = async (req, res) => {
     try {
-        const { page = 1, limit = 10, search = "" } = req.query;
+        const { page = 1, limit = 100, search = "" } = req.query;
         const institute_id = req.user.institute_id;
 
         const offset = (page - 1) * limit;
@@ -73,20 +72,14 @@ exports.getAllClasses = async (req, res) => {
                     attributes: ["id", "name"],
                 },
             ],
+            distinct: true, // Important for correct count with includes
         });
 
         res.status(200).json({
             success: true,
             message: "Classes retrieved successfully",
-            data: {
-                classes: rows,
-                pagination: {
-                    total: count,
-                    page: parseInt(page),
-                    limit: parseInt(limit),
-                    totalPages: Math.ceil(count / limit),
-                },
-            },
+            data: rows,
+            count: count
         });
     } catch (error) {
         res.status(500).json({

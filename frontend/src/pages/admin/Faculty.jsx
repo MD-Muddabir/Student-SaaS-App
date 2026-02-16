@@ -11,6 +11,7 @@ import "./Dashboard.css";
 function Faculty() {
     const { user } = useContext(AuthContext);
     const [faculty, setFaculty] = useState([]);
+    const [totalCount, setTotalCount] = useState(0);
     const [classes, setClasses] = useState([]);
     const [subjects, setSubjects] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -38,6 +39,7 @@ function Faculty() {
         try {
             const response = await api.get("/faculty");
             setFaculty(response.data.data || []);
+            setTotalCount(response.data.count || 0);
         } catch (error) {
             console.error("Error fetching faculty:", error);
         } finally {
@@ -178,7 +180,7 @@ function Faculty() {
                 <div className="stat-card">
                     <div className="stat-icon">👩‍🏫</div>
                     <div className="stat-content">
-                        <h3>{faculty.count}</h3>
+                        <h3>{totalCount}</h3>
                         <p>Total Faculty</p>
                     </div>
                 </div>
