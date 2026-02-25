@@ -237,7 +237,7 @@ exports.updateProfile = async (req, res) => {
 exports.saveTheme = async (req, res) => {
     try {
         const { theme_dark, theme_style } = req.body;
-        const User = require("../models/User");
+        const User = require("../models/user");
         await User.update(
             {
                 ...(theme_dark !== undefined && { theme_dark }),
