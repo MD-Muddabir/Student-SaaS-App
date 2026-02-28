@@ -18,44 +18,61 @@ exports.markBulkAttendance = async (req, res) => {
         const institute_id = req.user.institute_id;
         const marked_by = req.user.id;
 
-        // Validate date is not in future
-        if (new Date(date) > new Date()) {
+        // Validate date is not in future (allow 24h for timezone differences)
+        const clientDate = new Date(date);
+        const serverTomorrow = new Date();
+        serverTomorrow.setHours(serverTomorrow.getHours() + 24);
+
+        if (clientDate > serverTomorrow) {
             return res.status(400).json({
                 success: false,
                 message: "Cannot mark attendance for future dates"
             });
         }
 
-        // Check if attendance already exists for this date
-        const existingCount = await Attendance.count({
-            where: { class_id, subject_id, date, institute_id }
-        });
+        const results = [];
 
-        if (existingCount > 0) {
-            return res.status(409).json({
-                success: false,
-                message: "Attendance already marked for this date. Use edit feature to update."
+        for (const item of attendance_data) {
+            if (item.status === "pending") continue; // Skip unmarked students
+
+            const existing = await Attendance.findOne({
+                where: {
+                    institute_id,
+                    student_id: item.student_id,
+                    class_id,
+                    subject_id: subject_id || null,
+                    date
+                }
             });
+
+            if (existing) {
+                // Update existing record (allows faculty to override QR or absent marks)
+                await existing.update({
+                    status: item.status,
+                    remarks: item.remarks || existing.remarks,
+                    marked_by
+                });
+                results.push(existing);
+            } else {
+                // Create new record
+                const created = await Attendance.create({
+                    institute_id,
+                    student_id: item.student_id,
+                    class_id,
+                    subject_id: subject_id || null,
+                    date,
+                    status: item.status,
+                    remarks: item.remarks || null,
+                    marked_by
+                });
+                results.push(created);
+            }
         }
-
-        // Bulk create attendance records
-        const attendanceRecords = attendance_data.map(item => ({
-            institute_id,
-            student_id: item.student_id,
-            class_id,
-            subject_id,
-            date,
-            status: item.status,
-            remarks: item.remarks || null,
-            marked_by
-        }));
-
-        const created = await Attendance.bulkCreate(attendanceRecords);
 
         res.status(201).json({
             success: true,
-            message: `Attendance marked for ${created.length} students`,
-            data: created
+            message: `Attendance marked successfully for ${results.length} students`,
+            data: results
         });
     } catch (error) {
         console.error("Bulk attendance error:", error);
@@ -96,21 +113,34 @@ exports.getClassAttendanceByDate = async (req, res) => {
             ]
         };
 
-        // Get all students in the class matching the date criteria
+        const includeOptions = [
+            {
+                model: User,
+                attributes: ['id', 'name', 'email']
+            },
+            {
+                model: Class,
+                where: { id: class_id },
+                attributes: [],
+                through: { attributes: [] }
+            }
+        ];
+
+        // Strict filtering: Only fetch students enrolled in this exact Subject
+        if (subject_id && subject_id !== 'undefined' && subject_id !== 'null') {
+            const { Subject } = require('../models');
+            includeOptions.push({
+                model: Subject,
+                where: { id: subject_id },
+                attributes: [],
+                through: { attributes: [] }
+            });
+        }
+
+        // Get all students in the class/subject matching the date criteria
         const students = await Student.findAll({
             where: whereClause,
-            include: [
-                {
-                    model: User,
-                    attributes: ['id', 'name', 'email']
-                },
-                {
-                    model: Class,
-                    where: { id: class_id },
-                    attributes: [],
-                    through: { attributes: [] }
-                }
-            ],
+            include: includeOptions,
             order: [['roll_number', 'ASC']]
         });
 
@@ -339,7 +369,7 @@ exports.getClassAttendanceSummary = async (req, res) => {
 exports.getAttendanceDashboard = async (req, res) => {
     try {
         const institute_id = req.user.institute_id;
-        const today = new Date().toISOString().split('T')[0];
+        const today = req.query.date || new Date().toISOString().split('T')[0];
 
         console.log('Dashboard request for institute:', institute_id, 'date:', today);
 
@@ -397,6 +427,38 @@ exports.getAttendanceDashboard = async (req, res) => {
             }
         }
 
+        // Calculate Pending Classes for Faculty
+        let pending_classes = [];
+        if (req.user.role === 'faculty') {
+            const { Faculty, Subject, Class } = require('../models');
+            const facultyUser = await Faculty.findOne({ where: { user_id: req.user.id } });
+            if (facultyUser) {
+                const subjects = await Subject.findAll({
+                    where: { faculty_id: facultyUser.id, institute_id },
+                    include: [{ model: Class, attributes: ['id', 'name', 'section'] }]
+                });
+
+                for (const sub of subjects) {
+                    const count = await Attendance.count({
+                        where: {
+                            institute_id,
+                            subject_id: sub.id,
+                            class_id: sub.class_id,
+                            date: today
+                        }
+                    });
+                    if (count === 0 && sub.Class) {
+                        pending_classes.push({
+                            class_id: sub.class_id,
+                            class_name: `${sub.Class.name} ${sub.Class.section ? '- ' + sub.Class.section : ''}`,
+                            subject_id: sub.id,
+                            subject_name: sub.name
+                        });
+                    }
+                }
+            }
+        }
+
         res.status(200).json({
             success: true,
             data: {
@@ -411,7 +473,8 @@ exports.getAttendanceDashboard = async (req, res) => {
                     percentage: parseFloat(monthPercentage)
                 },
                 low_attendance_count: lowAttendanceStudents.length,
-                low_attendance_students: lowAttendanceStudents.slice(0, 10) // Top 10
+                low_attendance_students: lowAttendanceStudents.slice(0, 10), // Top 10
+                pending_classes
             }
         });
     } catch (error) {
@@ -618,9 +681,34 @@ exports.markAttendanceByQR = async (req, res) => {
             if (!enrollment) {
                 return res.status(403).json({
                     success: false,
-                    message: "You are not enrolled in this subject. Only enrolled students can mark attendance for this class."
+                    message: "You are not enrolled in this subject, therefore you cannot mark attendance for it."
                 });
             }
+        } else if (session.class_id) {
+            // If it's a class-level attendance, check if the student belongs to the class
+            const { StudentClass } = require('../models');
+            const classEnrollment = await StudentClass.findOne({
+                where: {
+                    student_id: student_id,
+                    class_id: session.class_id
+                }
+            });
+            if (!classEnrollment) {
+                return res.status(403).json({
+                    success: false,
+                    message: "You are not enrolled in this class, therefore you cannot mark attendance for it."
+                });
+            }
+        }
+
+        const targetDate = date || new Date().toISOString().split('T')[0];
+
+        // Check if admission date is valid
+        if (student.admission_date && new Date(targetDate) < new Date(student.admission_date)) {
+            return res.status(400).json({
+                success: false,
+                message: "You cannot mark attendance for a date before your admission date."
+            });
         }
 
         // Check if already marked today for this subjective class via the token's subject_id
@@ -629,9 +717,8 @@ exports.markAttendanceByQR = async (req, res) => {
                 student_id,
                 institute_id,
                 class_id: session.class_id,
-                subject_id: session.subject_id,
-                date: date || new Date().toISOString().split('T')[0],
-                status: "present"
+                subject_id: session.subject_id || null,
+                date: targetDate
             }
         });
 
@@ -644,8 +731,8 @@ exports.markAttendanceByQR = async (req, res) => {
             institute_id,
             student_id,
             class_id: session.class_id,
-            subject_id: session.subject_id,
-            date: date || new Date().toISOString().split('T')[0],
+            subject_id: session.subject_id || null,
+            date: targetDate,
             status: "present",
             marked_by: session.faculty_id,
             remarks: "Smart Attendance (QR)"

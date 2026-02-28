@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from "react";
+import { Link } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import api from "../../services/api";
 import "../admin/Dashboard.css";
@@ -39,6 +40,11 @@ function ViewMarks() {
                 <div>
                     <h1>📝 My Exam Marks</h1>
                     <p>View your performance across all exams</p>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                    <Link to="/student/dashboard" className="btn btn-secondary">
+                        ← Back
+                    </Link>
                 </div>
             </div>
 

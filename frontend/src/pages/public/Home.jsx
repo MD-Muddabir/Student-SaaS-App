@@ -5,6 +5,7 @@
 import { Link } from "react-router-dom";
 import PublicNavbar from "../../components/layout/PublicNavbar";
 import "./Public.css";
+import "./PublicPages.css";
 
 const Home = () => {
     return (
@@ -20,8 +21,8 @@ const Home = () => {
                         Streamline your operations today.
                     </p>
                     <div className="hero-actions">
-                        <Link to="/pricing" className="nav-btn" style={{ padding: "1rem 2rem", fontSize: "1.2rem" }}>Start Free Trial</Link>
-                        <Link to="/pricing" className="nav-link" style={{ padding: "1rem 2rem", fontSize: "1.2rem", background: "white", border: "1px solid #ccc", borderRadius: "8px" }}>View Plans</Link>
+                        <Link to="/register" className="btn-primary-large">Start Free Trial</Link>
+                        <Link to="/pricing" className="btn-secondary-large">View Plans</Link>
                     </div>
                 </div>
             </header>
@@ -53,8 +54,8 @@ const Home = () => {
                 </div>
             </section>
 
-            <footer className="footer" style={{ background: "#1f2937", color: "white", padding: "2rem", textAlign: "center" }}>
-                <p>© 2026 Student SaaS. All rights reserved.</p>
+            <footer className="public-footer">
+                <p style={{ textAlign: "center", width: "100%" }}>© 2026 EduManage. All rights reserved.</p>
             </footer>
         </div>
     );

@@ -218,13 +218,14 @@ exports.getAllStudents = async (req, res) => {
                     model: User,
                     attributes: ["id", "name", "email", "phone", "status"],
                     where: userWhereClause,
-                    required: search ? true : false, // Use INNER JOIN only when searching
+                    required: search ? true : false,
                 },
                 {
                     ...classIncludeOptions
                 },
                 subjectIncludeOptions
             ],
+            distinct: true, // Prevents duplicate counts/rows if student takes multiple subjects
         });
 
         res.status(200).json({

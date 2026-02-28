@@ -133,7 +133,7 @@ function ManageAdmins() {
 
             <div className="admins-grid">
                 {admins.map(admin => (
-                    <div key={admin.id} className="admin-card">
+                    <div key={admin.id} className="admin-card card">
                         <div className="admin-info">
                             <h3>{admin.name} {admin.id === user?.id && <span style={{ fontSize: '0.8em', color: '#6b7280' }}>(You)</span>}</h3>
                             <p><strong>Email:</strong> {admin.email}</p>

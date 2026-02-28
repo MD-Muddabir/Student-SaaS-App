@@ -304,6 +304,8 @@ html.dark-mode .tabs {
     flex-wrap: wrap;
     gap: 12px;
     margin-bottom: var(--spacing-xl);
+    position: relative;
+    z-index: 50;
 }
 
 .dashboard-header-right {

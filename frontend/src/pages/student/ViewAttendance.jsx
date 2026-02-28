@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from "react";
+import { Link } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import api from "../../services/api";
 import "../admin/Dashboard.css";
@@ -39,6 +40,11 @@ function ViewAttendance() {
                 <div>
                     <h1>📋 My Attendance</h1>
                     <p>Track your daily attendance</p>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                    <Link to="/student/dashboard" className="btn btn-secondary">
+                        ← Back
+                    </Link>
                 </div>
             </div>
 

@@ -15,6 +15,8 @@ const Home = lazy(() => import("../pages/public/Home"));
 const Pricing = lazy(() => import("../pages/public/PricingPage")); // Updated to PricingPage
 const Contact = lazy(() => import("../pages/public/ContactPage")); // Added Contact
 const PaymentAndCheckout = lazy(() => import("../pages/public/PaymentPage")); // Added Payment
+const Terms = lazy(() => import("../pages/public/TermsPage")); // Added Terms
+const Privacy = lazy(() => import("../pages/public/PrivacyPage")); // Added Privacy
 
 // Auth Pages
 const Login = lazy(() => import("../pages/auth/Login"));
@@ -90,6 +92,8 @@ function AppRoutes() {
         <Route path="/features" element={<Home />} />
         <Route path="/about" element={<Home />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

@@ -416,6 +416,23 @@ html.theme-pro.dark-mode .form-textarea {
     color: #e0e7ff !important;
 }
 
+/* Fix dropdown options visibility */
+html.theme-pro .form-select option {
+    background: #ffffff !important;
+    color: #1e1b4b !important;
+}
+
+html.theme-pro.dark-mode .form-select option {
+    background: #1e1b4b !important;
+    color: #e0e7ff !important;
+}
+
+/* Also for standard dark mode if present */
+html.dark-mode .form-select option {
+    background: #1e293b;
+    color: #f1f5f9;
+}
+
 /* ── Modal overrides ─────────────────────────────────────────── */
 html.theme-pro .modal {
     background: rgba(255, 255, 255, 0.2) !important;

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import api from "../../services/api";
 import "../admin/Dashboard.css";
 
@@ -33,6 +34,11 @@ function ViewAnnouncements() {
                     <h1>📢 Institute Announcements</h1>
                     <p>Stay updated with the latest news</p>
                 </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                    <Link to="/student/dashboard" className="btn btn-secondary">
+                        ← Back
+                    </Link>
+                </div>
             </div>
 
             <div className="card">
@@ -45,16 +51,11 @@ function ViewAnnouncements() {
                     ) : (
                         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                             {announcements.map((ann) => (
-                                <div key={ann.id} style={{
-                                    border: "1px solid #e5e7eb",
-                                    borderRadius: "8px",
-                                    padding: "1.5rem",
-                                    backgroundColor: "#f9fafb"
-                                }}>
-                                    <h4 style={{ margin: "0 0 0.5rem 0", color: "#1f2937" }}>{ann.title}</h4>
-                                    <p style={{ margin: "0 0 1rem 0", color: "#4b5563" }}>{ann.content}</p>
-                                    <div style={{ fontSize: "0.85rem", color: "#6b7280", display: "flex", justifyContent: "space-between" }}>
-                                        <span>Target Audience: <strong style={{ textTransform: "capitalize" }}>{ann.target_audience}</strong></span>
+                                <div key={ann.id} className="card announcement-card" style={{ padding: "1.5rem" }}>
+                                    <h4 style={{ margin: "0 0 0.5rem 0", fontSize: "1.2rem", fontWeight: "700" }}>{ann.title}</h4>
+                                    <p style={{ margin: "0 0 1rem 0", opacity: "0.85" }}>{ann.content}</p>
+                                    <div style={{ fontSize: "0.85rem", opacity: "0.7", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
+                                        <span>Target Audience: <strong style={{ textTransform: "capitalize", opacity: "1" }}>{ann.target_audience}</strong></span>
                                         <span>Published: {new Date(ann.created_at).toLocaleDateString()}</span>
                                     </div>
                                 </div>

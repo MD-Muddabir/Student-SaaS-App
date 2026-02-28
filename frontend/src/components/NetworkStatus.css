@@ -1,0 +1,90 @@
+/* NetworkStatus CSS */
+.network-status-container {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999999;
+    display: flex;
+    justify-content: center;
+    transition: all 0.3s ease-in-out;
+}
+
+.network-toast {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 16px 24px;
+    border-radius: 50px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    min-width: 300px;
+    max-width: 90vw;
+    animation: slideUpToast 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.network-toast.offline-toast {
+    background: rgba(239, 68, 68, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+.network-toast.online-toast {
+    background: rgba(16, 185, 129, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+html.theme-pro .network-toast {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+    border-radius: 20px !important;
+}
+
+.network-icon {
+    font-size: 1.8rem;
+    animation: pulseIcon 2s infinite;
+}
+
+.network-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.network-content strong {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.network-content p {
+    font-size: 0.85rem;
+    margin: 0;
+    opacity: 0.9;
+}
+
+@keyframes slideUpToast {
+    0% {
+        opacity: 0;
+        transform: translateY(100px) scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes pulseIcon {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}

@@ -1,9 +1,9 @@
 import { useContext } from "react";
 import ThemeSelector from "../../components/ThemeSelector";
 import { Link, useNavigate } from "react-router-dom";
-import ThemeSelector from "../../components/ThemeSelector";
+// import ThemeSelector from "../../components/ThemeSelector";
 import { AuthContext } from "../../context/AuthContext";
-import ThemeSelector from "../../components/ThemeSelector";
+// import ThemeSelector from "../../components/ThemeSelector";
 import "../admin/Dashboard.css";
 
 function FacultyDashboard() {

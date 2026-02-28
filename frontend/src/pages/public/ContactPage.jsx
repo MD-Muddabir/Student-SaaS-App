@@ -5,6 +5,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../services/api";
+import PublicNavbar from "../../components/layout/PublicNavbar";
 import "./PublicPages.css";
 
 function ContactPage() {
@@ -53,20 +54,7 @@ function ContactPage() {
 
     return (
         <div className="contact-page">
-            <nav className="public-nav">
-                <div className="container">
-                    <div className="nav-content">
-                        <Link to="/" className="logo">🎓 <span>EduManage</span></Link>
-                        <div className="nav-links">
-                            <Link to="/features">Features</Link>
-                            <Link to="/pricing">Pricing</Link>
-                            <Link to="/about">About</Link>
-                            <Link to="/contact" className="active">Contact</Link>
-                            <Link to="/login" className="btn-secondary">Login</Link>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            <PublicNavbar />
 
             <section className="contact-section">
                 <div className="container-small">

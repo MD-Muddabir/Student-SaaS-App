@@ -72,12 +72,21 @@ function ScanAttendance() {
         }
     };
 
+    const getLocalDate = () => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
     const markAttendance = async (token) => {
         setLoading(true);
         setMessage(null);
         try {
             const response = await api.post("/attendance/mark-by-qr", {
-                session_token: token
+                session_token: token,
+                date: getLocalDate()
             });
             if (response.data.success) {
                 setMessage({ type: "success", text: "✅ " + response.data.message });

@@ -1,0 +1,251 @@
+/* ===== UNIFIED THEME OVERRIDES FOR PUBLIC PAGES (HOME, PRICING, CONTACT) ===== */
+
+/* ── PUBLIC PAGES DARK MODE (SIMPLE) ── */
+html.dark-mode .pricing-page,
+html.dark-mode .contact-page,
+html.dark-mode .public-container,
+html.dark-mode .hero-section,
+html.dark-mode .problems-section,
+html.dark-mode .features-section,
+html.dark-mode .how-it-works-section,
+html.dark-mode .testimonials-section,
+html.dark-mode .faq-section,
+html.dark-mode .contact-section,
+html.dark-mode .pricing-cta-section,
+html.dark-mode .plans-section {
+    background-color: #0f172a;
+    color: #f1f5f9;
+}
+
+html.dark-mode .problem-card,
+html.dark-mode .feature-card,
+html.dark-mode .step-card,
+html.dark-mode .testimonial-card,
+html.dark-mode .plan-card,
+html.dark-mode .faq-item,
+html.dark-mode .contact-form,
+html.dark-mode .info-item,
+html.dark-mode .billing-toggle {
+    background: #1e293b;
+    border-color: #334155;
+    color: #f1f5f9;
+}
+
+html.dark-mode .public-nav,
+html.dark-mode .public-footer {
+    background: #0f172a;
+    border-bottom: 1px solid #334155;
+    border-top: 1px solid #334155;
+}
+
+html.dark-mode .page-title,
+html.dark-mode .section-title,
+html.dark-mode .plan-name,
+html.dark-mode .plan-price {
+    color: #f1f5f9;
+}
+
+html.dark-mode .page-subtitle,
+html.dark-mode .section-subtitle,
+html.dark-mode .plan-description,
+html.dark-mode .plan-features li,
+html.dark-mode .contact-info,
+html.dark-mode .faq-item p {
+    color: #94a3b8;
+}
+
+html.dark-mode .billing-toggle button.active {
+    background: #334155;
+    color: #f1f5f9;
+}
+
+
+/* ── PUBLIC PAGES PRO THEME (LIGHT & DARK PRO) ── */
+html.theme-pro .pricing-page,
+html.theme-pro .contact-page,
+html.theme-pro .public-container,
+html.theme-pro .hero-section,
+html.theme-pro .problems-section,
+html.theme-pro .features-section,
+html.theme-pro .how-it-works-section,
+html.theme-pro .testimonials-section,
+html.theme-pro .faq-section,
+html.theme-pro .contact-section,
+html.theme-pro .pricing-cta-section,
+html.theme-pro .plans-section {
+    background: transparent !important;
+}
+
+/* Base Pro texts */
+html.theme-pro .page-title,
+html.theme-pro .section-title,
+html.theme-pro .plan-name,
+html.theme-pro .plan-price {
+    background: linear-gradient(135deg, #fff 0%, #e0c3fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+}
+
+html.theme-pro.dark-mode .page-title,
+html.theme-pro.dark-mode .section-title,
+html.theme-pro.dark-mode .plan-name,
+html.theme-pro.dark-mode .plan-price {
+    background: linear-gradient(135deg, #a5b4fc 0%, #f0abfc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Glassmorphism Cards */
+html.theme-pro .problem-card,
+html.theme-pro .feature-card,
+html.theme-pro .testimonial-card,
+html.theme-pro .plan-card,
+html.theme-pro .faq-item,
+html.theme-pro .contact-form,
+html.theme-pro .info-item,
+html.theme-pro .billing-toggle {
+    background: var(--pro-glass-bg) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid var(--pro-glass-border) !important;
+    border-radius: var(--pro-card-radius) !important;
+    box-shadow: var(--pro-glass-shadow) !important;
+    color: var(--pro-text-primary) !important;
+    transition: transform 0.3s, box-shadow 0.3s !important;
+}
+
+html.theme-pro.dark-mode .problem-card,
+html.theme-pro.dark-mode .feature-card,
+html.theme-pro.dark-mode .testimonial-card,
+html.theme-pro.dark-mode .plan-card,
+html.theme-pro.dark-mode .faq-item,
+html.theme-pro.dark-mode .contact-form,
+html.theme-pro.dark-mode .info-item,
+html.theme-pro.dark-mode .billing-toggle {
+    color: #e0e7ff !important;
+}
+
+/* Card Hover */
+html.theme-pro .feature-card:hover,
+html.theme-pro .plan-card:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 20px 40px var(--pro-accent-glow) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Buttons in Pro */
+html.theme-pro .btn-primary,
+html.theme-pro .btn-primary-large,
+html.theme-pro .nav-btn {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4) !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+html.theme-pro .btn-primary:hover,
+html.theme-pro .btn-primary-large:hover,
+html.theme-pro .nav-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6) !important;
+}
+
+html.theme-pro .btn-secondary,
+html.theme-pro .btn-secondary-large,
+html.theme-pro .btn-outline {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: var(--pro-text-primary) !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+html.theme-pro.dark-mode .btn-secondary,
+html.theme-pro.dark-mode .btn-secondary-large,
+html.theme-pro.dark-mode .btn-outline {
+    color: white !important;
+}
+
+/* Navigation items in Pro */
+html.theme-pro .public-nav {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+html.theme-pro.dark-mode .public-nav {
+    background: rgba(15, 12, 41, 0.5) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Make features list and faq text lighter in dark pro */
+html.theme-pro .plan-features li,
+html.theme-pro .faq-item p,
+html.theme-pro .page-subtitle,
+html.theme-pro .section-subtitle,
+html.theme-pro .plan-description {
+    color: rgba(60, 60, 80, 0.8) !important;
+}
+
+html.theme-pro.dark-mode .plan-features li,
+html.theme-pro.dark-mode .faq-item p,
+html.theme-pro.dark-mode .page-subtitle,
+html.theme-pro.dark-mode .section-subtitle,
+html.theme-pro.dark-mode .plan-description {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+html.theme-pro.dark-mode .plan-features li strong,
+html.theme-pro.dark-mode .faq-item h3 {
+    color: #fff !important;
+}
+
+/* Billing Toggle Active state in pro */
+html.theme-pro .billing-toggle button.active {
+    background: rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    color: inherit;
+}
+
+html.theme-pro.dark-mode .billing-toggle button.active {
+    color: white !important;
+}
+
+/* Contact form inputs in pro */
+html.theme-pro .contact-form input,
+html.theme-pro .contact-form textarea {
+    background: var(--pro-glass-bg) !important;
+    border: 1px solid var(--pro-glass-border) !important;
+    color: inherit !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+html.theme-pro.dark-mode .contact-form input,
+html.theme-pro.dark-mode .contact-form textarea {
+    color: #e0e7ff !important;
+}
+
+html.theme-pro .contact-form input:focus,
+html.theme-pro .contact-form textarea:focus {
+    border-color: var(--pro-accent) !important;
+    box-shadow: 0 0 0 3px var(--pro-accent-glow) !important;
+}
+
+/* Footer in pro */
+html.theme-pro .public-footer {
+    background: rgba(0, 0, 0, 0.2) !important;
+    backdrop-filter: blur(10px) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html.theme-pro .footer-col h4 {
+    color: white !important;
+}
+
+html.theme-pro .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}

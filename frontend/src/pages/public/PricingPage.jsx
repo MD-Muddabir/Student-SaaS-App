@@ -7,6 +7,7 @@ import { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import api from "../../services/api";
+import PublicNavbar from "../../components/layout/PublicNavbar";
 import "./PublicPages.css";
 
 function PricingPage() {
@@ -79,23 +80,7 @@ function PricingPage() {
     return (
         <div className="pricing-page">
             {/* Navigation */}
-            <nav className="public-nav">
-                <div className="container">
-                    <div className="nav-content">
-                        <Link to="/" className="logo">
-                            🎓 <span>EduManage</span>
-                        </Link>
-                        <div className="nav-links">
-                            <Link to="/features">Features</Link>
-                            <Link to="/pricing" className="active">Pricing</Link>
-                            <Link to="/about">About</Link>
-                            <Link to="/contact">Contact</Link>
-                            <Link to="/login" className="btn-secondary">Login</Link>
-                            <Link to="/register" className="btn-primary">Start Free Trial</Link>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            <PublicNavbar />
 
             {/* Pricing Header */}
             <section className="pricing-header">

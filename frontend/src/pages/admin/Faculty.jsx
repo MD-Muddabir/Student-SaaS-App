@@ -6,10 +6,8 @@
 import { useState, useEffect, useContext } from "react";
 import ThemeSelector from "../../components/ThemeSelector";
 import { Link } from "react-router-dom";
-import ThemeSelector from "../../components/ThemeSelector";
 import api from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
-import ThemeSelector from "../../components/ThemeSelector";
 import "./Dashboard.css";
 
 function Faculty() {

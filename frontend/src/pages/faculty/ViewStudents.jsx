@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import api from "../../services/api";
 import "../admin/Dashboard.css";
 
@@ -38,6 +39,11 @@ function ViewStudents() {
                 <div>
                     <h1>👨‍🎓 View Students</h1>
                     <p>Overview of enrollments</p>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                    <Link to="/faculty/dashboard" className="btn btn-secondary">
+                        ← Back
+                    </Link>
                 </div>
             </div>
 

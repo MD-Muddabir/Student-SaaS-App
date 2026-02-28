@@ -57,21 +57,35 @@ exports.getAllClasses = async (req, res) => {
             ];
         }
 
+        const includeOptions = [
+            {
+                model: Student,
+                attributes: ["id"],
+            },
+            {
+                model: Subject,
+                attributes: ["id", "name"],
+            },
+        ];
+
+        // If faculty, strictly only show classes where they teach a subject
+        if (req.user.role === 'faculty') {
+            const { Faculty } = require('../models');
+            const facultyRecord = await Faculty.findOne({ where: { user_id: req.user.id } });
+            if (facultyRecord) {
+                includeOptions[1].where = { faculty_id: facultyRecord.id };
+                includeOptions[1].required = true;
+            } else {
+                return res.status(200).json({ success: true, message: "Classes retrieved successfully", data: [], count: 0 });
+            }
+        }
+
         const { count, rows } = await Class.findAndCountAll({
             where: whereClause,
             limit: parseInt(limit),
             offset: parseInt(offset),
             order: [["name", "ASC"]],
-            include: [
-                {
-                    model: Student,
-                    attributes: ["id"],
-                },
-                {
-                    model: Subject,
-                    attributes: ["id", "name"],
-                },
-            ],
+            include: includeOptions,
             distinct: true, // Important for correct count with includes
         });
 
