@@ -65,6 +65,13 @@ function ViewAttendance() {
                         </div>
                     </div>
                     <div className="stat-card">
+                        <div className="stat-icon">🏖️</div>
+                        <div className="stat-content">
+                            <h3>{report.summary.holiday_days}</h3>
+                            <p>Holidays</p>
+                        </div>
+                    </div>
+                    <div className="stat-card">
                         <div className="stat-icon">❌</div>
                         <div className="stat-content">
                             <h3>{report.summary.absent_days}</h3>
@@ -107,7 +114,7 @@ function ViewAttendance() {
                                         <td>{new Date(record.date).toLocaleDateString()}</td>
                                         <td>{record.Subject?.name || "All Subjects"}</td>
                                         <td>
-                                            <span style={{ textTransform: "capitalize" }} className={`badge badge-${record.status === "present" ? "success" : record.status === "absent" ? "danger" : "warning"}`}>
+                                            <span style={{ textTransform: "capitalize" }} className={`badge badge-${record.status === "present" ? "success" : record.status === "absent" ? "danger" : record.status === "holiday" ? "primary" : "warning"}`}>
                                                 {record.status}
                                             </span>
                                         </td>

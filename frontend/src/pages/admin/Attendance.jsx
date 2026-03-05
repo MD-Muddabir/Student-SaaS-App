@@ -511,9 +511,11 @@ function Attendance() {
                                             <th>Roll No</th>
                                             <th>Name</th>
                                             <th>Total Days</th>
+                                            <th>Working Days</th>
                                             <th>Present</th>
                                             <th>Absent</th>
                                             <th>Late</th>
+                                            <th>Holidays</th>
                                             <th>Percentage</th>
                                         </tr>
                                     </thead>
@@ -523,9 +525,11 @@ function Attendance() {
                                                 <td>{student.roll_number}</td>
                                                 <td>{student.name}</td>
                                                 <td>{student.total_days}</td>
+                                                <td>{student.working_days}</td>
                                                 <td><span style={{ color: "#10b981" }}>{student.present_days}</span></td>
                                                 <td><span style={{ color: "#ef4444" }}>{student.absent_days}</span></td>
                                                 <td><span style={{ color: "#f59e0b" }}>{student.late_days}</span></td>
+                                                <td><span style={{ color: "#3b82f6" }}>{student.holiday_days}</span></td>
                                                 <td>
                                                     <span className={`badge ${student.percentage >= 75 ? 'badge-success' : 'badge-danger'}`}>
                                                         {student.percentage}%

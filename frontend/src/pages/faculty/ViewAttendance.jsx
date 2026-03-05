@@ -156,7 +156,7 @@ function ViewAttendance() {
         const subjectName = subjects.find(s => String(s.id) === String(selectedSubject))?.name || "Unknown Subject";
         const title = `Attendance Grid - ${className} (${subjectName}) - ${monthName} - ${filterStr.toUpperCase()}`;
 
-        const columns = ["ID", "Student Name", ...daysArray.map(d => String(d)), "P", "A", "L", "T"];
+        const columns = ["ID", "Student Name", ...daysArray.map(d => String(d)), "P", "A", "L", "H", "W"];
 
         let targetRows = gridData;
 
@@ -166,6 +166,8 @@ function ViewAttendance() {
             targetRows = targetRows.filter(r => r.absent_days > 0);
         } else if (filterStr === "late") {
             targetRows = targetRows.filter(r => r.late_days > 0);
+        } else if (filterStr === "holiday") {
+            targetRows = targetRows.filter(r => r.holiday_days > 0);
         }
 
         if (targetRows.length === 0) {
@@ -181,6 +183,7 @@ function ViewAttendance() {
                 if (status === 'present') return 'P';
                 if (status === 'absent') return 'A';
                 if (status === 'late') return 'L';
+                if (status === 'holiday') return 'H';
                 return '-';
             });
 
@@ -191,7 +194,8 @@ function ViewAttendance() {
                 student.present_days,
                 student.absent_days,
                 student.late_days,
-                student.total_days
+                student.holiday_days || 0,
+                student.working_days
             ];
         });
 
@@ -219,6 +223,7 @@ function ViewAttendance() {
         if (status === 'present') return <span style={{ color: '#10b981', backgroundColor: '#d1fae5', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>✓</span>;
         if (status === 'absent') return <span style={{ color: '#ef4444', backgroundColor: '#fee2e2', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>X</span>;
         if (status === 'late') return <span style={{ color: '#f59e0b', backgroundColor: '#fef3c7', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>L</span>;
+        if (status === 'holiday') return <span style={{ color: '#3b82f6', backgroundColor: '#dbeafe', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>H</span>;
         return <span style={{ color: '#d1d5db' }}>-</span>;
     };
 
@@ -421,6 +426,7 @@ function ViewAttendance() {
                                     <option value="present">Students Present (≥ 1 day)</option>
                                     <option value="absent">Students Absent (≥ 1 day)</option>
                                     <option value="late">Students Late (≥ 1 day)</option>
+                                    <option value="holiday">Students On Holiday (≥ 1 day)</option>
                                 </select>
                             </div>
 

@@ -192,6 +192,10 @@ function AdminFacultyViewAttendance() {
                                                     icon = "L";
                                                     color = "#f59e0b";
                                                     bgColor = "rgba(245, 158, 11, 0.1)";
+                                                } else if (status === "holiday") {
+                                                    icon = "H";
+                                                    color = "#3b82f6";
+                                                    bgColor = "rgba(59, 130, 246, 0.1)";
                                                 }
 
                                                 return (

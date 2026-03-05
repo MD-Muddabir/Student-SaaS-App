@@ -167,8 +167,10 @@ exports.getGrid = async (req, res) => {
         const result = facultyList.map(faculty => {
             const facRecords = attendanceRecords.filter(r => r.faculty_id === faculty.id);
             const total = facRecords.length;
+            const holidays = facRecords.filter(r => r.status === 'holiday').length;
+            const workingDays = total - holidays;
             const present = facRecords.filter(r => r.status === 'present').length;
-            const percentage = total > 0 ? ((present / total) * 100).toFixed(2) : 0;
+            const percentage = workingDays > 0 ? ((present / workingDays) * 100).toFixed(2) : 0;
 
             const daily = {};
             facRecords.forEach(r => { daily[r.date] = r.status; });
@@ -177,9 +179,11 @@ exports.getGrid = async (req, res) => {
                 faculty_id: faculty.id,
                 name: faculty.User?.name,
                 total_days: total,
+                working_days: workingDays,
                 present_days: present,
                 absent_days: facRecords.filter(r => r.status === 'absent').length,
                 late_days: facRecords.filter(r => r.status === 'late').length,
+                holiday_days: holidays,
                 percentage: parseFloat(percentage),
                 daily
             };
@@ -271,8 +275,10 @@ exports.getDashboardStats = async (req, res) => {
         });
 
         const todayPresent = todayAttendance.filter(r => r.status === 'present').length;
+        const todayHolidays = todayAttendance.filter(r => r.status === 'holiday').length;
         const todayTotal = totalFaculty; // We judge against total faculty
-        const todayPercentage = totalFaculty > 0 ? ((todayPresent / totalFaculty) * 100).toFixed(2) : 0;
+        const todayWorkingFaculty = totalFaculty - todayHolidays;
+        const todayPercentage = todayWorkingFaculty > 0 ? ((todayPresent / todayWorkingFaculty) * 100).toFixed(2) : 0;
 
         // This month
         const now = new Date();
@@ -282,8 +288,10 @@ exports.getDashboardStats = async (req, res) => {
         });
 
         const monthPresent = monthAttendance.filter(r => r.status === 'present').length;
+        const monthHolidays = monthAttendance.filter(r => r.status === 'holiday').length;
         const monthTotal = monthAttendance.length;
-        const monthPercentage = monthTotal > 0 ? ((monthPresent / monthTotal) * 100).toFixed(2) : 0;
+        const monthWorkingDays = monthTotal - monthHolidays;
+        const monthPercentage = monthWorkingDays > 0 ? ((monthPresent / monthWorkingDays) * 100).toFixed(2) : 0;
 
         // At risk (absent more than 3 times this month for simplicity)
         const absentMap = {};

@@ -225,16 +225,20 @@ function AdminDashboard() {
                         <ActionCard path={`${basePath}/admins`} icon="👥" title="Manage Admins" featureKey="admins" />
                     )}
                     {hasPermission('students') && <ActionCard path={`${basePath}/students`} icon="👨‍🎓" title="Manage Students" featureKey="students" />}
+                    {hasPermission('attendance') && <ActionCard path={`${basePath}/attendance`} icon="📋" title="Student Attendance" featureKey="attendance" />}
+                    {hasPermission('attendance') && <ActionCard path={`${basePath}/view-attendance`} icon="📊" title="View Attendance" featureKey="attendance" />}
+                    {hasPermission('attendance') && <ActionCard path={`${basePath}/smart-attendance`} icon="📸" title="Scan Student QR" featureKey="auto_attendance" />}
+
+                    {hasPermission('classes') && <ActionCard path={`${basePath}/classes`} icon="📚" title="Manage Classes" featureKey="classes" />}
+
                     {hasPermission('faculty') && <ActionCard path={`${basePath}/faculty`} icon="👩‍🏫" title="Manage Faculty" featureKey="faculty" />}
                     {hasPermission('attendance') && <ActionCard path={`${basePath}/faculty-attendance`} icon="📋" title="Faculty Attendance" featureKey="attendance" />}
                     {hasPermission('attendance') && <ActionCard path={`${basePath}/view-faculty-attendance`} icon="📊" title="Faculty Tracker" featureKey="attendance" />}
                     {hasPermission('attendance') && <ActionCard path={`${basePath}/scan-faculty-qr`} icon="📸" title="Scan Faculty QR" featureKey="attendance" />}
-                    {hasPermission('classes') && <ActionCard path={`${basePath}/classes`} icon="📚" title="Manage Classes" featureKey="classes" />}
+
                     {hasPermission('subjects') && <ActionCard path={`${basePath}/subjects`} icon="📖" title="Manage Subjects" featureKey="subjects" />}
 
-                    {hasPermission('attendance') && <ActionCard path={`${basePath}/attendance`} icon="📋" title="Manage Attendance" featureKey="attendance" />}
-                    {hasPermission('attendance') && <ActionCard path={`${basePath}/view-attendance`} icon="📊" title="View Attendance" featureKey="attendance" />}
-                    {hasPermission('attendance') && <ActionCard path={`${basePath}/smart-attendance`} icon="📸" title="Scan Student QR" featureKey="auto_attendance" />}
+
                     {hasPermission('reports') && <ActionCard path={`${basePath}/reports`} icon="📊" title="Reports & Analytics" featureKey="reports" />}
                     {hasPermission('expenses') && <ActionCard path={`${basePath}/expenses`} icon="💸" title="Finances & Transport" featureKey="expenses" />}
                     {hasPermission('fees') && <ActionCard path={`${basePath}/fees`} icon="💰" title="Fee Management" featureKey="fees" />}
