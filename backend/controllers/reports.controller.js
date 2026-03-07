@@ -209,14 +209,23 @@ exports.getFeesReport = async (req, res) => {
         }
 
         // Fetch payments
+        const studentInclude = [{ model: User, attributes: ['name'] }];
+        if (class_id) {
+            studentInclude.push({
+                model: Class,
+                attributes: [],
+                where: { id: class_id }
+            });
+        }
+
         const payments = await Payment.findAll({
             where: whereClause,
             include: [
                 {
                     model: Student,
-                    attributes: ['id', 'roll_number', 'class_id'],
-                    include: [{ model: User, attributes: ['name'] }],
-                    where: class_id ? { class_id } : {}
+                    attributes: ['id', 'roll_number'],
+                    include: studentInclude,
+                    required: class_id ? true : undefined
                 }
             ],
             order: [['payment_date', 'DESC']]
@@ -226,9 +235,18 @@ exports.getFeesReport = async (req, res) => {
         const totalCollected = payments.reduce((sum, p) => sum + parseFloat(p.amount_paid), 0);
 
         // Get all students for pending calculation
+        const allStudentsInclude = [{ model: User, attributes: ['name'] }];
+        if (class_id) {
+            allStudentsInclude.push({
+                model: Class,
+                attributes: [],
+                where: { id: class_id }
+            });
+        }
+
         const allStudents = await Student.findAll({
-            where: class_id ? { institute_id, class_id } : { institute_id },
-            include: [{ model: User, attributes: ['name'] }]
+            where: { institute_id },
+            include: allStudentsInclude
         });
 
         // Calculate pending fees (simplified - assumes fixed fee structure)

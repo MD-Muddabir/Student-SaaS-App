@@ -26,6 +26,11 @@ const Timetable = require("./timetable");
 const TransportFee = require("./transportFee");
 const StudentFee = require("./studentFee");
 const FeeDiscountLog = require("./feeDiscountLog");
+const Note = require("./note");
+const NoteDownload = require("./noteDownload");
+const ChatRoom = require("./chatRoom");
+const ChatMessage = require("./chatMessage");
+const ChatParticipant = require("./chatParticipant");
 
 // Associations
 
@@ -223,6 +228,50 @@ TimetableSlot.hasMany(Timetable, { foreignKey: "slot_id" });
 Timetable.belongsTo(User, { as: "creator", foreignKey: "created_by" });
 User.hasMany(Timetable, { foreignKey: "created_by" });
 
+// Note Associations
+Note.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasMany(Note, { foreignKey: "institute_id" });
+
+Note.belongsTo(Faculty, { foreignKey: "faculty_id" });
+Faculty.hasMany(Note, { foreignKey: "faculty_id" });
+
+Note.belongsTo(Class, { foreignKey: "class_id" });
+Class.hasMany(Note, { foreignKey: "class_id" });
+
+Note.belongsTo(Subject, { foreignKey: "subject_id" });
+Subject.hasMany(Note, { foreignKey: "subject_id" });
+
+NoteDownload.belongsTo(Note, { foreignKey: "note_id" });
+Note.hasMany(NoteDownload, { foreignKey: "note_id" });
+
+NoteDownload.belongsTo(Student, { foreignKey: "student_id" });
+Student.hasMany(NoteDownload, { foreignKey: "student_id" });
+
+// Chat Associations
+ChatRoom.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasMany(ChatRoom, { foreignKey: "institute_id" });
+
+ChatRoom.belongsTo(Class, { foreignKey: "class_id" });
+Class.hasMany(ChatRoom, { foreignKey: "class_id" });
+
+ChatRoom.belongsTo(Subject, { foreignKey: "subject_id" });
+Subject.hasMany(ChatRoom, { foreignKey: "subject_id" });
+
+ChatRoom.belongsTo(Faculty, { foreignKey: "faculty_id" });
+Faculty.hasMany(ChatRoom, { foreignKey: "faculty_id" });
+
+ChatMessage.belongsTo(ChatRoom, { foreignKey: "room_id" });
+ChatRoom.hasMany(ChatMessage, { foreignKey: "room_id" });
+
+ChatMessage.belongsTo(User, { as: "sender", foreignKey: "sender_id" });
+User.hasMany(ChatMessage, { foreignKey: "sender_id" });
+
+ChatParticipant.belongsTo(ChatRoom, { foreignKey: "room_id" });
+ChatRoom.hasMany(ChatParticipant, { foreignKey: "room_id" });
+
+ChatParticipant.belongsTo(User, { foreignKey: "user_id" });
+User.hasMany(ChatParticipant, { foreignKey: "user_id" });
+
 module.exports = {
     sequelize,
     Plan,
@@ -248,5 +297,10 @@ module.exports = {
     FacultyAttendance,
     TransportFee,
     StudentFee,
-    FeeDiscountLog
+    FeeDiscountLog,
+    Note,
+    NoteDownload,
+    ChatRoom,
+    ChatMessage,
+    ChatParticipant
 };

@@ -46,6 +46,7 @@ const Announcements = lazy(() => import("../pages/admin/Announcements"));
 const Exams = lazy(() => import("../pages/admin/Exams"));
 const Settings = lazy(() => import("../pages/admin/Settings"));
 const Profile = lazy(() => import("../pages/admin/Profile"));
+const AdminNotes = lazy(() => import("../pages/admin/AdminNotes")); // Added Admin Notes
 const ManageAdmins = lazy(() => import("../pages/admin/ManageAdmins")); // Added ManageAdmins
 const AdminSmartAttendance = lazy(() => import("../pages/admin/SmartAttendance"));
 const AdminExpenses = lazy(() => import("../pages/admin/Expenses"));
@@ -63,6 +64,8 @@ const FacultySmartAttendance = lazy(() => import("../pages/admin/SmartAttendance
 const FacultyAnnouncements = lazy(() => import("../pages/faculty/Announcements")); // Added Announcements
 const FacultySchedule = lazy(() => import("../pages/faculty/MySchedule")); // Added Timetable
 const ScanFacultyQR = lazy(() => import("../pages/faculty/ScanFacultyQR")); // Added ScanFacultyQR
+const FacultyNotes = lazy(() => import("../pages/faculty/FacultyNotes")); // Added Notes
+const ChatApp = lazy(() => import("../pages/chat/ChatApp")); // Added Chat
 
 // Student Pages
 const StudentDashboard = lazy(() => import("../pages/student/Dashboard"));
@@ -72,6 +75,7 @@ const ViewAnnouncements = lazy(() => import("../pages/student/ViewAnnouncements"
 const PayFees = lazy(() => import("../pages/student/PayFees"));
 const ScanAttendance = lazy(() => import("../pages/student/ScanAttendance"));
 const StudentTimetable = lazy(() => import("../pages/student/Timetable")); // Added Timetable
+const StudentNotes = lazy(() => import("../pages/student/StudentNotes")); // Added Notes
 
 // Common Pages
 const NotFound = lazy(() => import("../pages/common/NotFound"));
@@ -152,6 +156,8 @@ function AppRoutes() {
                 <Route path="timetable" element={<AdminTimetable />} />
                 <Route path="expenses" element={<AdminExpenses />} />
                 <Route path="settings" element={<Settings />} />
+                <Route path="notes" element={<AdminNotes />} />
+                <Route path="chat-monitor" element={<ChatApp />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="*" element={<Navigate to="/admin/dashboard" />} />
               </Routes>
@@ -174,6 +180,8 @@ function AppRoutes() {
                 <Route path="students" element={<ViewStudents />} />
                 <Route path="announcements" element={<FacultyAnnouncements />} />
                 <Route path="timetable" element={<FacultySchedule />} />
+                <Route path="notes" element={<FacultyNotes />} />
+                <Route path="chat" element={<ChatApp />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="*" element={<Navigate to="/faculty/dashboard" />} />
               </Routes>
@@ -195,6 +203,8 @@ function AppRoutes() {
                 <Route path="fees" element={<PayFees />} />
                 <Route path="buy-plan" element={<Pricing />} />
                 <Route path="timetable" element={<StudentTimetable />} />
+                <Route path="notes" element={<StudentNotes />} />
+                <Route path="chat" element={<ChatApp />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="*" element={<Navigate to="/student/dashboard" />} />
               </Routes>

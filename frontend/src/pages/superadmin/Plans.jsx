@@ -46,6 +46,8 @@ function Plans() {
         feature_announcements: false,
         feature_exams: false,
         feature_timetable: false,
+        feature_notes: false,
+        feature_chat: false,
         feature_export: false,
         feature_email: false,
         feature_sms: false,
@@ -215,6 +217,12 @@ function Plans() {
                                 </li>
                                 <li style={{ marginBottom: "0.3rem", display: "flex", justifyContent: "space-between" }}>
                                     Timetable: <span>{plan.feature_timetable ? "✅" : "❌"}</span>
+                                </li>
+                                <li style={{ marginBottom: "0.3rem", display: "flex", justifyContent: "space-between" }}>
+                                    Notes: <span>{plan.feature_notes ? "✅" : "❌"}</span>
+                                </li>
+                                <li style={{ marginBottom: "0.3rem", display: "flex", justifyContent: "space-between" }}>
+                                    Academic Chat: <span>{plan.feature_chat ? "✅" : "❌"}</span>
                                 </li>
                                 <li style={{ marginBottom: "0.3rem", display: "flex", justifyContent: "space-between" }}>
                                     Export Data: <span>{plan.feature_export ? "✅" : "❌"}</span>
@@ -420,6 +428,8 @@ function Plans() {
                                             { key: 'feature_announcements', label: 'Announcements' },
                                             { key: 'feature_exams', label: 'Examinations' },
                                             { key: 'feature_timetable', label: 'Master Timetable' },
+                                            { key: 'feature_notes', label: 'My Notes' },
+                                            { key: 'feature_chat', label: 'Academic Chats' },
                                             { key: 'feature_export', label: 'Export Data' },
                                             { key: 'feature_email', label: 'Email Notifs' },
                                             { key: 'feature_sms', label: 'SMS Integration' },

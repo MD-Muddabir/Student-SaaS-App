@@ -1,0 +1,1 @@
+import{u as e,j as a}from"./index-BIa5xvFy.js";/* empty css                */const r=({to:s="/superadmin/dashboard",label:t="Back to Dashboard",variant:n="default"})=>{const o=e();return a.jsxs("button",{className:`animated-btn ${n}`,onClick:()=>o(s),children:[a.jsx("span",{className:"icon icon-back",children:"←"}),t]})};export{r as B};

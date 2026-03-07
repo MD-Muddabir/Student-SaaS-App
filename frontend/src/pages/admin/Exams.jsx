@@ -84,6 +84,17 @@ function Exams() {
         }
     };
 
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this exam?")) return;
+        try {
+            await api.delete(`/exams/${id}`);
+            alert("Exam deleted successfully");
+            fetchExams();
+        } catch (error) {
+            alert(error.response?.data?.message || "Failed to delete exam");
+        }
+    };
+
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -129,6 +140,7 @@ function Exams() {
                                 <th>Date</th>
                                 <th>Total Marks</th>
                                 <th>Passing Marks</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -155,6 +167,15 @@ function Exams() {
                                             <td>{new Date(exam.exam_date).toLocaleDateString()}</td>
                                             <td>{exam.total_marks}</td>
                                             <td>{exam.passing_marks}</td>
+                                            <td>
+                                                <button
+                                                    onClick={() => handleDelete(exam.id)}
+                                                    className="btn btn-sm btn-danger"
+                                                    style={{ padding: "0.2rem 0.5rem" }}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
                                         </tr>
                                     );
                                 })

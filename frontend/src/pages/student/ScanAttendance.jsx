@@ -23,8 +23,8 @@ function ScanAttendance() {
             setStudentData(data);
 
             // Check if student has subjects
-            if (data && (data.Classes?.length > 0 || data.Subjects?.length > 0)) {
-                setEnrolledSubjects(data.Subjects || data.Classes);
+            if (data && (data.Classes?.length > 0 || data.Subjects?.length > 0 || data.is_full_course)) {
+                setEnrolledSubjects(data.Subjects?.length > 0 ? data.Subjects : data.Classes || []);
             }
         } catch (error) {
             console.error("Error fetching student profile:", error);

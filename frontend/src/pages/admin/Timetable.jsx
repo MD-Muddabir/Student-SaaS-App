@@ -170,7 +170,9 @@ function AdminTimetable() {
                 >
                     <option value="">-- Choose Class --</option>
                     {classes.map(cls => (
-                        <option key={cls.id} value={cls.id}>{cls.name}</option>
+                        <option key={cls.id} value={cls.id}>
+                            {cls.name} {cls.section ? `- ${cls.section}` : ''}
+                        </option>
                     ))}
                 </select>
             </div>
@@ -301,9 +303,17 @@ function AdminTimetable() {
                             </div>
                             <div className="form-group" style={{ gridColumn: "1 / -1" }}>
                                 <label className="form-label">Subject</label>
-                                <select className="form-select" value={entryForm.subject_id} onChange={(e) => setEntryForm({ ...entryForm, subject_id: e.target.value })} required>
+                                <select className="form-select" value={entryForm.subject_id} onChange={(e) => {
+                                    const subjectId = e.target.value;
+                                    const selectedSubject = subjects.find(s => s.id.toString() === subjectId);
+                                    let autoFacultyId = entryForm.faculty_id;
+                                    if (selectedSubject && selectedSubject.faculty_id) {
+                                        autoFacultyId = selectedSubject.faculty_id;
+                                    }
+                                    setEntryForm({ ...entryForm, subject_id: subjectId, faculty_id: autoFacultyId });
+                                }} required>
                                     <option value="">-- Select Subject --</option>
-                                    {subjects.map(sub => <option key={sub.id} value={sub.id}>{sub.name}</option>)}
+                                    {subjects.filter(sub => sub.class_id.toString() === selectedClass.toString()).map(sub => <option key={sub.id} value={sub.id}>{sub.name}</option>)}
                                 </select>
                             </div>
                             <div className="form-group" style={{ gridColumn: "1 / -1" }}>

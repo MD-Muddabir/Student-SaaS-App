@@ -24,6 +24,8 @@ const CRUD_OPS = [
 
 // ─── Toggle-style (simple on/off) modules ───
 const TOGGLE_MODULES = [
+    { val: 'notes', label: 'My Notes', icon: '📚', desc: 'Manage class notes' },
+    { val: 'chat', label: 'Academic Chats', icon: '💬', desc: 'Participate in subject chats' },
     { val: 'attendance', label: 'Attendance', icon: '📋', desc: 'Mark & view attendance' },
     { val: 'reports', label: 'Reports & Analytics', icon: '📊', desc: 'Attendance & academic reports' },
     { val: 'announcements', label: 'Announcements', icon: '📢', desc: 'Post & manage announcements' },

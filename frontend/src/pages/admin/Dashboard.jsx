@@ -444,6 +444,10 @@ function AdminDashboard() {
                     {hasPermission('classes') && <ActionCard path={`${basePath}/timetable`} icon="📅" title="Master Timetable" featureKey="timetable" />}
                     {hasPermission('announcements') && <ActionCard path={`${basePath}/announcements`} icon="📢" title="Announcements" featureKey="announcements" />}
 
+                    {/* New Notes & Chat Features */}
+                    <ActionCard path={`${basePath}/notes`} icon="📓" title="All Notes" />
+                    <ActionCard path={`${basePath}/chat-monitor`} icon="💬" title="Chat Monitor" />
+
                     {isAdmin && (
                         <div onClick={() => navigate(`${basePath}/settings`)} className="action-card" style={{ cursor: 'pointer' }}>
                             <span className="action-icon">⚙️</span>

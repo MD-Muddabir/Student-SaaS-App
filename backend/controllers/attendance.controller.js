@@ -132,17 +132,23 @@ exports.getClassAttendanceByDate = async (req, res) => {
             includeOptions.push({
                 model: Subject,
                 where: { id: subject_id },
-                attributes: [],
-                through: { attributes: [] }
+                attributes: ["id"],
+                through: { attributes: [] },
+                required: false // LEFT JOIN so we don't filter out full course students
             });
         }
 
         // Get all students in the class/subject matching the date criteria
-        const students = await Student.findAll({
+        const allStudents = await Student.findAll({
             where: whereClause,
             include: includeOptions,
             order: [['roll_number', 'ASC']]
         });
+
+        let students = allStudents;
+        if (subject_id && subject_id !== 'undefined' && subject_id !== 'null') {
+            students = allStudents.filter(s => s.is_full_course || (s.Subjects && s.Subjects.length > 0));
+        }
 
         console.log('Found students:', students.length);
 
@@ -221,16 +227,22 @@ exports.getClassAttendanceGrid = async (req, res) => {
             includeOptions.push({
                 model: Subject,
                 where: { id: subject_id },
-                attributes: [],
-                through: { attributes: [] }
+                attributes: ["id"],
+                through: { attributes: [] },
+                required: false
             });
         }
 
-        const students = await Student.findAll({
+        const allStudents = await Student.findAll({
             where: { institute_id },
             include: includeOptions,
             order: [['roll_number', 'ASC']]
         });
+
+        let students = allStudents;
+        if (subject_id && subject_id !== 'undefined' && subject_id !== 'null') {
+            students = allStudents.filter(s => s.is_full_course || (s.Subjects && s.Subjects.length > 0));
+        }
 
         const attendanceRecords = await Attendance.findAll({
             where: {
@@ -783,7 +795,7 @@ exports.markAttendanceByQR = async (req, res) => {
         }
 
         // Phase 1: Check if student is enrolled in the session's subject
-        if (session.subject_id) {
+        if (session.subject_id && !student.is_full_course) {
             const { StudentSubject } = require('../models');
             const enrollment = await StudentSubject.findOne({
                 where: {
@@ -878,7 +890,7 @@ exports.markAttendanceByStudentQR = async (req, res) => {
         }
 
         // Verify enrollments
-        if (subject_id) {
+        if (subject_id && !student.is_full_course) {
             const { StudentSubject } = require('../models');
             const enrollment = await StudentSubject.findOne({
                 where: { student_id, subject_id: subject_id }
@@ -893,6 +905,19 @@ exports.markAttendanceByStudentQR = async (req, res) => {
             });
             if (!enrollment) {
                 return res.status(403).json({ success: false, message: "Student is not enrolled in this class" });
+            }
+        } else if (subject_id && student.is_full_course) {
+            const { Subject, StudentClass } = require('../models');
+            const subj = await Subject.findOne({ where: { id: subject_id } });
+            if (subj) {
+                const enrollment = await StudentClass.findOne({
+                    where: { student_id, class_id: subj.class_id }
+                });
+                if (!enrollment) {
+                    return res.status(403).json({ success: false, message: "Student is not enrolled in the class for this subject" });
+                }
+            } else {
+                return res.status(403).json({ success: false, message: "Subject not found" });
             }
         }
 

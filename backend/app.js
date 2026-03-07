@@ -92,6 +92,8 @@ app.use("/api/transport-fees", require("./routes/transportFee.routes"));
 app.use("/api/manager", require("./routes/manager.routes"));
 app.use("/api/timetable", require("./routes/timetable.routes"));
 app.use("/api/webhook", require("./routes/webhook.routes"));
+app.use("/api/notes", require("./routes/note.routes"));
+app.use("/api/chat", require("./routes/chat.routes"));
 
 // ============================================
 // 404 HANDLER
@@ -241,6 +243,13 @@ const syncDatabase = async () => {
     // SAFE SYNC: alter:false only creates missing tables,
     // never modifies existing tables (prevents index duplication)
     // ─────────────────────────────────────────────────────────────────
+    try {
+      await sequelize.query(`ALTER TABLE students ADD COLUMN is_full_course BOOLEAN DEFAULT false;`);
+      console.log("✅ Added is_full_course column to students table");
+    } catch (e) {
+      // Ignored if column already exists
+    }
+
     await sequelize.sync({ alter: false });
     console.log("✅ Database synchronized successfully");
 

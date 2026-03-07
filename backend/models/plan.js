@@ -110,6 +110,14 @@ const Plan = sequelize.define("Plan", {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
+    feature_notes: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    feature_chat: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
 
     // Premium Features
     feature_custom_branding: {

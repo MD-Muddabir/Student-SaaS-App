@@ -13,5 +13,6 @@ router.get("/", verifyToken, allowRoles("admin", "faculty"), examController.getA
 router.post("/marks", verifyToken, allowRoles("admin", "faculty"), examController.enterMarks);
 router.get("/:exam_id/marks", verifyToken, allowRoles("admin", "faculty"), examController.getExamMarks);
 router.get("/results/:student_id", verifyToken, allowRoles("admin", "faculty", "student"), examController.getStudentResults);
+router.delete("/:id", verifyToken, allowRoles("admin", "manager"), examController.deleteExam);
 
 module.exports = router;

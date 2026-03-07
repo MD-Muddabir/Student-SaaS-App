@@ -12,6 +12,10 @@ const Student = sequelize.define("Student", {
 
     gender: DataTypes.ENUM("male", "female", "other"),
     address: DataTypes.TEXT,
+    is_full_course: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
 }, {
     tableName: 'students'
 

@@ -23,20 +23,29 @@ exports.createFeeStructure = async (req, res) => {
 
         // Auto assign to existing students of this class
         if (!subject_id && class_id) {
-            const students = await Student.findAll({ where: { class_id, institute_id } });
-            const feeRecords = students.map(s => ({
-                institute_id,
-                student_id: s.id,
-                class_id: s.class_id,
-                fee_structure_id: feeStructure.id,
-                original_amount: amount,
-                discount_amount: 0,
-                final_amount: amount,
-                paid_amount: 0,
-                due_amount: amount,
-                status: 'pending'
-            }));
-            await StudentFee.bulkCreate(feeRecords);
+            const students = await Student.findAll({
+                where: { institute_id },
+                include: [{ model: Class, where: { id: class_id } }]
+            });
+
+            const feeRecords = students
+                .filter(s => fee_type !== 'Tuition Fee' || s.is_full_course)
+                .map(s => ({
+                    institute_id,
+                    student_id: s.id,
+                    class_id: class_id,
+                    fee_structure_id: feeStructure.id,
+                    original_amount: amount,
+                    discount_amount: 0,
+                    final_amount: amount,
+                    paid_amount: 0,
+                    due_amount: amount,
+                    status: 'pending'
+                }));
+
+            if (feeRecords.length > 0) {
+                await StudentFee.bulkCreate(feeRecords);
+            }
         }
 
         res.status(201).json({
@@ -103,10 +112,25 @@ exports.getAllFeeStructures = async (req, res) => {
                         where: { student_id: studentObj.id, fee_structure_id: fee.id, status: 'success' }
                     });
                     fee.paid_amount = payments.reduce((sum, p) => sum + parseFloat(p.amount_paid), 0);
-                    fee.is_enrolled = !!(fee.subject_id && studentObj.Subjects?.find(s => s.id === fee.subject_id));
+                    const isEnrolled = !!(fee.subject_id && studentObj.Subjects?.find(s => s.id === fee.subject_id));
+                    fee.is_enrolled = isEnrolled;
 
-                    if (!fee.subject_id || fee.is_enrolled) {
-                        filteredFees.push(fee);
+                    if (fee.subject_id) {
+                        // Subject-specific fee
+                        if (isEnrolled) {
+                            filteredFees.push(fee);
+                        }
+                    } else {
+                        // Full course / General fee
+                        if (studentObj.is_full_course) {
+                            filteredFees.push(fee);
+                        } else {
+                            // Student is not full course. Do not show fees that contain 'full' or 'course'
+                            const feeType = fee.fee_type ? fee.fee_type.toLowerCase() : '';
+                            if (!feeType.includes('course') && !feeType.includes('full')) {
+                                filteredFees.push(fee);
+                            }
+                        }
                     }
                 }
                 feesWithPayments = filteredFees;
@@ -159,6 +183,8 @@ exports.recordPayment = async (req, res) => {
 
                 if (fee.subject_id) {
                     await studentObj.addSubject(fee.subject_id);
+                } else if (fee.fee_type === 'Tuition Fee') {
+                    await studentObj.update({ is_full_course: true });
                 }
             }
         }
@@ -361,33 +387,61 @@ exports.getAssignedStudentFees = async (req, res) => {
         const existingSet = new Set(existingStudentFees.map(sf => `${sf.student_id}_${sf.fee_structure_id}`));
 
         const toCreate = [];
+        const toDeleteIds = [];
+
         for (const s of students) {
             const subjectIds = s.Subjects ? s.Subjects.map(sub => sub.id) : [];
             const classIds = s.Classes ? s.Classes.map(c => c.id) : [];
 
+            // Existing fees for this student
+            const studentExistingFees = existingStudentFees.filter(f => f.student_id === s.id);
+
             for (const fs of structures) {
+                let applies = false;
                 if (classIds.includes(fs.class_id)) {
-                    // Check if the fee structure applies to this student:
-                    // Applies if it's a generic class fee (subject_id is null) OR matches an enrolled subject
-                    if (fs.subject_id === null || subjectIds.includes(fs.subject_id)) {
-                        if (!existingSet.has(`${s.id}_${fs.id}`)) {
-                            toCreate.push({
-                                institute_id,
-                                student_id: s.id,
-                                class_id: fs.class_id,
-                                fee_structure_id: fs.id,
-                                original_amount: fs.amount,
-                                discount_amount: 0,
-                                final_amount: fs.amount,
-                                paid_amount: 0,
-                                due_amount: fs.amount,
-                                status: 'pending'
-                            });
+                    if (fs.subject_id !== null) {
+                        if (subjectIds.includes(fs.subject_id)) applies = true;
+                    } else {
+                        // If no specific subject and it's Tuition Fee, it means "All Subjects (Full Class)"
+                        if (fs.fee_type === 'Tuition Fee') {
+                            if (s.is_full_course) applies = true;
+                        } else {
+                            // Other general fees like Transport or Library, apply to all in class
+                            applies = true;
                         }
+                    }
+                }
+
+                const existingFeeDetails = studentExistingFees.find(f => f.fee_structure_id === fs.id);
+
+                if (applies) {
+                    if (!existingFeeDetails) {
+                        toCreate.push({
+                            institute_id,
+                            student_id: s.id,
+                            class_id: fs.class_id,
+                            fee_structure_id: fs.id,
+                            original_amount: fs.amount,
+                            discount_amount: 0,
+                            final_amount: fs.amount,
+                            paid_amount: 0,
+                            due_amount: fs.amount,
+                            status: 'pending'
+                        });
+                    }
+                } else {
+                    // If doesn't apply anymore but exists implicitly in db and is unpaid
+                    if (existingFeeDetails && parseFloat(existingFeeDetails.paid_amount) === 0) {
+                        toDeleteIds.push(existingFeeDetails.id);
                     }
                 }
             }
         }
+
+        if (toDeleteIds.length > 0) {
+            await StudentFee.destroy({ where: { id: toDeleteIds } });
+        }
+
         if (toCreate.length > 0) {
             await StudentFee.bulkCreate(toCreate);
         }

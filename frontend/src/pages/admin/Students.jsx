@@ -54,7 +54,7 @@ function Students() {
 
     const fetchStudents = async () => {
         try {
-            const response = await api.get("/students");
+            const response = await api.get("/students?limit=10000");
             setStudents(response.data.data || []);
             setTotalCount(response.data.count || 0);
         } catch (error) {
@@ -96,6 +96,9 @@ function Students() {
                     uniqueSubjects.push(subject);
                 }
             }
+
+            // Add Full Course option at the beginning
+            uniqueSubjects.unshift({ id: "full_course", name: "All Subjects (Full Course)" });
 
             setAvailableSubjects(uniqueSubjects);
         } catch (error) {
@@ -148,7 +151,10 @@ function Students() {
             date_of_birth: student.date_of_birth || "",
             gender: student.gender || "male",
             address: student.address || "",
-            subject_ids: student.Subjects ? student.Subjects.map(sub => sub.id.toString()) : []
+            subject_ids: [
+                ...(student.is_full_course ? ["full_course"] : []),
+                ...(student.Subjects ? student.Subjects.map(sub => sub.id.toString()) : [])
+            ]
         });
 
         const c_ids = student.Classes ? student.Classes.map(c => c.id.toString()) : [];
@@ -384,6 +390,11 @@ function Students() {
                                                 </>
                                             ) : (
                                                 <span style={{ color: "#9ca3af" }}>Unassigned</span>
+                                            )}
+                                            {student.is_full_course && (
+                                                <div style={{ fontSize: "0.80rem", color: "#6b7280", marginTop: "4px" }}>
+                                                    All Subjects (Full Course)
+                                                </div>
                                             )}
                                             {student.Subjects && student.Subjects.length > 0 && (
                                                 <div style={{ fontSize: "0.80rem", color: "#6b7280", marginTop: "4px" }}>

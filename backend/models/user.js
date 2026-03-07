@@ -12,6 +12,7 @@ const User = sequelize.define("User", {
     theme_dark: { type: DataTypes.BOOLEAN, defaultValue: false },
     theme_style: { type: DataTypes.ENUM("simple", "pro"), defaultValue: "simple" },
     permissions: { type: DataTypes.JSON, defaultValue: null },
+    last_announcement_seen_at: { type: DataTypes.DATE, defaultValue: null },
 });
 
 module.exports = User;
