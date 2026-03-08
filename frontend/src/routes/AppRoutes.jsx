@@ -46,6 +46,7 @@ const Announcements = lazy(() => import("../pages/admin/Announcements"));
 const Exams = lazy(() => import("../pages/admin/Exams"));
 const Settings = lazy(() => import("../pages/admin/Settings"));
 const Profile = lazy(() => import("../pages/admin/Profile"));
+const Parents = lazy(() => import("../pages/admin/Parents"));
 const AdminNotes = lazy(() => import("../pages/admin/AdminNotes")); // Added Admin Notes
 const ManageAdmins = lazy(() => import("../pages/admin/ManageAdmins")); // Added ManageAdmins
 const AdminSmartAttendance = lazy(() => import("../pages/admin/SmartAttendance"));
@@ -76,6 +77,10 @@ const PayFees = lazy(() => import("../pages/student/PayFees"));
 const ScanAttendance = lazy(() => import("../pages/student/ScanAttendance"));
 const StudentTimetable = lazy(() => import("../pages/student/Timetable")); // Added Timetable
 const StudentNotes = lazy(() => import("../pages/student/StudentNotes")); // Added Notes
+
+// Parent Pages
+const ParentDashboard = lazy(() => import("../pages/parent/Dashboard"));
+const ParentTimetable = lazy(() => import("../pages/parent/Timetable"));
 
 // Common Pages
 const NotFound = lazy(() => import("../pages/common/NotFound"));
@@ -139,6 +144,7 @@ function AppRoutes() {
               <Routes>
                 <Route path="dashboard" element={<AdminDashboard />} />
                 <Route path="admins" element={<ManageAdmins />} />
+                <Route path="parents" element={<Parents />} />
                 <Route path="students" element={<Students />} />
                 <Route path="faculty" element={<Faculty />} />
                 <Route path="classes" element={<Classes />} />
@@ -207,6 +213,22 @@ function AppRoutes() {
                 <Route path="chat" element={<ChatApp />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="*" element={<Navigate to="/student/dashboard" />} />
+              </Routes>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Parent Routes */}
+        <Route
+          path="/parent/*"
+          element={
+            <ProtectedRoute allowedRoles={["parent"]}>
+              <Routes>
+                <Route path="dashboard" element={<ParentDashboard />} />
+                <Route path="timetable" element={<ParentTimetable />} />
+                <Route path="chat" element={<ChatApp />} />
+                <Route path="profile" element={<Profile />} />
+                <Route path="*" element={<Navigate to="/parent/dashboard" />} />
               </Routes>
             </ProtectedRoute>
           }

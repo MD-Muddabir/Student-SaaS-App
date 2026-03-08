@@ -248,6 +248,15 @@ function Fees() {
     const totalDue = studentFees.reduce((sum, sf) => sum + parseFloat(sf.due_amount || 0), 0);
     const totalDiscount = studentFees.reduce((sum, sf) => sum + parseFloat(sf.discount_amount || 0), 0);
 
+    // Phase 9: Detect overdue fees (due date has passed and still pending/partial)
+    const todayDate = new Date().toISOString().split('T')[0];
+    const isOverdue = (sf) => {
+        if (sf.status === 'paid') return false;
+        const dueDate = sf.FeesStructure?.due_date;
+        return dueDate && dueDate < todayDate;
+    };
+    const overdueCount = studentFees.filter(isOverdue).length;
+
     return (
         <div className="dashboard-container">
             {/* Header */}
@@ -281,6 +290,26 @@ function Fees() {
                     display: 'flex', alignItems: 'center', gap: '0.5rem'
                 }}>
                     {success}
+                </div>
+            )}
+
+            {/* Phase 9: Overdue fees alert banner */}
+            {overdueCount > 0 && (
+                <div style={{
+                    background: 'linear-gradient(135deg,rgba(239,68,68,0.12),rgba(239,68,68,0.05))',
+                    border: '1.5px solid rgba(239,68,68,0.5)', borderRadius: '12px',
+                    padding: '1rem 1.25rem', marginBottom: '1.25rem',
+                    display: 'flex', alignItems: 'center', gap: '1rem'
+                }}>
+                    <span style={{ fontSize: '1.75rem' }}>🔔</span>
+                    <div>
+                        <div style={{ fontWeight: '800', color: '#ef4444', fontSize: '1rem' }}>
+                            {overdueCount} Overdue Fee{overdueCount !== 1 ? 's' : ''} Need Attention!
+                        </div>
+                        <div style={{ color: '#dc2626', fontSize: '0.85rem', marginTop: '0.2rem' }}>
+                            These students have outstanding dues past the due date. Consider notifying parents immediately.
+                        </div>
+                    </div>
                 </div>
             )}
 
@@ -406,13 +435,28 @@ function Fees() {
 
                                         {/* Info */}
                                         <div style={{ flex: 1, minWidth: '160px' }}>
-                                            <div style={{ fontWeight: '700', fontSize: '0.95rem' }}>{sf.Student?.User?.name} ({sf.Student?.roll_number})</div>
-                                            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                            <div style={{ fontWeight: '700', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                {sf.Student?.User?.name} ({sf.Student?.roll_number})
+                                                {/* Phase 9: Overdue badge */}
+                                                {isOverdue(sf) && (
+                                                    <span style={{
+                                                        padding: '2px 8px', borderRadius: '20px',
+                                                        background: 'rgba(239,68,68,0.15)', color: '#ef4444',
+                                                        fontSize: '0.7rem', fontWeight: '800'
+                                                    }}>🔔 OVERDUE</span>
+                                                )}
+                                            </div>
+                                            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '0.25rem' }}>
                                                 <span className="badge badge-secondary">{sf.Class?.name} {sf.Class?.section}</span>
                                                 <span className="badge badge-info">
                                                     {sf.FeesStructure?.fee_type || 'Fee'}
                                                     {sf.FeesStructure?.Subject ? ` • ${sf.FeesStructure.Subject.name}` : ''}
                                                 </span>
+                                                {sf.FeesStructure?.due_date && (
+                                                    <span style={{ color: isOverdue(sf) ? '#ef4444' : 'var(--text-muted)', fontWeight: isOverdue(sf) ? 700 : 400 }}>
+                                                        Due: {new Date(sf.FeesStructure.due_date).toLocaleDateString()}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
 

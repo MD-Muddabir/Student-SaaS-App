@@ -1,0 +1,550 @@
+/* ═══════════════════════════════════════════════════════
+   Parent Dashboard CSS — Full Theme Support
+   All CSS Vars respect light/dark/pro themes properly
+═══════════════════════════════════════════════════════ */
+
+/* Phase 5: All colors use CSS variables so every theme works */
+.parent-dashboard-container {
+    padding: 2rem;
+    animation: fadeInParent 0.5s ease-in-out;
+    min-height: 100vh;
+    background: var(--bg-primary, var(--gray-50, #f8fafc));
+    color: var(--text-primary, var(--gray-900, #1e293b));
+}
+
+@keyframes fadeInParent {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── Header ── */
+.parent-dashboard-container .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--border-color, var(--gray-200, #e2e8f0));
+    padding-bottom: 1.25rem;
+    margin-bottom: 2rem;
+    background: transparent;
+}
+
+.parent-dashboard-container .dashboard-header h1 {
+    font-size: 2.25rem;
+    color: var(--primary-color, #4f46e5);
+    margin: 0 0 0.4rem 0;
+    font-weight: 800;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.parent-dashboard-container .dashboard-header p {
+    color: var(--text-secondary, var(--gray-500, #64748b));
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.dashboard-header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+/* ── Logout / Action Button ── */
+.btn-logout {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    border: none;
+    padding: 0.65rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    font-size: 0.9rem;
+}
+
+.btn-logout:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(239, 68, 68, 0.35);
+}
+
+/* ── Student Selector ── */
+.student-selector {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.student-card-btn {
+    padding: 1.1rem 1.75rem;
+    border-radius: 14px;
+    cursor: pointer;
+    min-width: 250px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid var(--border-color, var(--gray-200, #e2e8f0));
+    background: var(--card-bg, var(--gray-100, #fff));
+    color: var(--text-primary, var(--gray-900, #1e293b));
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.student-card-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.15);
+    border-color: #4f46e5;
+}
+
+.student-card-btn.active,
+.student-card-btn[style*="background: var(--primary-color"] {
+    border-color: #4f46e5;
+}
+
+.student-card-btn span.icon {
+    font-size: 2.25rem;
+    background: rgba(79, 70, 229, 0.1);
+    padding: 0.5rem;
+    border-radius: 10px;
+}
+
+.student-card-btn .details h3 {
+    margin: 0 0 0.2rem 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: inherit;
+}
+
+.student-card-btn .details small {
+    opacity: 0.75;
+    font-size: 0.85rem;
+    color: inherit;
+}
+
+/* ── Tabs ── */
+.tabs-container {
+    display: flex;
+    border-bottom: 2px solid var(--border-color, var(--gray-200, #e2e8f0));
+    margin-bottom: 1.75rem;
+    overflow-x: auto;
+    gap: 0.25rem;
+    padding-bottom: 0;
+}
+
+.tab-btn {
+    padding: 0.85rem 1.5rem;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    text-transform: capitalize;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 8px 8px 0 0;
+    white-space: nowrap;
+    color: var(--text-secondary, var(--gray-500, #64748b));
+    margin-bottom: -2px;
+}
+
+.tab-btn:hover {
+    color: #4f46e5;
+    background: rgba(79, 70, 229, 0.06);
+}
+
+.tab-btn.active {
+    border-bottom-color: #4f46e5;
+    color: #4f46e5;
+    background: rgba(79, 70, 229, 0.08);
+    font-weight: 700;
+}
+
+/* ── Overview Stats Grid ── */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Phase 5: stat-card uses vars for full theme compat */
+.stat-card {
+    background: var(--card-bg, #fff);
+    border-radius: 16px;
+    padding: 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    transition: transform 0.25s, box-shadow 0.25s;
+    border: 1px solid var(--border-color, var(--gray-200, #e2e8f0));
+    color: var(--text-primary, var(--gray-900, #1e293b));
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    background: rgba(79, 70, 229, 0.08);
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    flex-shrink: 0;
+}
+
+.stat-card .info h3 {
+    margin: 0;
+    font-size: 1.9rem;
+    color: var(--text-primary, var(--gray-900, #1e293b));
+    font-weight: 800;
+    line-height: 1;
+}
+
+.stat-card .info p {
+    margin: 0.3rem 0 0 0;
+    color: var(--text-secondary, var(--gray-500, #64748b));
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.stat-card .info small {
+    color: var(--text-muted, var(--gray-400, #9ca3af));
+    font-size: 0.8rem;
+}
+
+/* ── Dashboard Card (tab content) ── */
+.dashboard-card {
+    background: var(--card-bg, #fff);
+    border-radius: 16px;
+    padding: 1.75rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--border-color, var(--gray-200, #e2e8f0));
+    animation: fadeInParent 0.35s ease-out;
+    color: var(--text-primary, var(--gray-900, #1e293b));
+}
+
+.dashboard-card h3 {
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+    color: var(--text-primary, var(--gray-900, #1e293b));
+    font-size: 1.35rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.dashboard-card p {
+    color: var(--text-secondary, var(--gray-500, #64748b));
+}
+
+/* ── Data Table ── */
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.4rem;
+}
+
+.data-table th {
+    text-align: left;
+    padding: 0.85rem 1rem;
+    color: var(--text-secondary, var(--gray-500, #64748b));
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    border-bottom: 2px solid var(--border-color, var(--gray-200, #e2e8f0));
+}
+
+.data-table td {
+    padding: 1rem;
+    background: var(--bg-secondary, var(--gray-50, #f8fafc));
+    color: var(--text-primary, var(--gray-800, #1e293b));
+    font-size: 0.9rem;
+    border: none;
+}
+
+.data-table tr td:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.data-table tr td:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.data-table tr:hover td {
+    background: var(--bg-hover, var(--gray-100, #f1f5f9));
+}
+
+/* ── Status Badges ── */
+.status-badge {
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    display: inline-block;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-present,
+.status-paid {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-absent,
+.status-pending {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-late,
+.status-partial {
+    background: #fef08a;
+    color: #854d0e;
+}
+
+.status-holiday {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+/* ── Result Cards ── */
+.result-card {
+    padding: 1.25rem 1.5rem;
+    background: var(--bg-secondary, var(--gray-50, #f8fafc));
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.85rem;
+    border: 1px solid var(--border-color, var(--gray-200, #e2e8f0));
+    transition: all 0.2s;
+    color: var(--text-primary, var(--gray-900, #1e293b));
+}
+
+.result-card:hover {
+    transform: translateX(8px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.result-card-left strong {
+    font-size: 1.1rem;
+    color: var(--text-primary, var(--gray-900, #1e293b));
+}
+
+.result-card-left p {
+    margin: 0.35rem 0 0 0;
+    color: var(--text-secondary, var(--gray-500, #64748b));
+    font-size: 0.9rem;
+}
+
+.result-card-right {
+    text-align: right;
+}
+
+.result-card-right h2 {
+    margin: 0;
+    color: #4f46e5;
+    font-size: 1.75rem;
+    font-weight: 800;
+}
+
+.result-card-right .pass {
+    color: #10b981;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.result-card-right .fail {
+    color: #ef4444;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+/* ── Phase 5: Dark Mode Specific Overrides for Parent Dashboard ── */
+html.dark-mode .parent-dashboard-container {
+    background: var(--gray-50, #0f172a);
+    color: var(--gray-900, #f8fafc);
+}
+
+html.dark-mode .student-card-btn {
+    background: var(--gray-100, #1e293b);
+    border-color: var(--gray-200, #334155);
+    color: var(--gray-900, #f1f5f9);
+}
+
+html.dark-mode .stat-card {
+    background: var(--gray-100, #1e293b);
+    border-color: var(--gray-200, #334155);
+    color: var(--gray-900, #f1f5f9);
+}
+
+html.dark-mode .stat-card .info h3 {
+    color: #f8fafc;
+}
+
+html.dark-mode .stat-card .info p {
+    color: #94a3b8;
+}
+
+html.dark-mode .dashboard-card {
+    background: var(--gray-100, #1e293b);
+    border-color: var(--gray-200, #334155);
+    color: #f1f5f9;
+}
+
+html.dark-mode .dashboard-card h3 {
+    color: #f1f5f9;
+}
+
+html.dark-mode .dashboard-card p {
+    color: #94a3b8;
+}
+
+html.dark-mode .data-table th {
+    color: #94a3b8;
+    border-bottom-color: #334155;
+}
+
+html.dark-mode .data-table td {
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+html.dark-mode .data-table tr:hover td {
+    background: #1e293b;
+}
+
+html.dark-mode .result-card {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f1f5f9;
+}
+
+html.dark-mode .result-card-left strong {
+    color: #f1f5f9;
+}
+
+html.dark-mode .result-card-left p {
+    color: #94a3b8;
+}
+
+html.dark-mode .tabs-container {
+    border-bottom-color: #334155;
+}
+
+html.dark-mode .tab-btn {
+    color: #94a3b8;
+}
+
+html.dark-mode .tab-btn:hover,
+html.dark-mode .tab-btn.active {
+    color: #818cf8;
+}
+
+html.dark-mode .tab-btn.active {
+    background: rgba(129, 140, 248, 0.08);
+    border-bottom-color: #818cf8;
+}
+
+html.dark-mode .parent-dashboard-container .dashboard-header {
+    border-bottom-color: #334155;
+}
+
+/* ── Phase 5: Pro Theme (gradient bg) ── */
+html.theme-pro .parent-dashboard-container {
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    color: #f1f5f9;
+    min-height: 100vh;
+}
+
+html.theme-pro .stat-card,
+html.theme-pro .dashboard-card {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #f1f5f9;
+    backdrop-filter: blur(12px);
+}
+
+html.theme-pro .stat-card .info h3 {
+    color: #fff;
+}
+
+html.theme-pro .stat-card .info p {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+html.theme-pro .dashboard-card h3 {
+    color: #fff;
+}
+
+html.theme-pro .student-card-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    backdrop-filter: blur(8px);
+}
+
+html.theme-pro .tab-btn {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+html.theme-pro .tab-btn.active,
+html.theme-pro .tab-btn:hover {
+    color: #c4b5fd;
+    border-bottom-color: #c4b5fd;
+    background: rgba(196, 181, 253, 0.08);
+}
+
+html.theme-pro .data-table th {
+    color: rgba(255, 255, 255, 0.5);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+html.theme-pro .data-table td {
+    background: rgba(255, 255, 255, 0.05);
+    color: #f1f5f9;
+}
+
+html.theme-pro .data-table tr:hover td {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+html.theme-pro .parent-dashboard-container .dashboard-header {
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+html.theme-pro .result-card {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #f1f5f9;
+}
+
+html.theme-pro .result-card-left strong {
+    color: #fff;
+}
+
+html.theme-pro .result-card-left p {
+    color: rgba(255, 255, 255, 0.6);
+}

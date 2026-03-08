@@ -31,6 +31,7 @@ const NoteDownload = require("./noteDownload");
 const ChatRoom = require("./chatRoom");
 const ChatMessage = require("./chatMessage");
 const ChatParticipant = require("./chatParticipant");
+const StudentParent = require("./studentParent");
 
 // Associations
 
@@ -92,6 +93,10 @@ Faculty.belongsTo(User, { foreignKey: "user_id" });
 // User <-> Student Association
 User.hasOne(Student, { foreignKey: "user_id" });
 Student.belongsTo(User, { foreignKey: "user_id" });
+
+// Student <-> Parent Association
+Student.belongsToMany(User, { through: StudentParent, as: "Parents", foreignKey: "student_id", otherKey: "parent_id" });
+User.belongsToMany(Student, { through: StudentParent, as: "LinkedStudents", foreignKey: "parent_id", otherKey: "student_id" });
 
 // Fees Structure Associations
 FeesStructure.belongsTo(Class, { foreignKey: "class_id" });
@@ -302,5 +307,6 @@ module.exports = {
     NoteDownload,
     ChatRoom,
     ChatMessage,
-    ChatParticipant
+    ChatParticipant,
+    StudentParent
 };

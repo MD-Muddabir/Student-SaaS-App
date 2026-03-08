@@ -36,6 +36,7 @@ function Login() {
         case "faculty": navigate("/faculty/dashboard"); break;
         case "student": navigate("/student/dashboard"); break;
         case "manager": navigate("/admin/dashboard"); break;
+        case "parent": navigate("/parent/dashboard"); break;
         default: navigate("/");
       }
     }
@@ -59,6 +60,7 @@ function Login() {
         case "faculty": navigate("/faculty/dashboard"); break;
         case "student": navigate("/student/dashboard"); break;
         case "manager": navigate("/admin/dashboard"); break;
+        case "parent": navigate("/parent/dashboard"); break;
         default: navigate("/");
       }
     } catch (err) {

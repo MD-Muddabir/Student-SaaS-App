@@ -22,11 +22,26 @@ function Attendance() {
     const [dashboardStats, setDashboardStats] = useState(null);
     const [showReport, setShowReport] = useState(false);
     const [reportData, setReportData] = useState(null);
+    // Phase 3: Sunday detection
+    const [sundayPopup, setSundayPopup] = useState(false);
+    const [sundayMarkingHoliday, setSundayMarkingHoliday] = useState(false);
 
     useEffect(() => {
         fetchClasses();
         fetchDashboardStats();
     }, []);
+
+    // Phase 3: Detect Sunday when date changes
+    useEffect(() => {
+        if (selectedDate) {
+            const d = new Date(selectedDate + 'T00:00:00');
+            if (d.getDay() === 0) { // 0 = Sunday
+                setSundayPopup(true);
+            } else {
+                setSundayPopup(false);
+            }
+        }
+    }, [selectedDate]);
 
     useEffect(() => {
         if (selectedClass) {
@@ -207,6 +222,46 @@ function Attendance() {
             };
         });
         setAttendanceData(newData);
+    };
+
+    // Phase 3: Mark entire class/subject as holiday for a Sunday
+    const markSundayAsHoliday = async () => {
+        if (!selectedClass || !selectedSubject) {
+            setSundayPopup(false);
+            alert("Please select a class and subject first, then choose Holiday.");
+            return;
+        }
+        setSundayMarkingHoliday(true);
+        try {
+            // fetch current list of students for this class/subject/date
+            const resp = await api.get(`/attendance/class/${selectedClass}/subject/${selectedSubject}/date/${selectedDate}`);
+            const allStudents = resp.data.data || [];
+            if (allStudents.length === 0) {
+                setSundayPopup(false);
+                setSundayMarkingHoliday(false);
+                alert("No students found for selected class/subject. Select class & subject from the filters first.");
+                return;
+            }
+            const attendance_data = allStudents.map(s => ({
+                student_id: s.student_id,
+                status: 'holiday',
+                remarks: 'Sunday Holiday'
+            }));
+            await api.post('/attendance/bulk', {
+                class_id: parseInt(selectedClass),
+                subject_id: parseInt(selectedSubject),
+                date: selectedDate,
+                attendance_data
+            });
+            setSundayPopup(false);
+            alert(`✅ All ${allStudents.length} students marked as Holiday for Sunday ${selectedDate}`);
+            fetchClassAttendance();
+            fetchDashboardStats();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error marking holiday');
+        } finally {
+            setSundayMarkingHoliday(false);
+        }
     };
 
     const pendingStudents = students.filter(s => !s.attendance);
@@ -540,6 +595,51 @@ function Attendance() {
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ═══ Phase 3: SUNDAY DETECTION POPUP ═══ */}
+            {sundayPopup && (
+                <div className="modal-overlay" style={{ zIndex: 2000 }}>
+                    <div className="modal" style={{ maxWidth: "480px", textAlign: "center" }}>
+                        <div style={{ padding: "2rem" }}>
+                            <div style={{ fontSize: "3.5rem", marginBottom: "1rem" }}>📅</div>
+                            <h2 style={{ marginBottom: "0.5rem", color: "var(--text-primary)" }}>Sunday Detected!</h2>
+                            <p style={{ color: "var(--text-secondary)", marginBottom: "0.25rem" }}>
+                                <strong>{new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</strong>
+                            </p>
+                            <p style={{ color: "var(--text-secondary)", marginBottom: "2rem", fontSize: "0.9rem" }}>
+                                Is this a holiday or a working day?
+                            </p>
+                            <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+                                <button
+                                    onClick={markSundayAsHoliday}
+                                    disabled={sundayMarkingHoliday}
+                                    style={{
+                                        padding: "0.75rem 1.75rem", borderRadius: "10px", border: "none",
+                                        background: "linear-gradient(135deg,#3b82f6,#1d4ed8)",
+                                        color: "#fff", fontWeight: "700", fontSize: "1rem", cursor: "pointer",
+                                        boxShadow: "0 4px 12px rgba(59,130,246,0.4)"
+                                    }}
+                                >
+                                    {sundayMarkingHoliday ? "Marking..." : "🏖️ Holiday"}
+                                </button>
+                                <button
+                                    onClick={() => setSundayPopup(false)}
+                                    style={{
+                                        padding: "0.75rem 1.75rem", borderRadius: "10px", border: "2px solid var(--border-color)",
+                                        background: "var(--card-bg)", color: "var(--text-primary)",
+                                        fontWeight: "700", fontSize: "1rem", cursor: "pointer"
+                                    }}
+                                >
+                                    🏫 Working Day
+                                </button>
+                            </div>
+                            <p style={{ marginTop: "1.25rem", fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                                Choosing "Holiday" will auto-mark all students in the selected class/subject as Holiday.
+                            </p>
                         </div>
                     </div>
                 </div>

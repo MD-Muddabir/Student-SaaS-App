@@ -350,7 +350,7 @@ exports.updateAttendance = async (req, res) => {
 exports.getStudentAttendanceReport = async (req, res) => {
     try {
         const { student_id } = req.params;
-        const { start_date, end_date, month, year } = req.query;
+        const { start_date, end_date, month, year, subject_id } = req.query; // Phase 2: subject_id filter
         const institute_id = req.user.institute_id;
 
         // Build date filter
@@ -367,10 +367,14 @@ exports.getStudentAttendanceReport = async (req, res) => {
         if (Object.keys(dateFilter).length > 0) {
             whereClause.date = dateFilter;
         }
+        // Phase 2: Filter by subject_id if provided
+        if (subject_id) {
+            whereClause.subject_id = subject_id;
+        }
 
         const records = await Attendance.findAll({
             where: whereClause,
-            order: [['date', 'ASC']],
+            order: [['date', 'DESC']], // most recent first
             include: [
                 {
                     model: Class,
@@ -383,9 +387,10 @@ exports.getStudentAttendanceReport = async (req, res) => {
             ]
         });
 
+        // Phase 1: Working days EXCLUDES holidays — correct count for percentage
         const totalDays = records.length;
         const holidays = records.filter(r => r.status === 'holiday').length;
-        const workingDays = totalDays - holidays;
+        const workingDays = totalDays - holidays; // <-- Holidays excluded properly
         const presentDays = records.filter(r => r.status === 'present').length;
         const absentDays = records.filter(r => r.status === 'absent').length;
         const lateDays = records.filter(r => r.status === 'late').length;
@@ -397,13 +402,13 @@ exports.getStudentAttendanceReport = async (req, res) => {
                 records,
                 summary: {
                     total_days: totalDays,
-                    working_days: workingDays,
+                    working_days: workingDays, // Phase 1: correctly excludes holidays
                     present_days: presentDays,
                     absent_days: absentDays,
                     late_days: lateDays,
                     holiday_days: holidays,
                     attendance_percentage: parseFloat(percentage),
-                    percentage: parseFloat(percentage) // keep for backwards compatibility if needed
+                    percentage: parseFloat(percentage)
                 }
             }
         });

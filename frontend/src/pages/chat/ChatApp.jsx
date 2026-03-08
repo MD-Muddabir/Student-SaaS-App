@@ -80,6 +80,18 @@ function ChatApp() {
                 if (subRes.data.success) {
                     setEnrolledSubjects(subRes.data.data.Subjects || []);
                 }
+            } else if (user?.role === "parent") {
+                const parRes = await api.get("/parents/dashboard");
+                if (parRes.data.success) {
+                    const subjectsMap = new Map();
+                    const stus = parRes.data.data.students || [];
+                    stus.forEach(s => {
+                        if (s.Subjects) {
+                            s.Subjects.forEach(sub => subjectsMap.set(sub.id, sub));
+                        }
+                    });
+                    setEnrolledSubjects(Array.from(subjectsMap.values()));
+                }
             } else if (user?.role === "faculty") {
                 const fsRes = await api.get("/subjects");
                 if (fsRes.data.success) {
@@ -248,7 +260,7 @@ function ChatApp() {
         if (room.name && room.type !== "direct") return room.name;
         if (room.type === "direct") {
             if (user?.role === "faculty" && room.ChatParticipants) {
-                const studentP = room.ChatParticipants.find(p => p.role === "student" || p.User?.role === "student");
+                const studentP = room.ChatParticipants.find(p => p.role === "student" || p.User?.role === "student" || p.role === "parent" || p.User?.role === "parent");
                 if (studentP && studentP.User) return `${studentP.User.name} - Direct Chat`;
             }
             return `Direct Chat - ${room.Subject?.name || "Subject"}`;
@@ -288,7 +300,7 @@ function ChatApp() {
                         <div>
                             <h3 style={{ margin: 0 }}>💬 Academic Chat</h3>
                             <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", margin: "4px 0 0" }}>
-                                {user?.role === "faculty" ? "Manage your rooms" : user?.role === "student" ? "Your chats" : "Monitor all chats"}
+                                {user?.role === "faculty" ? "Manage your rooms" : (user?.role === "student" || user?.role === "parent") ? "Your chats" : "Monitor all chats"}
                             </p>
                         </div>
                         {user?.role === "faculty" && (
@@ -304,8 +316,8 @@ function ChatApp() {
                         <div style={{ padding: 20 }}><LoadingSpinner /></div>
                     ) : (
                         <>
-                            {/* --- FOR STUDENTS: Direct Chats --- */}
-                            {user?.role === "student" && (
+                            {/* --- FOR STUDENTS AND PARENTS: Direct Chats --- */}
+                            {(user?.role === "student" || user?.role === "parent") && (
                                 <div style={{ marginBottom: '1.5rem' }}>
                                     <div style={{ padding: '8px 16px', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
                                         Direct Chats (1-on-1)
@@ -336,9 +348,9 @@ function ChatApp() {
 
                             {/* --- Group Rooms List --- */}
                             <div style={{ padding: '8px 16px', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
-                                {(user?.role === "student") ? "Group Rooms" : "All Rooms"}
+                                {(user?.role === "student" || user?.role === "parent") ? "Group Rooms" : "All Rooms"}
                             </div>
-                            {rooms.filter(r => user?.role === "student" ? r.type !== "direct" : true).map(room => (
+                            {rooms.filter(r => (user?.role === "student" || user?.role === "parent") ? r.type !== "direct" : true).map(room => (
                                 <div
                                     key={room.id}
                                     className={`chat-room-item ${activeRoom?.id === room.id ? "active" : ""}`}
@@ -368,7 +380,7 @@ function ChatApp() {
                                 </div>
                             ))}
 
-                            {rooms.length === 0 && user?.role !== "student" && (
+                            {rooms.length === 0 && (user?.role !== "student" && user?.role !== "parent") && (
                                 <div className="chat-no-rooms">
                                     <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>💬</div>
                                     <p>No rooms available.</p>
@@ -398,7 +410,7 @@ function ChatApp() {
                                     <span className="monitor-badge">👁️ Monitor Mode</span>
                                 )}
                                 {/* Toggle Participants Button */}
-                                {activeRoom.type !== "direct" && user?.role !== "student" && (
+                                {activeRoom.type !== "direct" && user?.role !== "student" && user?.role !== "parent" && (
                                     <button
                                         className="btn btn-secondary"
                                         style={{ padding: "6px 14px", fontSize: "0.82rem" }}
@@ -425,7 +437,7 @@ function ChatApp() {
                                 ) : (
                                     messages.map((msg, idx) => {
                                         const isMe = Number(msg.sender_id) === myUserId;
-                                        const senderName = msg.sender?.name || `User #${msg.sender_id}`;
+                                        const senderName = msg.sender?.display_name || msg.sender?.name || `User #${msg.sender_id}`;
                                         const msgTime = new Date(msg.created_at).toLocaleTimeString([], {
                                             hour: "2-digit", minute: "2-digit"
                                         });
@@ -473,7 +485,7 @@ function ChatApp() {
                                     {studentParticipants.length > 0 && (
                                         <div className="participants-section">
                                             <div className="participants-section-title">👩‍🎓 Students ({studentParticipants.length})</div>
-                                            {user?.role !== "student" && studentParticipants.map(p => (
+                                            {(user?.role !== "student" && user?.role !== "parent") && studentParticipants.map(p => (
                                                 <div key={p.id} className="participant-item">
                                                     <div className="participant-avatar student-avatar">{(p.User?.name || "?")[0].toUpperCase()}</div>
                                                     <div className="participant-name">

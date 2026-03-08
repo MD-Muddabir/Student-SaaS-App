@@ -92,8 +92,8 @@ app.use("/api/transport-fees", require("./routes/transportFee.routes"));
 app.use("/api/manager", require("./routes/manager.routes"));
 app.use("/api/timetable", require("./routes/timetable.routes"));
 app.use("/api/webhook", require("./routes/webhook.routes"));
-app.use("/api/notes", require("./routes/note.routes"));
 app.use("/api/chat", require("./routes/chat.routes"));
+app.use("/api/parents", require("./routes/parent.routes"));
 
 // ============================================
 // 404 HANDLER

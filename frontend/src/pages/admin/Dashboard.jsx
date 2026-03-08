@@ -428,6 +428,8 @@ function AdminDashboard() {
 
                     {hasPermission('classes') && <ActionCard path={`${basePath}/classes`} icon="📚" title="Manage Classes" featureKey="classes" />}
 
+                    {hasPermission('students') && <ActionCard path={`${basePath}/parents`} icon="👨‍👩‍👧" title="Manage Parents" featureKey="students" />}
+
                     {hasPermission('faculty') && <ActionCard path={`${basePath}/faculty`} icon="👩‍🏫" title="Manage Faculty" featureKey="faculty" />}
                     {hasPermission('attendance') && <ActionCard path={`${basePath}/faculty-attendance`} icon="📋" title="Faculty Attendance" featureKey="attendance" />}
                     {hasPermission('attendance') && <ActionCard path={`${basePath}/view-faculty-attendance`} icon="📊" title="Faculty Tracker" featureKey="attendance" />}

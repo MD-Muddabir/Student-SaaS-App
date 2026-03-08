@@ -141,6 +141,24 @@ exports.sendMessage = async (req, res) => {
             await ensureParticipant(room_id, userId, userRole);
         }
 
+        // Phase 8: For parent, get their linked student's name to display "Parent of [Child]"
+        let sender_display_name = null;
+        if (userRole === "parent") {
+            const { Student, User: UserModel } = require("../models");
+            const parentUser = await UserModel.findOne({
+                where: { id: userId, institute_id },
+                include: [{
+                    model: Student,
+                    as: "LinkedStudents",
+                    include: [{ model: UserModel, attributes: ["name"] }]
+                }]
+            });
+            if (parentUser && parentUser.LinkedStudents && parentUser.LinkedStudents.length > 0) {
+                const childName = parentUser.LinkedStudents[0]?.User?.name || "Child";
+                sender_display_name = `${parentUser.name || "Parent"} (Parent of ${childName})`;
+            }
+        }
+
         const newMsg = await ChatMessage.create({
             room_id,
             sender_id: userId,
@@ -150,8 +168,7 @@ exports.sendMessage = async (req, res) => {
             attachment_type: req.file ? req.file.mimetype : null,
         });
 
-        // Anonymous feature applied at fetch-time, just return success
-        return res.status(201).json({ success: true });
+        return res.status(201).json({ success: true, sender_display_name });
     } catch (err) {
         if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
         console.error("sendMessage:", err);
@@ -236,7 +253,18 @@ exports.getRooms = async (req, res) => {
                 const classIds = student.Classes?.map(c => c.id) || [];
                 const sGender = student.gender || "none";
 
-                // If no subjects explicitly registered, fetch all subjects for their classes
+                // Phase 4: Full-course students automatically get ALL subjects in their class
+                if (student.is_full_course && classIds.length > 0) {
+                    const allClassSubjects = await Subject.findAll({
+                        where: { class_id: { [Op.in]: classIds } },
+                        attributes: ["id"]
+                    });
+                    const allSubIds = allClassSubjects.map(s => s.id);
+                    // Merge with any directly assigned subjects (deduplicate)
+                    subIds = [...new Set([...subIds, ...allSubIds])];
+                }
+
+                // If still no subjects after merge, fetch all subjects for classes
                 if (subIds.length === 0 && classIds.length > 0) {
                     const classSubjects = await Subject.findAll({ where: { class_id: { [Op.in]: classIds } } });
                     subIds = classSubjects.map(s => s.id);
@@ -273,6 +301,9 @@ exports.getRooms = async (req, res) => {
             if (userRole === "student" && r.type !== "direct") {
                 // Students only see group rooms if eligible (added above). 
                 // Direct chats are explicitly kept.
+                return;
+            }
+            if (userRole === "parent" && r.type !== "direct") {
                 return;
             }
             roomIds.push(r.id);
@@ -329,12 +360,33 @@ exports.getRoomMessages = async (req, res) => {
             messages = messages.map(msg => {
                 const plainMsg = msg.get({ plain: true });
                 if (plainMsg.sender && plainMsg.sender.role === "student") {
-                    // Phase 4: DO NOT show other students' names or roles to students in group chats
                     plainMsg.sender.name = "";
                     plainMsg.sender.is_hidden_student = true;
                 }
                 return plainMsg;
             });
+        } else {
+            // Phase 8: Enrich parent sender names with "Parent of [Child]" for faculty/admin viewing
+            const { User: UserModel, Student } = require("../models");
+            const plainMessages = await Promise.all(messages.map(async (msg) => {
+                const plainMsg = msg.get({ plain: true });
+                if (plainMsg.sender && plainMsg.sender.role === "parent") {
+                    const parentUser = await UserModel.findOne({
+                        where: { id: plainMsg.sender.id, institute_id },
+                        include: [{
+                            model: Student,
+                            as: "LinkedStudents",
+                            include: [{ model: UserModel, attributes: ["name"] }]
+                        }]
+                    });
+                    if (parentUser && parentUser.LinkedStudents && parentUser.LinkedStudents.length > 0) {
+                        const childName = parentUser.LinkedStudents[0]?.User?.name || "Child";
+                        plainMsg.sender.display_name = `${plainMsg.sender.name} (Parent of ${childName})`;
+                    }
+                }
+                return plainMsg;
+            }));
+            return res.status(200).json({ success: true, count: plainMessages.length, data: plainMessages });
         }
 
         return res.status(200).json({ success: true, count: messages.length, data: messages });
@@ -352,10 +404,10 @@ exports.getOrCreateRoom = async (req, res) => {
 
         // Ensure this endpoint creates Direct chats
         let room;
-        if (type === "direct" && userRole === "student") {
+        if (type === "direct" && (userRole === "student" || userRole === "parent")) {
             let fid = faculty_user_id;
             if (!fid && subject_id) {
-                const subject = await Subject.findOne({ where: { id: subject_id }, include: [Faculty] });
+                const subject = await Subject.findOne({ where: { id: subject_id }, include: [{ model: Faculty }] });
                 if (subject && subject.Faculty) {
                     fid = subject.Faculty.user_id;
                 }
