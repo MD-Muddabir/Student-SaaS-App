@@ -32,6 +32,10 @@ const ChatRoom = require("./chatRoom");
 const ChatMessage = require("./chatMessage");
 const ChatParticipant = require("./chatParticipant");
 const StudentParent = require("./studentParent");
+const BiometricDevice = require("./biometricDevice");
+const BiometricEnrollment = require("./biometricEnrollment");
+const BiometricPunch = require("./biometricPunch");
+const BiometricSettings = require("./biometricSettings");
 
 // Associations
 
@@ -277,6 +281,24 @@ ChatRoom.hasMany(ChatParticipant, { foreignKey: "room_id" });
 ChatParticipant.belongsTo(User, { foreignKey: "user_id" });
 User.hasMany(ChatParticipant, { foreignKey: "user_id" });
 
+// Biometric Associations
+BiometricDevice.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasMany(BiometricDevice, { foreignKey: "institute_id" });
+
+BiometricEnrollment.belongsTo(BiometricDevice, { foreignKey: "device_id" });
+BiometricDevice.hasMany(BiometricEnrollment, { foreignKey: "device_id" });
+
+BiometricEnrollment.belongsTo(User, { foreignKey: "user_id" });
+User.hasMany(BiometricEnrollment, { foreignKey: "user_id" });
+
+BiometricEnrollment.belongsTo(User, { as: "enrolledBy", foreignKey: "enrolled_by" });
+
+BiometricPunch.belongsTo(BiometricDevice, { foreignKey: "device_id" });
+BiometricDevice.hasMany(BiometricPunch, { foreignKey: "device_id" });
+
+BiometricSettings.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasOne(BiometricSettings, { foreignKey: "institute_id" });
+
 module.exports = {
     sequelize,
     Plan,
@@ -308,5 +330,9 @@ module.exports = {
     ChatRoom,
     ChatMessage,
     ChatParticipant,
-    StudentParent
+    StudentParent,
+    BiometricDevice,
+    BiometricEnrollment,
+    BiometricPunch,
+    BiometricSettings,
 };

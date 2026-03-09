@@ -176,6 +176,8 @@ function ViewAttendance() {
                                 <th>Date</th>
                                 <th>Subject / Class</th>
                                 <th>Status</th>
+                                <th>Time In</th>
+                                <th>Marked By</th>
                                 <th>Remarks</th>
                             </tr>
                         </thead>
@@ -192,9 +194,20 @@ function ViewAttendance() {
                                         <td>{new Date(record.date).toLocaleDateString()}</td>
                                         <td>{record.Subject?.name || record.Class?.name || "All Subjects"}</td>
                                         <td>
-                                            <span style={{ textTransform: "capitalize" }} className={`badge badge-${record.status === "present" ? "success" : record.status === "absent" ? "error" : record.status === "holiday" ? "info" : "warning"}`}>
-                                                {record.status}
+                                            <span style={{ textTransform: "capitalize" }} className={`badge badge-${record.status === "present" ? "success" : record.status === "absent" ? "error" : record.status === "holiday" ? "info" : record.status === "half_day" ? "warning" : "warning"}`}>
+                                                {record.status?.replace("_", " ")}
                                             </span>
+                                            {record.is_late && (
+                                                <span style={{ marginLeft: '0.4rem', fontSize: '0.75rem', color: '#f59e0b', fontWeight: 600 }}>+{record.late_by_minutes}m late</span>
+                                            )}
+                                        </td>
+                                        <td style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                            {record.time_in ? record.time_in.substring(0, 5) : '—'}
+                                        </td>
+                                        <td style={{ fontSize: '0.8rem' }}>
+                                            {record.marked_by_type === 'biometric' ? '🔐 Biometric' :
+                                                record.marked_by_type === 'mobile_otp' ? '📱 OTP' :
+                                                    record.marked_by_type === 'qr_code' ? '📸 QR Scan' : '📝 Manual'}
                                         </td>
                                         <td style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{record.remarks || "—"}</td>
                                     </tr>

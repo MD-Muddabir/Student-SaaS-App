@@ -55,6 +55,7 @@ const AdminTimetable = lazy(() => import("../pages/admin/Timetable"));
 const AdminFacultyAttendance = lazy(() => import("../pages/admin/FacultyAttendance")); // Added FacultyAttendance Scanner
 const AdminFacultyViewAttendance = lazy(() => import("../pages/admin/AdminFacultyViewAttendance"));
 const AdminManageFacultyAttendance = lazy(() => import("../pages/admin/AdminManageFacultyAttendance"));
+const AdminBiometric = lazy(() => import("../pages/admin/Biometric"));
 const FacultyViewAttendance = lazy(() => import("../pages/faculty/ViewAttendance"));
 // Faculty Pages
 const FacultyDashboard = lazy(() => import("../pages/faculty/Dashboard"));
@@ -163,6 +164,7 @@ function AppRoutes() {
                 <Route path="expenses" element={<AdminExpenses />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="notes" element={<AdminNotes />} />
+                <Route path="biometric" element={<AdminBiometric />} />
                 <Route path="chat-monitor" element={<ChatApp />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="*" element={<Navigate to="/admin/dashboard" />} />

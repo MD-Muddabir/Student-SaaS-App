@@ -94,6 +94,7 @@ app.use("/api/timetable", require("./routes/timetable.routes"));
 app.use("/api/webhook", require("./routes/webhook.routes"));
 app.use("/api/chat", require("./routes/chat.routes"));
 app.use("/api/parents", require("./routes/parent.routes"));
+app.use("/api/biometric", require("./routes/biometric.routes"));
 
 // ============================================
 // 404 HANDLER
@@ -250,6 +251,17 @@ const syncDatabase = async () => {
     try {
       await sequelize.query(`ALTER TABLE student_fees ADD COLUMN reminder_date DATE;`);
     } catch (e) { }
+
+    // Biometric attendance columns
+    try { await sequelize.query(`ALTER TABLE attendances ADD COLUMN marked_by_type ENUM('manual','biometric','mobile_otp','qr_code') DEFAULT 'manual';`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE attendances ADD COLUMN biometric_punch_id BIGINT NULL;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE attendances ADD COLUMN time_in TIME NULL;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE attendances ADD COLUMN time_out TIME NULL;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE attendances ADD COLUMN is_late BOOLEAN DEFAULT false;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE attendances ADD COLUMN late_by_minutes INT DEFAULT 0;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE attendances ADD COLUMN is_half_day BOOLEAN DEFAULT false;`); } catch (e) { }
+    // Modify attendance status ENUM to add half_day
+    try { await sequelize.query(`ALTER TABLE attendances MODIFY COLUMN status ENUM('present','absent','late','holiday','half_day');`); } catch (e) { }
 
     await sequelize.sync({ alter: false });
     console.log("✅ Database synchronized successfully");

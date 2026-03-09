@@ -447,6 +447,7 @@ function AdminDashboard() {
                     {hasPermission('announcements') && <ActionCard path={`${basePath}/announcements`} icon="📢" title="Announcements" featureKey="announcements" />}
 
                     {/* New Notes & Chat Features */}
+                    <ActionCard path={`${basePath}/biometric`} icon="🔐" title="Biometric Attendance" />
                     <ActionCard path={`${basePath}/notes`} icon="📓" title="All Notes" />
                     <ActionCard path={`${basePath}/chat-monitor`} icon="💬" title="Chat Monitor" />
 
