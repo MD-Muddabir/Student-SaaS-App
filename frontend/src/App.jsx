@@ -11,6 +11,7 @@ import NetworkStatus from "./components/NetworkStatus";
 import "./styles/global.css";
 import "./themes/pro/pro-theme.css";   // Pro theme — activated by html.theme-pro
 import "./styles/public-theme-overrides.css"; // Public theme fixes
+import { Toaster } from "react-hot-toast";
 
 function App() {
     return (
@@ -19,6 +20,7 @@ function App() {
                 {/* ThemeProvider must be INSIDE AuthProvider so it can read user */}
                 <ThemeProvider>
                     <NetworkStatus />
+                    <Toaster position="top-right" />
                     <AppRoutes />
                 </ThemeProvider>
             </AuthProvider>

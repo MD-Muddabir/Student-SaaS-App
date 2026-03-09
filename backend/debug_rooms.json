@@ -1,0 +1,68 @@
+[
+  {
+    "id": 2,
+    "institute_id": 1,
+    "class_id": null,
+    "subject_id": 3,
+    "faculty_id": 1,
+    "type": "group",
+    "name": "Exam",
+    "target_gender": "both",
+    "created_at": "2026-03-07T18:08:31.000Z"
+  },
+  {
+    "id": 3,
+    "institute_id": 1,
+    "class_id": null,
+    "subject_id": 1,
+    "faculty_id": null,
+    "type": "direct",
+    "name": "Direct Chat",
+    "target_gender": "both",
+    "created_at": "2026-03-08T11:06:55.000Z"
+  },
+  {
+    "id": 4,
+    "institute_id": 1,
+    "class_id": null,
+    "subject_id": 1,
+    "faculty_id": null,
+    "type": "direct",
+    "name": "Direct Chat",
+    "target_gender": "both",
+    "created_at": "2026-03-08T11:11:38.000Z"
+  },
+  {
+    "id": 5,
+    "institute_id": 1,
+    "class_id": null,
+    "subject_id": 5,
+    "faculty_id": null,
+    "type": "direct",
+    "name": "Direct Chat",
+    "target_gender": "both",
+    "created_at": "2026-03-08T11:18:57.000Z"
+  },
+  {
+    "id": 6,
+    "institute_id": 1,
+    "class_id": null,
+    "subject_id": 5,
+    "faculty_id": 4,
+    "type": "group",
+    "name": "Exam ",
+    "target_gender": "both",
+    "created_at": "2026-03-08T11:19:42.000Z"
+  },
+  {
+    "id": 7,
+    "institute_id": 1,
+    "class_id": null,
+    "subject_id": 7,
+    "faculty_id": null,
+    "type": "direct",
+    "name": "Direct Chat",
+    "target_gender": "both",
+    "created_at": "2026-03-08T11:20:21.000Z"
+  }
+]

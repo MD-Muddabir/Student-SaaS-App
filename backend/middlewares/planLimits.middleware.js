@@ -231,6 +231,7 @@ const checkFeatureAccess = (featureName) => {
                 custom_branding: institute.current_feature_custom_branding !== null ? institute.current_feature_custom_branding : plan.feature_custom_branding,
                 multi_branch: institute.current_feature_multi_branch !== null ? institute.current_feature_multi_branch : plan.feature_multi_branch,
                 api_access: institute.current_feature_api_access !== null ? institute.current_feature_api_access : plan.feature_api_access,
+                timetable: institute.current_feature_timetable !== undefined && institute.current_feature_timetable !== null ? institute.current_feature_timetable : plan.feature_timetable,
             };
 
             // Check if feature is enabled
@@ -248,6 +249,9 @@ const checkFeatureAccess = (featureName) => {
                     break;
                 case 'reports':
                     hasAccess = features.reports !== 'none';
+                    break;
+                case 'timetable':
+                    hasAccess = features.timetable === true;
                     break;
                 case 'announcements':
                     hasAccess = features.announcements === true;
@@ -365,6 +369,7 @@ const getUsageStats = async (req, res) => {
                     announcements: institute.current_feature_announcements !== null ? institute.current_feature_announcements : institute.Plan.feature_announcements,
                     export: institute.current_feature_export !== null ? institute.current_feature_export : institute.Plan.feature_export,
                     whatsapp: institute.current_feature_whatsapp !== null ? institute.current_feature_whatsapp : institute.Plan.feature_whatsapp,
+                    timetable: institute.current_feature_timetable !== undefined && institute.current_feature_timetable !== null ? institute.current_feature_timetable : institute.Plan.feature_timetable,
                     custom_branding: institute.current_feature_custom_branding !== null ? institute.current_feature_custom_branding : institute.Plan.feature_custom_branding,
                     multi_branch: institute.current_feature_multi_branch !== null ? institute.current_feature_multi_branch : institute.Plan.feature_multi_branch
                 }

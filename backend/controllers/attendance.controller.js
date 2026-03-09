@@ -132,17 +132,23 @@ exports.getClassAttendanceByDate = async (req, res) => {
             includeOptions.push({
                 model: Subject,
                 where: { id: subject_id },
-                attributes: [],
-                through: { attributes: [] }
+                attributes: ["id"],
+                through: { attributes: [] },
+                required: false // LEFT JOIN so we don't filter out full course students
             });
         }
 
         // Get all students in the class/subject matching the date criteria
-        const students = await Student.findAll({
+        const allStudents = await Student.findAll({
             where: whereClause,
             include: includeOptions,
             order: [['roll_number', 'ASC']]
         });
+
+        let students = allStudents;
+        if (subject_id && subject_id !== 'undefined' && subject_id !== 'null') {
+            students = allStudents.filter(s => s.is_full_course || (s.Subjects && s.Subjects.length > 0));
+        }
 
         console.log('Found students:', students.length);
 
@@ -173,7 +179,8 @@ exports.getClassAttendanceByDate = async (req, res) => {
                 marked: attendanceRecords.length,
                 present: attendanceRecords.filter(r => r.status === 'present').length,
                 absent: attendanceRecords.filter(r => r.status === 'absent').length,
-                late: attendanceRecords.filter(r => r.status === 'late').length
+                late: attendanceRecords.filter(r => r.status === 'late').length,
+                holiday: attendanceRecords.filter(r => r.status === 'holiday').length
             }
         });
     } catch (error) {
@@ -220,16 +227,22 @@ exports.getClassAttendanceGrid = async (req, res) => {
             includeOptions.push({
                 model: Subject,
                 where: { id: subject_id },
-                attributes: [],
-                through: { attributes: [] }
+                attributes: ["id"],
+                through: { attributes: [] },
+                required: false
             });
         }
 
-        const students = await Student.findAll({
+        const allStudents = await Student.findAll({
             where: { institute_id },
             include: includeOptions,
             order: [['roll_number', 'ASC']]
         });
+
+        let students = allStudents;
+        if (subject_id && subject_id !== 'undefined' && subject_id !== 'null') {
+            students = allStudents.filter(s => s.is_full_course || (s.Subjects && s.Subjects.length > 0));
+        }
 
         const attendanceRecords = await Attendance.findAll({
             where: {
@@ -244,8 +257,10 @@ exports.getClassAttendanceGrid = async (req, res) => {
         const result = students.map(student => {
             const stuRecords = attendanceRecords.filter(r => r.student_id === student.id);
             const total = stuRecords.length;
+            const holidays = stuRecords.filter(r => r.status === 'holiday').length;
+            const workingDays = total - holidays;
             const present = stuRecords.filter(r => r.status === 'present').length;
-            const percentage = total > 0 ? ((present / total) * 100).toFixed(2) : 0;
+            const percentage = workingDays > 0 ? ((present / workingDays) * 100).toFixed(2) : 0;
 
             // Map dates specifically
             const daily = {};
@@ -258,9 +273,11 @@ exports.getClassAttendanceGrid = async (req, res) => {
                 roll_number: student.roll_number,
                 name: student.User?.name,
                 total_days: total,
+                working_days: workingDays,
                 present_days: present,
                 absent_days: stuRecords.filter(r => r.status === 'absent').length,
                 late_days: stuRecords.filter(r => r.status === 'late').length,
+                holiday_days: holidays,
                 percentage: parseFloat(percentage),
                 daily: daily
             };
@@ -333,7 +350,7 @@ exports.updateAttendance = async (req, res) => {
 exports.getStudentAttendanceReport = async (req, res) => {
     try {
         const { student_id } = req.params;
-        const { start_date, end_date, month, year } = req.query;
+        const { start_date, end_date, month, year, subject_id } = req.query; // Phase 2: subject_id filter
         const institute_id = req.user.institute_id;
 
         // Build date filter
@@ -350,10 +367,14 @@ exports.getStudentAttendanceReport = async (req, res) => {
         if (Object.keys(dateFilter).length > 0) {
             whereClause.date = dateFilter;
         }
+        // Phase 2: Filter by subject_id if provided
+        if (subject_id) {
+            whereClause.subject_id = subject_id;
+        }
 
         const records = await Attendance.findAll({
             where: whereClause,
-            order: [['date', 'ASC']],
+            order: [['date', 'DESC']], // most recent first
             include: [
                 {
                     model: Class,
@@ -366,11 +387,14 @@ exports.getStudentAttendanceReport = async (req, res) => {
             ]
         });
 
+        // Phase 1: Working days EXCLUDES holidays — correct count for percentage
         const totalDays = records.length;
+        const holidays = records.filter(r => r.status === 'holiday').length;
+        const workingDays = totalDays - holidays; // <-- Holidays excluded properly
         const presentDays = records.filter(r => r.status === 'present').length;
         const absentDays = records.filter(r => r.status === 'absent').length;
         const lateDays = records.filter(r => r.status === 'late').length;
-        const percentage = totalDays > 0 ? ((presentDays / totalDays) * 100).toFixed(2) : 0;
+        const percentage = workingDays > 0 ? ((presentDays / workingDays) * 100).toFixed(2) : 0;
 
         res.status(200).json({
             success: true,
@@ -378,11 +402,13 @@ exports.getStudentAttendanceReport = async (req, res) => {
                 records,
                 summary: {
                     total_days: totalDays,
+                    working_days: workingDays, // Phase 1: correctly excludes holidays
                     present_days: presentDays,
                     absent_days: absentDays,
                     late_days: lateDays,
+                    holiday_days: holidays,
                     attendance_percentage: parseFloat(percentage),
-                    percentage: parseFloat(percentage) // keep for backwards compatibility if needed
+                    percentage: parseFloat(percentage)
                 }
             }
         });
@@ -424,17 +450,21 @@ exports.getClassAttendanceSummary = async (req, res) => {
             });
 
             const total = records.length;
+            const holidays = records.filter(r => r.status === 'holiday').length;
+            const workingDays = total - holidays;
             const present = records.filter(r => r.status === 'present').length;
-            const percentage = total > 0 ? ((present / total) * 100).toFixed(2) : 0;
+            const percentage = workingDays > 0 ? ((present / workingDays) * 100).toFixed(2) : 0;
 
             return {
                 student_id: student.id,
                 roll_number: student.roll_number,
                 name: student.User?.name,
                 total_days: total,
+                working_days: workingDays,
                 present_days: present,
                 absent_days: records.filter(r => r.status === 'absent').length,
                 late_days: records.filter(r => r.status === 'late').length,
+                holiday_days: holidays,
                 percentage: parseFloat(percentage)
             };
         }));
@@ -474,9 +504,11 @@ exports.getAttendanceDashboard = async (req, res) => {
 
         console.log('Today attendance records:', todayAttendance.length);
 
+        const todayHolidays = todayAttendance.filter(r => r.status === 'holiday').length;
         const todayPresent = todayAttendance.filter(r => r.status === 'present').length;
         const todayTotal = todayAttendance.length;
-        const todayPercentage = todayTotal > 0 ? ((todayPresent / todayTotal) * 100).toFixed(2) : 0;
+        const todayWorking = todayTotal - todayHolidays;
+        const todayPercentage = todayWorking > 0 ? ((todayPresent / todayWorking) * 100).toFixed(2) : 0;
 
         // This month's average
         const now = new Date();
@@ -494,9 +526,11 @@ exports.getAttendanceDashboard = async (req, res) => {
 
         console.log('Month attendance records:', monthAttendance.length);
 
+        const monthHolidays = monthAttendance.filter(r => r.status === 'holiday').length;
         const monthPresent = monthAttendance.filter(r => r.status === 'present').length;
         const monthTotal = monthAttendance.length;
-        const monthPercentage = monthTotal > 0 ? ((monthPresent / monthTotal) * 100).toFixed(2) : 0;
+        const monthWorking = monthTotal - monthHolidays;
+        const monthPercentage = monthWorking > 0 ? ((monthPresent / monthWorking) * 100).toFixed(2) : 0;
 
         // Students below 75%
         const students = await Student.findAll({ where: { institute_id } });
@@ -509,10 +543,12 @@ exports.getAttendanceDashboard = async (req, res) => {
                 where: { institute_id, student_id: student.id }
             });
             const total = records.length;
+            const holidays = records.filter(r => r.status === 'holiday').length;
+            const workingDays = total - holidays;
             const present = records.filter(r => r.status === 'present').length;
-            const percentage = total > 0 ? (present / total) * 100 : 0;
+            const percentage = workingDays > 0 ? (present / workingDays) * 100 : 0;
 
-            if (percentage < 75 && total > 0) {
+            if (percentage < 75 && workingDays > 0) {
                 lowAttendanceStudents.push({
                     student_id: student.id,
                     roll_number: student.roll_number,
@@ -764,7 +800,7 @@ exports.markAttendanceByQR = async (req, res) => {
         }
 
         // Phase 1: Check if student is enrolled in the session's subject
-        if (session.subject_id) {
+        if (session.subject_id && !student.is_full_course) {
             const { StudentSubject } = require('../models');
             const enrollment = await StudentSubject.findOne({
                 where: {
@@ -859,7 +895,7 @@ exports.markAttendanceByStudentQR = async (req, res) => {
         }
 
         // Verify enrollments
-        if (subject_id) {
+        if (subject_id && !student.is_full_course) {
             const { StudentSubject } = require('../models');
             const enrollment = await StudentSubject.findOne({
                 where: { student_id, subject_id: subject_id }
@@ -874,6 +910,19 @@ exports.markAttendanceByStudentQR = async (req, res) => {
             });
             if (!enrollment) {
                 return res.status(403).json({ success: false, message: "Student is not enrolled in this class" });
+            }
+        } else if (subject_id && student.is_full_course) {
+            const { Subject, StudentClass } = require('../models');
+            const subj = await Subject.findOne({ where: { id: subject_id } });
+            if (subj) {
+                const enrollment = await StudentClass.findOne({
+                    where: { student_id, class_id: subj.class_id }
+                });
+                if (!enrollment) {
+                    return res.status(403).json({ success: false, message: "Student is not enrolled in the class for this subject" });
+                }
+            } else {
+                return res.status(403).json({ success: false, message: "Subject not found" });
             }
         }
 

@@ -6,6 +6,7 @@
 import { useState, useEffect } from "react";
 import api from "../../services/api";
 import BackButton from "../../components/common/BackButton";
+import ThemeSelector from "../../components/ThemeSelector";
 // Using the same dashboard CSS for consistency
 import "../admin/Dashboard.css";
 import "./Plans.css";
@@ -44,6 +45,9 @@ function Plans() {
         feature_fees: false,
         feature_announcements: false,
         feature_exams: false,
+        feature_timetable: false,
+        feature_notes: false,
+        feature_chat: false,
         feature_export: false,
         feature_email: false,
         feature_sms: false,
@@ -144,7 +148,8 @@ function Plans() {
                     <h1>📋 Plans Management</h1>
                     <p>Create and manage subscription plans & feature limits</p>
                 </div>
-                <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                <div className="dashboard-header-right">
+                    <ThemeSelector />
                     <BackButton />
                     <button
                         onClick={() => {
@@ -211,6 +216,15 @@ function Plans() {
                                     Exams: <span>{plan.feature_exams ? "✅" : "❌"}</span>
                                 </li>
                                 <li style={{ marginBottom: "0.3rem", display: "flex", justifyContent: "space-between" }}>
+                                    Timetable: <span>{plan.feature_timetable ? "✅" : "❌"}</span>
+                                </li>
+                                <li style={{ marginBottom: "0.3rem", display: "flex", justifyContent: "space-between" }}>
+                                    Notes: <span>{plan.feature_notes ? "✅" : "❌"}</span>
+                                </li>
+                                <li style={{ marginBottom: "0.3rem", display: "flex", justifyContent: "space-between" }}>
+                                    Academic Chat: <span>{plan.feature_chat ? "✅" : "❌"}</span>
+                                </li>
+                                <li style={{ marginBottom: "0.3rem", display: "flex", justifyContent: "space-between" }}>
                                     Export Data: <span>{plan.feature_export ? "✅" : "❌"}</span>
                                 </li>
                                 <li style={{ marginBottom: "0.3rem", display: "flex", justifyContent: "space-between" }}>
@@ -244,19 +258,22 @@ function Plans() {
                 <div className="plans-modal-overlay">
                     <div className="plans-modal">
                         <div className="plans-modal-header">
-                            <h2>{editMode ? "Edit Subscription Plan" : "Create New Subscription Plan"}</h2>
-                            <button
-                                onClick={() => setShowModal(false)}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    fontSize: '1.5rem',
-                                    cursor: 'pointer',
-                                    color: 'var(--gray-500)'
-                                }}
-                            >
-                                ×
-                            </button>
+                            <h2 className="plans-modal-title">{editMode ? "Edit Subscription Plan" : "Create New Subscription Plan"}</h2>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <ThemeSelector />
+                                <button
+                                    onClick={() => setShowModal(false)}
+                                    style={{
+                                        background: 'transparent',
+                                        border: 'none',
+                                        fontSize: '1.5rem',
+                                        cursor: 'pointer',
+                                        color: 'var(--text-secondary)'
+                                    }}
+                                >
+                                    ×
+                                </button>
+                            </div>
                         </div>
 
                         <div className="plans-modal-body">
@@ -410,6 +427,9 @@ function Plans() {
                                             { key: 'feature_fees', label: 'Fees Management' },
                                             { key: 'feature_announcements', label: 'Announcements' },
                                             { key: 'feature_exams', label: 'Examinations' },
+                                            { key: 'feature_timetable', label: 'Master Timetable' },
+                                            { key: 'feature_notes', label: 'My Notes' },
+                                            { key: 'feature_chat', label: 'Academic Chats' },
                                             { key: 'feature_export', label: 'Export Data' },
                                             { key: 'feature_email', label: 'Email Notifs' },
                                             { key: 'feature_sms', label: 'SMS Integration' },

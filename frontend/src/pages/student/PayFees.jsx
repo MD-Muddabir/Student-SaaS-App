@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import api from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
 import "../admin/Dashboard.css";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 function PayFees() {
     const { user } = useContext(AuthContext);
@@ -76,6 +78,21 @@ function PayFees() {
         } catch (err) {
             alert(err.response?.data?.message || "Payment Failed.");
         }
+    };
+
+    const generateReceipt = (payment) => {
+        const doc = new jsPDF();
+        doc.setFontSize(22);
+        doc.text("Fee Payment Receipt", 105, 20, null, null, "center");
+
+        doc.setFontSize(12);
+        doc.text(`Transaction ID: ${payment.transaction_id}`, 20, 40);
+        doc.text(`Date: ${new Date(payment.payment_date).toLocaleDateString()}`, 20, 50);
+        doc.text(`Payment Method: ${payment.payment_method}`, 20, 60);
+        doc.text(`Amount Paid: $${parseFloat(payment.amount_paid).toFixed(2)}`, 20, 70);
+        doc.text(`Status: ${payment.status}`, 20, 80);
+
+        doc.save(`Receipt_${payment.transaction_id}.pdf`);
     };
 
     if (loading) return <div className="dashboard-container">Loading...</div>;
@@ -212,6 +229,7 @@ function PayFees() {
                                 <th>Method</th>
                                 <th>Amount Paid</th>
                                 <th>Status</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -234,6 +252,17 @@ function PayFees() {
                                             <span className={`badge ${payment.status === 'success' ? 'badge-success' : 'badge-danger'}`}>
                                                 {payment.status}
                                             </span>
+                                        </td>
+                                        <td>
+                                            {payment.status === 'success' && (
+                                                <button
+                                                    onClick={() => generateReceipt(payment)}
+                                                    className="btn btn-sm btn-secondary"
+                                                    style={{ backgroundColor: "#4f46e5", color: "white" }}
+                                                >
+                                                    ⬇ Receipt
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))

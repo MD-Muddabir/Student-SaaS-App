@@ -118,6 +118,7 @@ async function handleSubscriptionCharged(subscriptionData) {
                 current_feature_reports: plan.feature_reports,
                 current_feature_announcements: plan.feature_announcements,
                 current_feature_export: plan.feature_export,
+                current_feature_timetable: plan.feature_timetable,
                 current_feature_whatsapp: plan.feature_whatsapp,
                 current_feature_custom_branding: plan.feature_custom_branding,
                 current_feature_multi_branch: plan.feature_multi_branch,

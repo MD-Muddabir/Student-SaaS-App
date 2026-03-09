@@ -9,6 +9,50 @@ const { Op } = require("sequelize");
 const { hashPassword } = require("../utils/hashPassword");
 
 /**
+ * Get own faculty record
+ * @route GET /api/faculty/me
+ * @access Faculty
+ */
+exports.getMe = async (req, res) => {
+    try {
+        const institute_id = req.user.institute_id;
+        const user_id = req.user.id;
+
+        const faculty = await Faculty.findOne({
+            where: { user_id, institute_id },
+            include: [
+                {
+                    model: User,
+                    attributes: ["id", "name", "email", "phone", "status"],
+                },
+                {
+                    model: Subject,
+                    attributes: ["id", "name"],
+                },
+            ],
+        });
+
+        if (!faculty) {
+            return res.status(404).json({
+                success: false,
+                message: "Faculty record not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Faculty retrieved successfully",
+            data: faculty,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+/**
  * Create a new faculty member
  * @route POST /api/faculty
  * @access Admin only
@@ -243,6 +287,13 @@ exports.updateFaculty = async (req, res) => {
             return res.status(404).json({
                 success: false,
                 message: "Faculty not found",
+            });
+        }
+
+        if (req.user.role === "faculty" && faculty.user_id !== req.user.id) {
+            return res.status(403).json({
+                success: false,
+                message: "Access forbidden",
             });
         }
 

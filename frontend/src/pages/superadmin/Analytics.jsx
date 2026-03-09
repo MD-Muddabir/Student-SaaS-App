@@ -8,6 +8,7 @@ import api from "../../services/api";
 import { Doughnut, Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from "chart.js";
 import BackButton from "../../components/common/BackButton";
+import ThemeSelector from "../../components/ThemeSelector";
 import "../admin/Dashboard.css";
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
@@ -64,7 +65,10 @@ function Analytics() {
           <h1>📈 Platform Analytics</h1>
           <p>Usage statistics and growth metrics</p>
         </div>
-        <BackButton />
+        <div className="dashboard-header-right">
+          <ThemeSelector />
+          <BackButton />
+        </div>
       </div>
 
       {/* Overview Cards */}

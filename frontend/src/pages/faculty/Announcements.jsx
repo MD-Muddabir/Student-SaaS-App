@@ -27,7 +27,16 @@ function Announcements() {
     useEffect(() => {
         fetchAnnouncements();
         fetchSubjects();
+        markAsViewed();
     }, []);
+
+    const markAsViewed = async () => {
+        try {
+            await api.post("/announcements/viewed");
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     const fetchAnnouncements = async () => {
         try {

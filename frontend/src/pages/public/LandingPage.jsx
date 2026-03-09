@@ -140,6 +140,12 @@ function LandingPage() {
                             <p>Staff profiles, class assignments, and performance tracking</p>
                             <span className="feature-link">Learn more →</span>
                         </Link>
+                        <Link to="/features#timetable" className="feature-card">
+                            <div className="feature-icon">📅</div>
+                            <h3>Master Timetable</h3>
+                            <p>Dynamic schedule generation, soft-colored subject pills, and conflict prevention</p>
+                            <span className="feature-link">Learn more →</span>
+                        </Link>
                         <Link to="/features#security" className="feature-card">
                             <div className="feature-icon">🔒</div>
                             <h3>Secure Cloud Access</h3>

@@ -33,6 +33,17 @@ function Subjects() {
         fetchFaculty();
     }, []);
 
+    const hasPerm = (op) => {
+        if (user?.role === 'admin' || user?.role === 'super_admin') return true;
+        if (user?.role === 'manager' && user?.permissions) {
+            return user.permissions.includes('subjects') || user.permissions.includes(`subjects.${op}`);
+        }
+        return false;
+    };
+    const canCreate = hasPerm('create');
+    const canUpdate = hasPerm('update');
+    const canDelete = hasPerm('delete');
+
     const fetchSubjects = async () => {
         try {
             const response = await api.get("/subjects");
@@ -156,15 +167,17 @@ function Subjects() {
                     <Link to="/admin/dashboard" className="btn btn-secondary">
                         ← Back
                     </Link>
-                    <button
-                        onClick={() => {
-                            resetForm();
-                            setShowModal(true);
-                        }}
-                        className="btn btn-primary btn-animated"
-                    >
-                        + Add Subject
-                    </button>
+                    {canCreate && (
+                        <button
+                            onClick={() => {
+                                resetForm();
+                                setShowModal(true);
+                            }}
+                            className="btn btn-primary btn-animated"
+                        >
+                            + Add Subject
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -280,18 +293,22 @@ function Subjects() {
                                         <td>{new Date(subject.created_at).toLocaleDateString()}</td>
                                         <td>
                                             <div style={{ display: "flex", gap: "0.5rem" }}>
-                                                <button
-                                                    className="btn btn-sm btn-primary"
-                                                    onClick={() => handleEdit(subject)}
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    className="btn btn-sm btn-danger"
-                                                    onClick={() => handleDelete(subject.id)}
-                                                >
-                                                    Delete
-                                                </button>
+                                                {canUpdate && (
+                                                    <button
+                                                        className="btn btn-sm btn-primary"
+                                                        onClick={() => handleEdit(subject)}
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                )}
+                                                {canDelete && (
+                                                    <button
+                                                        className="btn btn-sm btn-danger"
+                                                        onClick={() => handleDelete(subject.id)}
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

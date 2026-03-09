@@ -8,7 +8,7 @@ import ThemeSelector from "../../components/ThemeSelector";
 
 function SmartAttendance() {
     const { user } = useContext(AuthContext);
-    const dashboardPath = user?.role === "admin" || user?.role === "superadmin" || user?.role === "super_admin"
+    const dashboardPath = user?.role === "admin" || user?.role === "superadmin" || user?.role === "super_admin" || user?.role === "manager"
         ? "/admin/dashboard"
         : "/faculty/dashboard";
     const [classes, setClasses] = useState([]);

@@ -1,19 +1,48 @@
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import ThemeSelector from "../../components/ThemeSelector";
 import { Link, useNavigate } from "react-router-dom";
 // import ThemeSelector from "../../components/ThemeSelector";
 import { AuthContext } from "../../context/AuthContext";
 // import ThemeSelector from "../../components/ThemeSelector";
+import api from "../../services/api";
 import "../admin/Dashboard.css";
 
 function FacultyDashboard() {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [chatUnreadCount, setChatUnreadCount] = useState(0);
 
-    const ActionCard = ({ icon, title, path }) => (
-        <div onClick={() => navigate(path)} className="action-card" style={{ cursor: 'pointer' }}>
+    useEffect(() => {
+        if (user?.features?.announcements) {
+            api.get('/announcements/unread-count').then(res => {
+                if (res.data.success) {
+                    setUnreadCount(res.data.count);
+                }
+            }).catch(err => console.log(err));
+        }
+
+        // Fetch chat unread count
+        api.get('/chat/unread-count').then(res => {
+            if (res.data.success) {
+                setChatUnreadCount(res.data.count);
+            }
+        }).catch(err => console.log(err));
+
+    }, [user]);
+
+    const ActionCard = ({ icon, title, path, badge }) => (
+        <div onClick={() => navigate(path)} className="action-card" style={{ cursor: 'pointer', position: 'relative' }}>
             <span className="action-icon">{icon}</span>
             <span className="action-title">{title}</span>
+            {badge > 0 && (
+                <span style={{
+                    position: 'absolute', top: 10, right: 10, background: 'red', color: 'white',
+                    borderRadius: '50%', padding: '2px 8px', fontSize: '12px', fontWeight: 'bold'
+                }}>
+                    {badge}
+                </span>
+            )}
         </div>
     );
 
@@ -45,10 +74,16 @@ function FacultyDashboard() {
                     {user?.features?.auto_attendance && (
                         <ActionCard path="/faculty/smart-attendance" icon="📸" title="Scan Student QR" />
                     )}
+                    <ActionCard path="/faculty/scan-attendance" icon="🤳" title="My QRCode" />
                     <ActionCard path="/faculty/marks" icon="📝" title="Enter Marks" />
+                    <ActionCard path="/faculty/timetable" icon="📅" title="My Schedule" />
                     {user?.features?.announcements && (
-                        <ActionCard path="/faculty/announcements" icon="📢" title="My Announcements" />
+                        <ActionCard path="/faculty/announcements" icon="📢" title="My Announcements" badge={unreadCount} />
                     )}
+
+                    <ActionCard path="/faculty/notes" icon="📚" title="Class Notes" />
+                    <ActionCard path="/faculty/chat" icon="💬" title="Academic Chat" badge={chatUnreadCount} />
+
                     <ActionCard path="/faculty/profile" icon="👤" title="My Profile" />
                 </div>
             </div>

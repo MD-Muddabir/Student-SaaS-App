@@ -1,1 +1,0 @@
-import{j as r}from"./index-C6xHdt0z.js";/* empty css                  */function a(){return r.jsxs("div",{className:"dashboard-container",children:[r.jsx("div",{className:"dashboard-header",children:r.jsx("h1",{children:"Profile"})}),r.jsx("div",{className:"card",children:r.jsx("p",{children:"Coming soon..."})})]})}export{a as default};

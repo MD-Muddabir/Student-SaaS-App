@@ -101,6 +101,7 @@ exports.createStudent = async (req, res) => {
                 date_of_birth: date_of_birth,
                 gender: gender ? gender.toLowerCase() : null,
                 address,
+                is_full_course: subject_ids && Array.isArray(subject_ids) ? subject_ids.includes("full_course") : false,
             });
         } catch (studentError) {
             // Cleanup orphaned user so admin can retry with same email
@@ -120,12 +121,24 @@ exports.createStudent = async (req, res) => {
 
         // Add subjects if provided
         if (subject_ids && Array.isArray(subject_ids) && subject_ids.length > 0) {
-            const studentSubjects = subject_ids.map(sub_id => ({
-                student_id: student.id,
-                subject_id: parseInt(sub_id),
-                institute_id: institute_id
-            }));
-            await StudentSubject.bulkCreate(studentSubjects);
+            let actualSubjectIds = subject_ids.filter(id => id !== "full_course");
+
+            if (subject_ids.includes("full_course") && class_ids && class_ids.length > 0) {
+                const subjectsForClasses = await Subject.findAll({
+                    where: { institute_id, class_id: { [Op.in]: class_ids } }
+                });
+                const allSubIds = subjectsForClasses.map(s => s.id.toString());
+                actualSubjectIds = [...new Set([...actualSubjectIds, ...allSubIds])];
+            }
+
+            if (actualSubjectIds.length > 0) {
+                const studentSubjects = actualSubjectIds.map(sub_id => ({
+                    student_id: student.id,
+                    subject_id: parseInt(sub_id),
+                    institute_id: institute_id
+                }));
+                await StudentSubject.bulkCreate(studentSubjects);
+            }
         }
 
         res.status(201).json({
@@ -280,10 +293,26 @@ exports.getMe = async (req, res) => {
             });
         }
 
+        let responseData = student.toJSON ? student.toJSON() : student;
+        if (responseData.is_full_course && responseData.Classes && responseData.Classes.length > 0) {
+            const classIds = responseData.Classes.map(c => c.id);
+            const allSubjects = await Subject.findAll({
+                where: { institute_id, class_id: { [Op.in]: classIds } },
+                attributes: ["id", "name"]
+            });
+
+            const existingSubIds = new Set((responseData.Subjects || []).map(s => s.id));
+            const newSubjects = allSubjects.filter(s => !existingSubIds.has(s.id)).map(s => s.toJSON ? s.toJSON() : s);
+
+            if (newSubjects.length > 0) {
+                responseData.Subjects = [...(responseData.Subjects || []), ...newSubjects];
+            }
+        }
+
         res.status(200).json({
             success: true,
             message: "Student retrieved successfully",
-            data: student,
+            data: responseData,
         });
     } catch (error) {
         res.status(500).json({
@@ -332,10 +361,26 @@ exports.getStudentById = async (req, res) => {
             });
         }
 
+        let responseData = student.toJSON ? student.toJSON() : student;
+        if (responseData.is_full_course && responseData.Classes && responseData.Classes.length > 0) {
+            const classIds = responseData.Classes.map(c => c.id);
+            const allSubjects = await Subject.findAll({
+                where: { institute_id, class_id: { [Op.in]: classIds } },
+                attributes: ["id", "name"]
+            });
+
+            const existingSubIds = new Set((responseData.Subjects || []).map(s => s.id));
+            const newSubjects = allSubjects.filter(s => !existingSubIds.has(s.id)).map(s => s.toJSON ? s.toJSON() : s);
+
+            if (newSubjects.length > 0) {
+                responseData.Subjects = [...(responseData.Subjects || []), ...newSubjects];
+            }
+        }
+
         res.status(200).json({
             success: true,
             message: "Student retrieved successfully",
-            data: student,
+            data: responseData,
         });
     } catch (error) {
         res.status(500).json({
@@ -396,6 +441,7 @@ exports.updateStudent = async (req, res) => {
             date_of_birth: date_of_birth || student.date_of_birth,
             gender: gender || student.gender,
             address: address || student.address,
+            is_full_course: subject_ids && Array.isArray(subject_ids) ? subject_ids.includes("full_course") : student.is_full_course,
         });
 
         // Update classes if provided
@@ -418,8 +464,26 @@ exports.updateStudent = async (req, res) => {
             await StudentSubject.destroy({ where: { student_id: id } });
 
             // Add new ones
-            if (subject_ids.length > 0) {
-                const studentSubjects = subject_ids.map(sub_id => ({
+            let actualSubjectIds = subject_ids.filter(sub_id => sub_id !== "full_course");
+
+            if (subject_ids.includes("full_course")) {
+                let currentClassIds = class_ids;
+                if (!currentClassIds || currentClassIds.length === 0) {
+                    const studentClasses = await StudentClass.findAll({ where: { student_id: id } });
+                    currentClassIds = studentClasses.map(sc => sc.class_id);
+                }
+
+                if (currentClassIds && currentClassIds.length > 0) {
+                    const subjectsForClasses = await Subject.findAll({
+                        where: { institute_id, class_id: { [Op.in]: currentClassIds } }
+                    });
+                    const allSubIds = subjectsForClasses.map(s => s.id.toString());
+                    actualSubjectIds = [...new Set([...actualSubjectIds, ...allSubIds])];
+                }
+            }
+
+            if (actualSubjectIds.length > 0) {
+                const studentSubjects = actualSubjectIds.map(sub_id => ({
                     student_id: student.id,
                     subject_id: parseInt(sub_id),
                     institute_id: institute_id

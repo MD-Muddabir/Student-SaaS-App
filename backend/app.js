@@ -75,6 +75,7 @@ app.use("/api/admin", require("./routes/admin.routes"));
 app.use("/api/institutes", require("./routes/institute.routes"));
 app.use("/api/students", require("./routes/student.routes"));
 app.use("/api/faculty", require("./routes/faculty.routes"));
+app.use("/api/faculty-attendance", require("./routes/facultyAttendance.routes"));
 app.use("/api/classes", require("./routes/class.routes"));
 app.use("/api/subjects", require("./routes/subject.routes"));
 app.use("/api/attendance", require("./routes/attendance.routes"));
@@ -87,7 +88,12 @@ app.use("/api/plans", require("./routes/plan.routes"));
 app.use("/api/payment", require("./routes/payment.routes"));
 app.use("/api/invoice", require("./routes/invoice.routes"));
 app.use("/api/expenses", require("./routes/expense.routes"));
+app.use("/api/transport-fees", require("./routes/transportFee.routes"));
+app.use("/api/manager", require("./routes/manager.routes"));
+app.use("/api/timetable", require("./routes/timetable.routes"));
 app.use("/api/webhook", require("./routes/webhook.routes"));
+app.use("/api/chat", require("./routes/chat.routes"));
+app.use("/api/parents", require("./routes/parent.routes"));
 
 // ============================================
 // 404 HANDLER
@@ -237,6 +243,14 @@ const syncDatabase = async () => {
     // SAFE SYNC: alter:false only creates missing tables,
     // never modifies existing tables (prevents index duplication)
     // ─────────────────────────────────────────────────────────────────
+    try {
+      await sequelize.query(`ALTER TABLE students ADD COLUMN is_full_course BOOLEAN DEFAULT false;`);
+    } catch (e) { }
+
+    try {
+      await sequelize.query(`ALTER TABLE student_fees ADD COLUMN reminder_date DATE;`);
+    } catch (e) { }
+
     await sequelize.sync({ alter: false });
     console.log("✅ Database synchronized successfully");
 

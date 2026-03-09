@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "institute_id": 1,
+    "class_id": 1,
+    "name": "Bio",
+    "faculty_id": 4,
+    "created_at": "2026-03-07T14:29:12.000Z",
+    "updated_at": "2026-03-07T14:29:12.000Z"
+  },
+  {
+    "id": 2,
+    "institute_id": 1,
+    "class_id": 1,
+    "name": "Physics",
+    "faculty_id": 2,
+    "created_at": "2026-03-07T14:29:55.000Z",
+    "updated_at": "2026-03-07T14:30:22.000Z"
+  },
+  {
+    "id": 3,
+    "institute_id": 1,
+    "class_id": 1,
+    "name": "Chamistry",
+    "faculty_id": 1,
+    "created_at": "2026-03-07T14:30:05.000Z",
+    "updated_at": "2026-03-07T14:30:13.000Z"
+  },
+  {
+    "id": 4,
+    "institute_id": 1,
+    "class_id": 1,
+    "name": "Mathematics",
+    "faculty_id": 3,
+    "created_at": "2026-03-07T14:30:38.000Z",
+    "updated_at": "2026-03-07T14:30:38.000Z"
+  },
+  {
+    "id": 5,
+    "institute_id": 1,
+    "class_id": 2,
+    "name": "Bio",
+    "faculty_id": 4,
+    "created_at": "2026-03-07T14:33:27.000Z",
+    "updated_at": "2026-03-07T14:33:27.000Z"
+  },
+  {
+    "id": 6,
+    "institute_id": 1,
+    "class_id": 2,
+    "name": "Chamistry",
+    "faculty_id": 6,
+    "created_at": "2026-03-07T14:33:42.000Z",
+    "updated_at": "2026-03-07T14:33:42.000Z"
+  },
+  {
+    "id": 7,
+    "institute_id": 1,
+    "class_id": 2,
+    "name": "Physics",
+    "faculty_id": 5,
+    "created_at": "2026-03-07T14:33:54.000Z",
+    "updated_at": "2026-03-07T14:33:54.000Z"
+  },
+  {
+    "id": 8,
+    "institute_id": 1,
+    "class_id": 2,
+    "name": "Mathematics",
+    "faculty_id": 3,
+    "created_at": "2026-03-07T14:34:28.000Z",
+    "updated_at": "2026-03-07T14:34:28.000Z"
+  },
+  {
+    "id": 9,
+    "institute_id": 1,
+    "class_id": 3,
+    "name": "Bio",
+    "faculty_id": 4,
+    "created_at": "2026-03-07T14:34:42.000Z",
+    "updated_at": "2026-03-07T14:34:42.000Z"
+  },
+  {
+    "id": 10,
+    "institute_id": 1,
+    "class_id": 3,
+    "name": "Chamistry",
+    "faculty_id": 1,
+    "created_at": "2026-03-07T14:34:56.000Z",
+    "updated_at": "2026-03-07T14:34:56.000Z"
+  },
+  {
+    "id": 11,
+    "institute_id": 1,
+    "class_id": 3,
+    "name": "Physics",
+    "faculty_id": 2,
+    "created_at": "2026-03-07T14:35:07.000Z",
+    "updated_at": "2026-03-07T14:35:07.000Z"
+  },
+  {
+    "id": 12,
+    "institute_id": 1,
+    "class_id": 3,
+    "name": "Mathematics",
+    "faculty_id": 6,
+    "created_at": "2026-03-07T14:35:26.000Z",
+    "updated_at": "2026-03-07T14:35:26.000Z"
+  }
+]

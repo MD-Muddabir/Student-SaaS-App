@@ -210,3 +210,157 @@
         opacity: 1;
     }
 }
+
+/* =====================================================
+   DARK MODE & PRO THEME OVERRIDES
+   ===================================================== */
+
+html.dark-mode .plans-modal-overlay {
+    background-color: rgba(0, 0, 0, 0.85);
+}
+
+html.dark-mode .plans-modal {
+    background: #1e293b;
+    border-color: #334155;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+html.dark-mode .plans-modal-header {
+    background: #0f172a;
+    border-bottom-color: #334155;
+}
+
+html.dark-mode .plans-modal-header h2 {
+    color: #f1f5f9;
+}
+
+html.dark-mode .form-section {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+html.dark-mode .form-section-title {
+    color: #f1f5f9;
+    border-bottom-color: #4f46e5;
+}
+
+html.dark-mode .form-label {
+    color: #94a3b8;
+}
+
+html.dark-mode .form-input,
+html.dark-mode .form-select,
+html.dark-mode .form-textarea {
+    background-color: #0f172a;
+    border-color: #334155;
+    color: #f1f5f9;
+}
+
+html.dark-mode .form-input:focus,
+html.dark-mode .form-select:focus,
+html.dark-mode .form-textarea:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+html.dark-mode .limit-input-group {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+html.dark-mode .limit-input-group label {
+    color: #94a3b8;
+}
+
+html.dark-mode .limit-input-group input {
+    color: #818cf8;
+}
+
+html.dark-mode .feature-checkbox:hover {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+html.dark-mode .feature-label-text {
+    color: #e2e8f0;
+}
+
+html.dark-mode .plans-modal-footer {
+    background: #0f172a;
+    border-top-color: #334155;
+}
+
+/* Glassmorphism for Pro Theme */
+html.theme-pro .plans-modal {
+    background: rgba(30, 41, 59, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+html.theme-pro .plans-modal-header {
+    background: rgba(15, 23, 42, 0.6);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+html.theme-pro .plans-modal-footer {
+    background: rgba(15, 23, 42, 0.6);
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+html.theme-pro .form-section {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+html.theme-pro .form-section-title {
+    color: #f1f5f9;
+    border-bottom-color: rgba(99, 102, 241, 0.4);
+}
+
+html.theme-pro .plans-modal-title {
+    color: #f1f5f9;
+}
+
+html.theme-pro .form-label {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+html.theme-pro .form-input,
+html.theme-pro .form-select,
+html.theme-pro .form-textarea {
+    background-color: rgba(15, 23, 42, 0.4);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #f1f5f9;
+}
+
+html.theme-pro .form-input:focus,
+html.theme-pro .form-select:focus,
+html.theme-pro .form-textarea:focus {
+    border-color: rgba(99, 102, 241, 0.8);
+    background-color: rgba(15, 23, 42, 0.6);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+html.theme-pro .limit-input-group {
+    background: rgba(15, 23, 42, 0.4);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+html.theme-pro .limit-input-group label {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+html.theme-pro .limit-input-group input {
+    color: #818cf8;
+    background-color: transparent !important;
+}
+
+html.theme-pro .feature-checkbox:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+html.theme-pro .feature-label-text {
+    color: rgba(255, 255, 255, 0.85);
+}

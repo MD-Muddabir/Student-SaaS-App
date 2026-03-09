@@ -214,6 +214,18 @@ function MarkAttendance() {
         setAttendanceData(newData);
     };
 
+    const markAllHoliday = () => {
+        const newData = {};
+        students.forEach(student => {
+            newData[student.student_id] = {
+                status: "holiday",
+                remarks: attendanceData[student.student_id]?.remarks || "",
+                isExisting: attendanceData[student.student_id]?.isExisting || false
+            };
+        });
+        setAttendanceData(newData);
+    };
+
     return (
         <div className="dashboard-container">
             <div className="dashboard-header">
@@ -363,6 +375,9 @@ function MarkAttendance() {
                                 <button onClick={markAllAbsent} className="btn btn-sm btn-danger" type="button">
                                     × All Absent
                                 </button>
+                                <button onClick={markAllHoliday} type="button" className="btn btn-sm" style={{ backgroundColor: "#3b82f6", color: "white" }}>
+                                    🏖️ Holiday
+                                </button>
                             </div>
                         </div>
 
@@ -442,6 +457,16 @@ function MarkAttendance() {
                                                                     />
                                                                     <span style={{ color: "#6366f1" }}>Late</span>
                                                                 </label>
+                                                                <label style={{ display: "flex", alignItems: "center", gap: "5px", cursor: "pointer" }}>
+                                                                    <input
+                                                                        type="radio"
+                                                                        name={`status-${student.student_id}`}
+                                                                        value="holiday"
+                                                                        checked={attendanceData[student.student_id]?.status === "holiday"}
+                                                                        onChange={() => handleStatusChange(student.student_id, "holiday")}
+                                                                    />
+                                                                    <span style={{ color: "#3b82f6" }}>Holiday</span>
+                                                                </label>
                                                             </div>
                                                         </td>
                                                         <td>
@@ -502,7 +527,7 @@ function MarkAttendance() {
                                                     <span className="badge badge-success" style={{ fontSize: "0.7rem", marginTop: "4px" }}>✓ Saved in DB</span>
                                                 </td>
                                                 <td>
-                                                    <span className={`badge badge-${attendanceData[student.student_id]?.status === 'present' ? 'success' : attendanceData[student.student_id]?.status === 'absent' ? 'danger' : attendanceData[student.student_id]?.status === 'late' ? 'warning' : 'secondary'}`} style={{ textTransform: "capitalize" }}>
+                                                    <span className={`badge badge-${attendanceData[student.student_id]?.status === 'present' ? 'success' : attendanceData[student.student_id]?.status === 'absent' ? 'danger' : attendanceData[student.student_id]?.status === 'late' ? 'warning' : attendanceData[student.student_id]?.status === 'holiday' ? 'primary' : 'secondary'}`} style={{ textTransform: "capitalize" }}>
                                                         {attendanceData[student.student_id]?.status}
                                                     </span>
                                                 </td>
@@ -543,9 +568,11 @@ function MarkAttendance() {
                                             <th>Roll No</th>
                                             <th>Name</th>
                                             <th>Total Days</th>
+                                            <th>Working Days</th>
                                             <th>Present</th>
                                             <th>Absent</th>
                                             <th>Late</th>
+                                            <th>Holidays</th>
                                             <th>Percentage</th>
                                         </tr>
                                     </thead>
@@ -555,9 +582,11 @@ function MarkAttendance() {
                                                 <td>{student.roll_number}</td>
                                                 <td>{student.name}</td>
                                                 <td>{student.total_days}</td>
+                                                <td>{student.working_days}</td>
                                                 <td><span style={{ color: "#10b981" }}>{student.present_days}</span></td>
                                                 <td><span style={{ color: "#ef4444" }}>{student.absent_days}</span></td>
                                                 <td><span style={{ color: "#f59e0b" }}>{student.late_days}</span></td>
+                                                <td><span style={{ color: "#3b82f6" }}>{student.holiday_days}</span></td>
                                                 <td>
                                                     <span className={`badge ${student.percentage >= 75 ? 'badge-success' : 'badge-danger'}`}>
                                                         {student.percentage}%

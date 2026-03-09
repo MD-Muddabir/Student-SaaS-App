@@ -53,6 +53,7 @@ function PricingPage() {
         if (plan.feature_attendance) features.push("Attendance tracking");
         if (plan.feature_fees) features.push("Fee management");
         if (plan.feature_exams) features.push("Examination management");
+        if (plan.feature_timetable) features.push("Master timetable generation");
         if (plan.feature_reports) features.push("Reports & analytics");
         if (plan.feature_sms) features.push("SMS notifications");
         if (plan.feature_email) features.push("Email notifications");

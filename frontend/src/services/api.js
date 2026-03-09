@@ -39,6 +39,23 @@ api.interceptors.response.use(
             // window.location.href = "/login";
         }
 
+        // Handle Manager Account Blocked (real-time enforcement)
+        if (error.response && error.response.status === 403 && error.response.data.code === 'ACCOUNT_BLOCKED') {
+            try {
+                const stored = localStorage.getItem('user');
+                if (stored) {
+                    const u = JSON.parse(stored);
+                    if (u.status !== 'blocked') {
+                        u.status = 'blocked';
+                        localStorage.setItem('user', JSON.stringify(u));
+                        window.location.href = "/admin/dashboard";
+                    } else if (!window.location.pathname.includes('/admin/dashboard')) {
+                        window.location.href = "/admin/dashboard";
+                    }
+                }
+            } catch { }
+        }
+
         return Promise.reject(error);
     }
 );

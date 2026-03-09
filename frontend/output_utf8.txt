@@ -1,0 +1,82 @@
+﻿Navigating to http://localhost:5173 ...
+[Request]: GET http://localhost:5173/
+[Response]: 200 http://localhost:5173/
+[Request]: GET http://localhost:5173/@vite/client
+[Request]: GET http://localhost:5173/src/main.jsx
+[Request]: GET http://localhost:5173/@react-refresh
+[Response]: 200 http://localhost:5173/src/main.jsx
+[Request]: GET http://localhost:5173/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=edd82082
+[Request]: GET http://localhost:5173/node_modules/.vite/deps/react.js?v=edd82082
+[Request]: GET http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=edd82082
+[Request]: GET http://localhost:5173/src/App.jsx
+[Response]: 200 http://localhost:5173/@vite/client
+[Request]: GET http://localhost:5173/node_modules/vite/dist/client/env.mjs
+[Response]: 200 http://localhost:5173/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=edd82082
+[Response]: 200 http://localhost:5173/@react-refresh
+[Response]: 200 http://localhost:5173/node_modules/.vite/deps/react.js?v=edd82082
+[Response]: 200 http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=edd82082
+[Request]: GET http://localhost:5173/node_modules/.vite/deps/chunk-2WIBB5DE.js?v=edd82082
+[Request]: GET http://localhost:5173/node_modules/.vite/deps/chunk-DC5AMYBS.js?v=edd82082
+[Response]: 200 http://localhost:5173/src/App.jsx
+[Response]: 200 http://localhost:5173/node_modules/vite/dist/client/env.mjs
+[Request]: GET http://localhost:5173/node_modules/.vite/deps/chunk-6ZTKJVT4.js?v=edd82082
+[Request]: GET http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=edd82082
+[Request]: GET http://localhost:5173/src/context/AuthContext.jsx
+[Request]: GET http://localhost:5173/src/context/ThemeContext.jsx
+[Request]: GET http://localhost:5173/src/routes/AppRoutes.jsx
+[Request]: GET http://localhost:5173/src/components/NetworkStatus.jsx
+[Request]: GET http://localhost:5173/src/styles/global.css
+[Request]: GET http://localhost:5173/src/themes/pro/pro-theme.css
+[Request]: GET http://localhost:5173/src/styles/public-theme-overrides.css
+[Browser Console]: [vite] connecting...
+[Browser Console]: [vite] connected.
+[Response]: 200 http://localhost:5173/node_modules/.vite/deps/chunk-2WIBB5DE.js?v=edd82082
+[Response]: 200 http://localhost:5173/node_modules/.vite/deps/chunk-DC5AMYBS.js?v=edd82082
+[Response]: 200 http://localhost:5173/src/context/AuthContext.jsx
+[Response]: 200 http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=edd82082
+[Response]: 200 http://localhost:5173/node_modules/.vite/deps/chunk-6ZTKJVT4.js?v=edd82082
+[Request]: GET http://localhost:5173/src/services/auth.service.js
+[Response]: 200 http://localhost:5173/src/routes/AppRoutes.jsx
+[Response]: 200 http://localhost:5173/src/components/NetworkStatus.jsx
+[Response]: 200 http://localhost:5173/src/themes/pro/pro-theme.css
+[Response]: 200 http://localhost:5173/src/context/ThemeContext.jsx
+[Response]: 200 http://localhost:5173/src/styles/global.css
+[Response]: 200 http://localhost:5173/src/styles/public-theme-overrides.css
+[Request]: GET http://localhost:5173/src/routes/ProtectedRoute.jsx
+[Request]: GET http://localhost:5173/src/components/common/LoadingSpinner.jsx
+[Request]: GET http://localhost:5173/src/components/NetworkStatus.css
+[Request]: GET http://localhost:5173/src/services/api.js
+[Response]: 200 http://localhost:5173/src/services/auth.service.js
+[Response]: 200 http://localhost:5173/src/components/common/LoadingSpinner.jsx
+[Response]: 200 http://localhost:5173/src/routes/ProtectedRoute.jsx
+[Response]: 200 http://localhost:5173/src/components/NetworkStatus.css
+[Response]: 200 http://localhost:5173/src/services/api.js
+[Request]: GET http://localhost:5173/src/components/common/LoadingSpinner.css
+[Request]: GET http://localhost:5173/node_modules/.vite/deps/axios.js?v=edd82082
+[Response]: 200 http://localhost:5173/src/components/common/LoadingSpinner.css
+[Response]: 200 http://localhost:5173/node_modules/.vite/deps/axios.js?v=edd82082
+[Browser Console]: %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold
+[Request]: GET http://localhost:5173/src/pages/public/Home.jsx
+[Response]: 200 http://localhost:5173/src/pages/public/Home.jsx
+[Request]: GET http://localhost:5173/src/components/layout/PublicNavbar.jsx
+[Request]: GET http://localhost:5173/src/pages/public/Public.css
+[Request]: GET http://localhost:5173/src/pages/public/PublicPages.css
+[Response]: 200 http://localhost:5173/src/pages/public/Public.css
+[Response]: 200 http://localhost:5173/src/components/layout/PublicNavbar.jsx
+[Request]: GET http://localhost:5173/src/components/ThemeSelector.jsx
+[Response]: 200 http://localhost:5173/src/pages/public/PublicPages.css
+[Response]: 200 http://localhost:5173/src/components/ThemeSelector.jsx
+[Request]: GET http://localhost:5173/src/components/ThemeSelector.css
+[Response]: 200 http://localhost:5173/src/components/ThemeSelector.css
+[Request]: GET http://localhost:5173/favicon.ico
+[Response]: 200 http://localhost:5173/favicon.ico
+Clicking the login link in navbar...
+Waiting 3 seconds...
+[Request]: GET http://localhost:5173/src/pages/auth/Login.jsx
+[Request]: GET http://localhost:5173/favicon.ico
+[Response]: 304 http://localhost:5173/favicon.ico
+[Response]: 200 http://localhost:5173/src/pages/auth/Login.jsx
+[Request]: GET http://localhost:5173/src/pages/auth/Auth.css
+[Response]: 200 http://localhost:5173/src/pages/auth/Auth.css
+[Browser Console]: [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o
+Closing...

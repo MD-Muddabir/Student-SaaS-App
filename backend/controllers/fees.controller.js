@@ -3,7 +3,7 @@
  * Handles fee structure and payment tracking
  */
 
-const { FeesStructure, Payment, Student, User } = require("../models");
+const { FeesStructure, Payment, Student, User, StudentFee, FeeDiscountLog, Class, Subject } = require("../models");
 const { Op } = require("sequelize");
 
 exports.createFeeStructure = async (req, res) => {
@@ -20,6 +20,33 @@ exports.createFeeStructure = async (req, res) => {
             due_date,
             description,
         });
+
+        // Auto assign to existing students of this class
+        if (!subject_id && class_id) {
+            const students = await Student.findAll({
+                where: { institute_id },
+                include: [{ model: Class, where: { id: class_id } }]
+            });
+
+            const feeRecords = students
+                .filter(s => fee_type !== 'Tuition Fee' || s.is_full_course)
+                .map(s => ({
+                    institute_id,
+                    student_id: s.id,
+                    class_id: class_id,
+                    fee_structure_id: feeStructure.id,
+                    original_amount: amount,
+                    discount_amount: 0,
+                    final_amount: amount,
+                    paid_amount: 0,
+                    due_amount: amount,
+                    status: 'pending'
+                }));
+
+            if (feeRecords.length > 0) {
+                await StudentFee.bulkCreate(feeRecords);
+            }
+        }
 
         res.status(201).json({
             success: true,
@@ -79,13 +106,34 @@ exports.getAllFeeStructures = async (req, res) => {
                 include: [{ model: require("../models").Subject }]
             });
             if (studentObj) {
+                const filteredFees = [];
                 for (let fee of feesWithPayments) {
                     const payments = await Payment.findAll({
                         where: { student_id: studentObj.id, fee_structure_id: fee.id, status: 'success' }
                     });
                     fee.paid_amount = payments.reduce((sum, p) => sum + parseFloat(p.amount_paid), 0);
-                    fee.is_enrolled = !!(fee.subject_id && studentObj.Subjects?.find(s => s.id === fee.subject_id));
+                    const isEnrolled = !!(fee.subject_id && studentObj.Subjects?.find(s => s.id === fee.subject_id));
+                    fee.is_enrolled = isEnrolled;
+
+                    if (fee.subject_id) {
+                        // Subject-specific fee
+                        if (isEnrolled) {
+                            filteredFees.push(fee);
+                        }
+                    } else {
+                        // Full course / General fee
+                        if (studentObj.is_full_course) {
+                            filteredFees.push(fee);
+                        } else {
+                            // Student is not full course. Do not show fees that contain 'full' or 'course'
+                            const feeType = fee.fee_type ? fee.fee_type.toLowerCase() : '';
+                            if (!feeType.includes('course') && !feeType.includes('full')) {
+                                filteredFees.push(fee);
+                            }
+                        }
+                    }
                 }
+                feesWithPayments = filteredFees;
             }
         }
 
@@ -104,7 +152,7 @@ exports.getAllFeeStructures = async (req, res) => {
 
 exports.recordPayment = async (req, res) => {
     try {
-        const { student_id, fee_structure_id, amount, payment_method, transaction_id, payment_date, remarks } = req.body;
+        const { student_id, fee_structure_id, amount, payment_method, transaction_id, payment_date, remarks, reminder_date } = req.body;
         const institute_id = req.user.institute_id;
 
         let actual_student_id = student_id;
@@ -135,6 +183,46 @@ exports.recordPayment = async (req, res) => {
 
                 if (fee.subject_id) {
                     await studentObj.addSubject(fee.subject_id);
+                } else if (fee.fee_type === 'Tuition Fee') {
+                    await studentObj.update({ is_full_course: true });
+                }
+            }
+        }
+
+        // Find corresponding StudentFee to update
+        if (fee_structure_id) {
+            const stuFee = await StudentFee.findOne({
+                where: { student_id: actual_student_id, fee_structure_id, institute_id }
+            });
+
+            if (stuFee) {
+                const newPaid = parseFloat(stuFee.paid_amount) + parseFloat(amount);
+                const newDue = parseFloat(stuFee.final_amount) - newPaid;
+
+                await stuFee.update({
+                    paid_amount: newPaid,
+                    due_amount: newDue > 0 ? newDue : 0,
+                    status: newDue <= 0 ? 'paid' : 'partial',
+                    reminder_date: reminder_date || stuFee.reminder_date
+                });
+            } else if (studentObj) {
+                const fee = await FeesStructure.findOne({ where: { id: fee_structure_id } });
+                if (fee) {
+                    const final = parseFloat(fee.amount);
+                    const due = final - parseFloat(amount);
+                    await StudentFee.create({
+                        institute_id,
+                        student_id: actual_student_id,
+                        class_id: studentObj.class_id,
+                        fee_structure_id: fee.id,
+                        original_amount: final,
+                        discount_amount: 0,
+                        final_amount: final,
+                        paid_amount: amount,
+                        due_amount: due > 0 ? due : 0,
+                        status: due <= 0 ? 'paid' : 'partial',
+                        reminder_date: reminder_date || null
+                    });
                 }
             }
         }
@@ -148,6 +236,8 @@ exports.recordPayment = async (req, res) => {
             transaction_id: transaction_id || "TXN_" + Date.now(),
             payment_date: payment_date || new Date(),
             status: "success",
+            collected_by: req.user.id,
+            remarks: remarks || null,
         });
 
         res.status(201).json({
@@ -220,6 +310,277 @@ exports.getStudentPayments = async (req, res) => {
             success: false,
             message: error.message,
         });
+    }
+};
+
+exports.updateFeeStructure = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const institute_id = req.user.institute_id;
+        const { class_id, subject_id, fee_type, amount, due_date, description } = req.body;
+
+        const feeStructure = await FeesStructure.findOne({ where: { id, institute_id } });
+
+        if (!feeStructure) {
+            return res.status(404).json({ success: false, message: "Fee structure not found" });
+        }
+
+        await feeStructure.update({
+            class_id,
+            subject_id: subject_id || null,
+            fee_type,
+            amount,
+            due_date,
+            description,
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "Fee structure updated successfully",
+            data: feeStructure,
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.deleteFeeStructure = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const institute_id = req.user.institute_id;
+
+        const feeStructure = await FeesStructure.findOne({ where: { id, institute_id } });
+
+        if (!feeStructure) {
+            return res.status(404).json({ success: false, message: "Fee structure not found" });
+        }
+
+        const existingPayments = await Payment.count({ where: { fee_structure_id: id, institute_id } });
+        if (existingPayments > 0) {
+            return res.status(400).json({ success: false, message: "Cannot delete fee structure because payments have already been recorded against it." });
+        }
+
+        await StudentFee.destroy({ where: { fee_structure_id: id } });
+        await feeStructure.destroy();
+
+        res.status(200).json({
+            success: true,
+            message: "Fee structure deleted successfully",
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.getAssignedStudentFees = async (req, res) => {
+    try {
+        const institute_id = req.user.institute_id;
+
+        // Auto-sync missing StudentFees for all students/class fees
+        // Doing a pass for both generic class fees AND specific enrolled subject fees
+        const students = await Student.findAll({
+            where: { institute_id },
+            include: [{ model: Subject }, { model: Class }]
+        });
+        const structures = await FeesStructure.findAll({ where: { institute_id }, raw: true });
+
+        const existingStudentFees = await StudentFee.findAll({ where: { institute_id }, raw: true });
+        const existingSet = new Set(existingStudentFees.map(sf => `${sf.student_id}_${sf.fee_structure_id}`));
+
+        const toCreate = [];
+        const toDeleteIds = [];
+
+        for (const s of students) {
+            const subjectIds = s.Subjects ? s.Subjects.map(sub => sub.id) : [];
+            const classIds = s.Classes ? s.Classes.map(c => c.id) : [];
+
+            // Existing fees for this student
+            const studentExistingFees = existingStudentFees.filter(f => f.student_id === s.id);
+
+            for (const fs of structures) {
+                let applies = false;
+                if (classIds.includes(fs.class_id)) {
+                    if (fs.subject_id !== null) {
+                        if (subjectIds.includes(fs.subject_id)) applies = true;
+                    } else {
+                        // If no specific subject and it's Tuition Fee, it means "All Subjects (Full Class)"
+                        if (fs.fee_type === 'Tuition Fee') {
+                            if (s.is_full_course) applies = true;
+                        } else {
+                            // Other general fees like Transport or Library, apply to all in class
+                            applies = true;
+                        }
+                    }
+                }
+
+                const existingFeeDetails = studentExistingFees.find(f => f.fee_structure_id === fs.id);
+
+                if (applies) {
+                    if (!existingFeeDetails) {
+                        toCreate.push({
+                            institute_id,
+                            student_id: s.id,
+                            class_id: fs.class_id,
+                            fee_structure_id: fs.id,
+                            original_amount: fs.amount,
+                            discount_amount: 0,
+                            final_amount: fs.amount,
+                            paid_amount: 0,
+                            due_amount: fs.amount,
+                            status: 'pending'
+                        });
+                    }
+                } else {
+                    // If doesn't apply anymore but exists implicitly in db and is unpaid
+                    if (existingFeeDetails && parseFloat(existingFeeDetails.paid_amount) === 0) {
+                        toDeleteIds.push(existingFeeDetails.id);
+                    }
+                }
+            }
+        }
+
+        if (toDeleteIds.length > 0) {
+            await StudentFee.destroy({ where: { id: toDeleteIds } });
+        }
+
+        if (toCreate.length > 0) {
+            await StudentFee.bulkCreate(toCreate);
+        }
+
+        // Fetch them all with associations
+        let studentFees = await StudentFee.findAll({
+            where: { institute_id },
+            include: [
+                { model: Student, include: [{ model: User, attributes: ['name', 'email'] }] },
+                { model: Class, attributes: ['name', 'section'] },
+                { model: FeesStructure, include: [{ model: Subject, required: false }] }
+            ],
+            order: [["id", "DESC"]]
+        });
+
+        // Inject any active students who somehow have no fees (e.g. class_id is null or no structure configured)
+        const studentsWithFees = new Set(studentFees.map(sf => sf.student_id));
+        const allStudents = await Student.findAll({
+            where: { institute_id },
+            include: [
+                { model: User, attributes: ['name', 'email'] },
+                { model: Class, attributes: ['name', 'section'] }
+            ]
+        });
+
+        for (const s of allStudents) {
+            if (!studentsWithFees.has(s.id)) {
+                // Return a dummy object so they can at least be found and collected from
+                studentFees.push({
+                    id: `dummy_${s.id}`,
+                    student_id: s.id,
+                    class_id: s.Classes?.[0]?.id || null, // fallback class to show in UI
+                    fee_structure_id: null,
+                    original_amount: 0,
+                    discount_amount: 0,
+                    final_amount: 0,
+                    paid_amount: 0,
+                    due_amount: 0,
+                    status: 'pending', // show as pending so they appear by default!
+                    Student: s,
+                    Class: s.Classes?.[0] || null,
+                    FeesStructure: null
+                });
+            }
+        }
+
+        res.status(200).json({ success: true, data: studentFees });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.applyDiscount = async (req, res) => {
+    try {
+        const { student_fee_id, discount_amount, reason } = req.body;
+        const institute_id = req.user.institute_id;
+
+        const stuFee = await StudentFee.findOne({ where: { id: student_fee_id, institute_id } });
+        if (!stuFee) return res.status(404).json({ success: false, message: "Student fee record not found" });
+
+        const newDiscount = parseFloat(stuFee.discount_amount) + parseFloat(discount_amount);
+        const newFinal = parseFloat(stuFee.original_amount) - newDiscount;
+
+        if (newFinal < 0) {
+            return res.status(400).json({ success: false, message: "Discount exceeds original amount." });
+        }
+
+        const newDue = newFinal - parseFloat(stuFee.paid_amount);
+
+        // Max manager discount check
+        if (req.user.role === 'manager' && parseFloat(discount_amount) > 2000) {
+            return res.status(403).json({ success: false, message: "Managers cannot apply a discount of more than ₹2000 at once." });
+        }
+
+        await stuFee.update({
+            discount_amount: newDiscount,
+            final_amount: newFinal,
+            due_amount: newDue > 0 ? newDue : 0,
+            status: newDue <= 0 ? 'paid' : (stuFee.paid_amount > 0 ? 'partial' : 'pending')
+        });
+
+        await FeeDiscountLog.create({
+            institute_id,
+            student_fee_id,
+            discount_amount,
+            reason: reason || 'Manual Discount',
+            approved_by: req.user.id,
+            approved_role: req.user.role
+        });
+
+        res.status(200).json({ success: true, message: "Discount applied successfully" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.getDiscountLogs = async (req, res) => {
+    try {
+        const institute_id = req.user.institute_id;
+        const logs = await FeeDiscountLog.findAll({
+            where: { institute_id },
+            include: [
+                { model: User, as: "approver", attributes: ["name"] },
+                {
+                    model: StudentFee,
+                    include: [
+                        { model: Student, include: [{ model: User, attributes: ["name"] }] }
+                    ]
+                }
+            ],
+            order: [["id", "DESC"]]
+        });
+        res.status(200).json({ success: true, data: logs });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.updateReminderDate = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { reminder_date } = req.body;
+        const institute_id = req.user.institute_id;
+
+        const stuFee = await StudentFee.findOne({ where: { id, institute_id } });
+        if (!stuFee) {
+            return res.status(404).json({ success: false, message: "Student fee record not found" });
+        }
+
+        await stuFee.update({ reminder_date });
+
+        res.status(200).json({
+            success: true,
+            message: "Reminder date updated successfully",
+            data: stuFee
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 

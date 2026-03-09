@@ -1,0 +1,25 @@
+{
+  "id": 1,
+  "institute_id": 1,
+  "user_id": 10,
+  "roll_number": "101",
+  "class_id": null,
+  "admission_date": "2024-01-15",
+  "leave_date": null,
+  "date_of_birth": "2006-04-07",
+  "gender": "male",
+  "address": "481 High Road, Ahmedabad",
+  "is_full_course": false,
+  "createdAt": "2026-03-07T16:31:54.000Z",
+  "updatedAt": "2026-03-07T16:31:54.000Z",
+  "Subjects": [
+    {
+      "id": 1
+    }
+  ],
+  "Classes": [
+    {
+      "id": 1
+    }
+  ]
+}

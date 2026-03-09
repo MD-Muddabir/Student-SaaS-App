@@ -61,6 +61,7 @@ exports.registerInstitute = async (data) => {
         current_feature_reports: plan ? plan.feature_reports : 'none',
         current_feature_announcements: plan ? plan.feature_announcements : false,
         current_feature_export: plan ? plan.feature_export : false,
+        current_feature_timetable: plan ? plan.feature_timetable : false,
         current_feature_whatsapp: plan ? plan.feature_whatsapp : false,
         current_feature_custom_branding: plan ? plan.feature_custom_branding : false,
         current_feature_multi_branch: plan ? plan.feature_multi_branch : false,

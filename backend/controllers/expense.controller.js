@@ -52,6 +52,7 @@ exports.addExpense = async (req, res) => {
             category,
             date: date || new Date(),
             description,
+            created_by: req.user.id || null,
         });
 
         res.status(201).json({ success: true, expense, message: "Expense added successfully" });

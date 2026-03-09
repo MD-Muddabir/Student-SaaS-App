@@ -22,11 +22,26 @@ function Attendance() {
     const [dashboardStats, setDashboardStats] = useState(null);
     const [showReport, setShowReport] = useState(false);
     const [reportData, setReportData] = useState(null);
+    // Phase 3: Sunday detection
+    const [sundayPopup, setSundayPopup] = useState(false);
+    const [sundayMarkingHoliday, setSundayMarkingHoliday] = useState(false);
 
     useEffect(() => {
         fetchClasses();
         fetchDashboardStats();
     }, []);
+
+    // Phase 3: Detect Sunday when date changes
+    useEffect(() => {
+        if (selectedDate) {
+            const d = new Date(selectedDate + 'T00:00:00');
+            if (d.getDay() === 0) { // 0 = Sunday
+                setSundayPopup(true);
+            } else {
+                setSundayPopup(false);
+            }
+        }
+    }, [selectedDate]);
 
     useEffect(() => {
         if (selectedClass) {
@@ -132,11 +147,18 @@ function Attendance() {
         }
 
         try {
-            const attendance_data = Object.keys(attendanceData).map(studentId => ({
-                student_id: parseInt(studentId),
-                status: attendanceData[studentId].status,
-                remarks: attendanceData[studentId].remarks
+            const pendingStudents = students.filter(s => !s.attendance);
+
+            const attendance_data = pendingStudents.map(student => ({
+                student_id: student.student_id,
+                status: attendanceData[student.student_id].status,
+                remarks: attendanceData[student.student_id].remarks
             }));
+
+            if (attendance_data.length === 0) {
+                alert("No pending students to submit.");
+                return;
+            }
 
             await api.post("/attendance/bulk", {
                 class_id: parseInt(selectedClass),
@@ -170,8 +192,8 @@ function Attendance() {
     };
 
     const markAllPresent = () => {
-        const newData = {};
-        students.forEach(student => {
+        const newData = { ...attendanceData };
+        students.filter(s => !s.attendance).forEach(student => {
             newData[student.student_id] = {
                 status: "present",
                 remarks: attendanceData[student.student_id]?.remarks || ""
@@ -181,8 +203,8 @@ function Attendance() {
     };
 
     const markAllAbsent = () => {
-        const newData = {};
-        students.forEach(student => {
+        const newData = { ...attendanceData };
+        students.filter(s => !s.attendance).forEach(student => {
             newData[student.student_id] = {
                 status: "absent",
                 remarks: attendanceData[student.student_id]?.remarks || ""
@@ -190,6 +212,60 @@ function Attendance() {
         });
         setAttendanceData(newData);
     };
+
+    const markAllHoliday = () => {
+        const newData = { ...attendanceData };
+        students.filter(s => !s.attendance).forEach(student => {
+            newData[student.student_id] = {
+                status: "holiday",
+                remarks: attendanceData[student.student_id]?.remarks || ""
+            };
+        });
+        setAttendanceData(newData);
+    };
+
+    // Phase 3: Mark entire class/subject as holiday for a Sunday
+    const markSundayAsHoliday = async () => {
+        if (!selectedClass || !selectedSubject) {
+            setSundayPopup(false);
+            alert("Please select a class and subject first, then choose Holiday.");
+            return;
+        }
+        setSundayMarkingHoliday(true);
+        try {
+            // fetch current list of students for this class/subject/date
+            const resp = await api.get(`/attendance/class/${selectedClass}/subject/${selectedSubject}/date/${selectedDate}`);
+            const allStudents = resp.data.data || [];
+            if (allStudents.length === 0) {
+                setSundayPopup(false);
+                setSundayMarkingHoliday(false);
+                alert("No students found for selected class/subject. Select class & subject from the filters first.");
+                return;
+            }
+            const attendance_data = allStudents.map(s => ({
+                student_id: s.student_id,
+                status: 'holiday',
+                remarks: 'Sunday Holiday'
+            }));
+            await api.post('/attendance/bulk', {
+                class_id: parseInt(selectedClass),
+                subject_id: parseInt(selectedSubject),
+                date: selectedDate,
+                attendance_data
+            });
+            setSundayPopup(false);
+            alert(`✅ All ${allStudents.length} students marked as Holiday for Sunday ${selectedDate}`);
+            fetchClassAttendance();
+            fetchDashboardStats();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error marking holiday');
+        } finally {
+            setSundayMarkingHoliday(false);
+        }
+    };
+
+    const pendingStudents = students.filter(s => !s.attendance);
+    const markedStudents = students.filter(s => s.attendance);
 
     return (
         <div className="dashboard-container">
@@ -289,57 +365,64 @@ function Attendance() {
                 </div>
             </div>
 
-            {/* Attendance Marking */}
+            {/* Attendance Marking - Pending */}
             {selectedClass && selectedSubject && selectedDate && (
-                <div className="card">
+                <div className="card" style={{ marginBottom: "2rem" }}>
                     <div className="card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <h3 className="card-title">Mark Attendance ({students.length} students)</h3>
-                        <div style={{ display: "flex", gap: "10px" }}>
-                            <button onClick={markAllPresent} className="btn btn-sm btn-success">
-                                ✓ All Present
-                            </button>
-                            <button onClick={markAllAbsent} className="btn btn-sm btn-danger">
-                                × All Absent
-                            </button>
-                        </div>
+                        <h3 className="card-title" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            ⏳ Pending Students ({pendingStudents.length} students)
+                        </h3>
+                        {pendingStudents.length > 0 && (
+                            <div style={{ display: "flex", gap: "10px" }}>
+                                <button onClick={markAllPresent} type="button" className="btn btn-sm btn-success">
+                                    ✓ All Present
+                                </button>
+                                <button onClick={markAllAbsent} type="button" className="btn btn-sm btn-danger">
+                                    × All Absent
+                                </button>
+                                <button onClick={markAllHoliday} type="button" className="btn btn-sm" style={{ backgroundColor: "#3b82f6", color: "white" }}>
+                                    🏖️ Holiday
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {loading ? (
-                        <div style={{ padding: "2rem", textAlign: "center" }}>Loading...</div>
+                        <div style={{ padding: "2rem", textAlign: "center", color: "var(--text-muted)" }}>Loading...</div>
                     ) : (
                         <form onSubmit={handleSubmit}>
-                            <div className="table-container">
-                                <table className="table">
-                                    <thead>
+                            <div className="table-container" style={{ padding: "0" }}>
+                                <table className="table" style={{ width: "100%", borderCollapse: "collapse" }}>
+                                    <thead style={{ backgroundColor: "var(--bg-secondary)", borderBottom: "1px solid var(--border-color)" }}>
                                         <tr>
-                                            <th>Roll No</th>
-                                            <th>Student Name</th>
-                                            <th>Status</th>
-                                            <th>Remarks</th>
+                                            <th style={{ padding: "15px", textAlign: "left" }}>ROLL NO</th>
+                                            <th style={{ padding: "15px", textAlign: "left" }}>STUDENT NAME</th>
+                                            <th style={{ padding: "15px", textAlign: "left" }}>STATUS</th>
+                                            <th style={{ padding: "15px", textAlign: "left" }}>REMARKS</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {students.length === 0 ? (
+                                        {pendingStudents.length === 0 ? (
                                             <tr>
-                                                <td colSpan="4" style={{ textAlign: "center", padding: "2rem" }}>
-                                                    No students found in this class
+                                                <td colSpan="4" style={{ textAlign: "center", padding: "3rem", color: "var(--text-muted)", fontWeight: "bold" }}>
+                                                    Attendance already submitted for all students today. ✅
                                                 </td>
                                             </tr>
                                         ) : (
-                                            students.map((student) => (
-                                                <tr key={student.student_id}>
-                                                    <td>
-                                                        <span className="badge badge-secondary">
+                                            pendingStudents.map((student) => (
+                                                <tr key={student.student_id} style={{ borderBottom: "1px solid var(--border-color)" }}>
+                                                    <td style={{ padding: "15px" }}>
+                                                        <span style={{ fontWeight: "bold", fontSize: "0.9rem", color: "var(--text-color)" }}>
                                                             {student.roll_number}
                                                         </span>
                                                     </td>
-                                                    <td>
-                                                        <strong>{student.name}</strong>
+                                                    <td style={{ padding: "15px" }}>
+                                                        <strong style={{ color: "var(--text-color)" }}>{student.name}</strong>
                                                         <br />
-                                                        <small style={{ color: "#6b7280" }}>{student.email}</small>
+                                                        <small style={{ color: "var(--text-muted)" }}>{student.email}</small>
                                                     </td>
-                                                    <td>
-                                                        <div style={{ display: "flex", gap: "10px" }}>
+                                                    <td style={{ padding: "15px" }}>
+                                                        <div style={{ display: "flex", gap: "15px" }}>
                                                             <label style={{ display: "flex", alignItems: "center", gap: "5px", cursor: "pointer" }}>
                                                                 <input
                                                                     type="radio"
@@ -348,7 +431,7 @@ function Attendance() {
                                                                     checked={attendanceData[student.student_id]?.status === "present"}
                                                                     onChange={() => handleStatusChange(student.student_id, "present")}
                                                                 />
-                                                                <span style={{ color: "#10b981" }}>Present</span>
+                                                                <span style={{ color: "#10b981", fontWeight: "bold" }}>Present</span>
                                                             </label>
                                                             <label style={{ display: "flex", alignItems: "center", gap: "5px", cursor: "pointer" }}>
                                                                 <input
@@ -358,7 +441,7 @@ function Attendance() {
                                                                     checked={attendanceData[student.student_id]?.status === "absent"}
                                                                     onChange={() => handleStatusChange(student.student_id, "absent")}
                                                                 />
-                                                                <span style={{ color: "#ef4444" }}>Absent</span>
+                                                                <span style={{ color: "#ef4444", fontWeight: "bold" }}>Absent</span>
                                                             </label>
                                                             <label style={{ display: "flex", alignItems: "center", gap: "5px", cursor: "pointer" }}>
                                                                 <input
@@ -368,18 +451,28 @@ function Attendance() {
                                                                     checked={attendanceData[student.student_id]?.status === "late"}
                                                                     onChange={() => handleStatusChange(student.student_id, "late")}
                                                                 />
-                                                                <span style={{ color: "#f59e0b" }}>Late</span>
+                                                                <span style={{ color: "#f59e0b", fontWeight: "bold" }}>Late</span>
+                                                            </label>
+                                                            <label style={{ display: "flex", alignItems: "center", gap: "5px", cursor: "pointer" }}>
+                                                                <input
+                                                                    type="radio"
+                                                                    name={`status-${student.student_id}`}
+                                                                    value="holiday"
+                                                                    checked={attendanceData[student.student_id]?.status === "holiday"}
+                                                                    onChange={() => handleStatusChange(student.student_id, "holiday")}
+                                                                />
+                                                                <span style={{ color: "#3b82f6", fontWeight: "bold" }}>Holiday</span>
                                                             </label>
                                                         </div>
                                                     </td>
-                                                    <td>
+                                                    <td style={{ padding: "15px" }}>
                                                         <input
                                                             type="text"
                                                             className="form-input"
                                                             placeholder="Optional remarks"
                                                             value={attendanceData[student.student_id]?.remarks || ""}
                                                             onChange={(e) => handleRemarksChange(student.student_id, e.target.value)}
-                                                            style={{ minWidth: "200px" }}
+                                                            style={{ minWidth: "200px", backgroundColor: "var(--bg-secondary)" }}
                                                         />
                                                     </td>
                                                 </tr>
@@ -389,15 +482,62 @@ function Attendance() {
                                 </table>
                             </div>
 
-                            {students.length > 0 && (
-                                <div style={{ padding: "1.5rem", borderTop: "1px solid #e5e7eb", textAlign: "right" }}>
-                                    <button type="submit" className="btn btn-primary" style={{ minWidth: "200px" }}>
+                            {pendingStudents.length > 0 && (
+                                <div style={{ padding: "1.5rem", borderTop: "1px solid var(--border-color)", textAlign: "right", backgroundColor: "var(--bg-secondary)" }}>
+                                    <button type="submit" className="btn btn-primary" style={{ minWidth: "200px", padding: "0.8rem", fontSize: "1rem", backgroundColor: "#4f46e5", border: "none" }}>
                                         ✓ Submit Attendance
                                     </button>
                                 </div>
                             )}
                         </form>
                     )}
+                </div>
+            )}
+
+            {/* Attendance Marking - Marked */}
+            {selectedClass && selectedSubject && selectedDate && markedStudents.length > 0 && (
+                <div className="card">
+                    <div className="card-header" style={{ padding: "1.5rem", borderBottom: "1px solid var(--border-color)" }}>
+                        <h3 className="card-title" style={{ display: "flex", alignItems: "center", gap: "10px", color: "#10b981" }}>
+                            ✅ Marked Attendance ({markedStudents.length} students)
+                        </h3>
+                    </div>
+
+                    <div className="table-container" style={{ padding: "0" }}>
+                        <table className="table" style={{ width: "100%", borderCollapse: "collapse" }}>
+                            <thead style={{ backgroundColor: "var(--bg-secondary)", borderBottom: "1px solid var(--border-color)" }}>
+                                <tr>
+                                    <th style={{ padding: "15px", textAlign: "left", fontSize: "0.85rem", textTransform: "uppercase", color: "var(--text-muted)" }}>ROLL NO</th>
+                                    <th style={{ padding: "15px", textAlign: "left", fontSize: "0.85rem", textTransform: "uppercase", color: "var(--text-muted)" }}>STUDENT NAME</th>
+                                    <th style={{ padding: "15px", textAlign: "left", fontSize: "0.85rem", textTransform: "uppercase", color: "var(--text-muted)" }}>MARKED STATUS</th>
+                                    <th style={{ padding: "15px", textAlign: "left", fontSize: "0.85rem", textTransform: "uppercase", color: "var(--text-muted)" }}>REMARKS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {markedStudents.map((student) => (
+                                    <tr key={student.student_id} style={{ borderBottom: "1px solid var(--border-color)", backgroundColor: "rgba(16, 185, 129, 0.02)" }}>
+                                        <td style={{ padding: "15px" }}>
+                                            <span style={{ fontWeight: "bold", fontSize: "0.9rem", color: "var(--text-color)" }}>
+                                                {student.roll_number}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: "15px" }}>
+                                            <strong style={{ color: "var(--text-color)" }}>{student.name}</strong>
+                                            <br />
+                                            <small style={{ color: "var(--text-muted)", display: "block", marginBottom: "5px" }}>{student.email}</small>
+                                            <span style={{ fontSize: "0.75rem", background: "rgba(16, 185, 129, 0.1)", color: "#10b981", padding: "2px 8px", borderRadius: "10px", border: "1px solid rgba(16, 185, 129, 0.2)" }}>✓ Saved in DB</span>
+                                        </td>
+                                        <td style={{ padding: "15px", fontWeight: "bold", color: student.attendance.status === 'present' ? '#10b981' : student.attendance.status === 'absent' ? '#ef4444' : student.attendance.status === 'holiday' ? '#3b82f6' : '#f59e0b' }}>
+                                            {student.attendance.status.charAt(0).toUpperCase() + student.attendance.status.slice(1)}
+                                        </td>
+                                        <td style={{ padding: "15px", color: "var(--text-muted)" }}>
+                                            {student.attendance.remarks || "-"}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
 
@@ -426,9 +566,11 @@ function Attendance() {
                                             <th>Roll No</th>
                                             <th>Name</th>
                                             <th>Total Days</th>
+                                            <th>Working Days</th>
                                             <th>Present</th>
                                             <th>Absent</th>
                                             <th>Late</th>
+                                            <th>Holidays</th>
                                             <th>Percentage</th>
                                         </tr>
                                     </thead>
@@ -438,9 +580,11 @@ function Attendance() {
                                                 <td>{student.roll_number}</td>
                                                 <td>{student.name}</td>
                                                 <td>{student.total_days}</td>
+                                                <td>{student.working_days}</td>
                                                 <td><span style={{ color: "#10b981" }}>{student.present_days}</span></td>
                                                 <td><span style={{ color: "#ef4444" }}>{student.absent_days}</span></td>
                                                 <td><span style={{ color: "#f59e0b" }}>{student.late_days}</span></td>
+                                                <td><span style={{ color: "#3b82f6" }}>{student.holiday_days}</span></td>
                                                 <td>
                                                     <span className={`badge ${student.percentage >= 75 ? 'badge-success' : 'badge-danger'}`}>
                                                         {student.percentage}%
@@ -451,6 +595,51 @@ function Attendance() {
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ═══ Phase 3: SUNDAY DETECTION POPUP ═══ */}
+            {sundayPopup && (
+                <div className="modal-overlay" style={{ zIndex: 2000 }}>
+                    <div className="modal" style={{ maxWidth: "480px", textAlign: "center" }}>
+                        <div style={{ padding: "2rem" }}>
+                            <div style={{ fontSize: "3.5rem", marginBottom: "1rem" }}>📅</div>
+                            <h2 style={{ marginBottom: "0.5rem", color: "var(--text-primary)" }}>Sunday Detected!</h2>
+                            <p style={{ color: "var(--text-secondary)", marginBottom: "0.25rem" }}>
+                                <strong>{new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</strong>
+                            </p>
+                            <p style={{ color: "var(--text-secondary)", marginBottom: "2rem", fontSize: "0.9rem" }}>
+                                Is this a holiday or a working day?
+                            </p>
+                            <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+                                <button
+                                    onClick={markSundayAsHoliday}
+                                    disabled={sundayMarkingHoliday}
+                                    style={{
+                                        padding: "0.75rem 1.75rem", borderRadius: "10px", border: "none",
+                                        background: "linear-gradient(135deg,#3b82f6,#1d4ed8)",
+                                        color: "#fff", fontWeight: "700", fontSize: "1rem", cursor: "pointer",
+                                        boxShadow: "0 4px 12px rgba(59,130,246,0.4)"
+                                    }}
+                                >
+                                    {sundayMarkingHoliday ? "Marking..." : "🏖️ Holiday"}
+                                </button>
+                                <button
+                                    onClick={() => setSundayPopup(false)}
+                                    style={{
+                                        padding: "0.75rem 1.75rem", borderRadius: "10px", border: "2px solid var(--border-color)",
+                                        background: "var(--card-bg)", color: "var(--text-primary)",
+                                        fontWeight: "700", fontSize: "1rem", cursor: "pointer"
+                                    }}
+                                >
+                                    🏫 Working Day
+                                </button>
+                            </div>
+                            <p style={{ marginTop: "1.25rem", fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                                Choosing "Holiday" will auto-mark all students in the selected class/subject as Holiday.
+                            </p>
                         </div>
                     </div>
                 </div>

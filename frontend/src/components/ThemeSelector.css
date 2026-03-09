@@ -4,7 +4,7 @@
 
 .theme-selector {
     position: relative;
-    display: inline-block;
+    display: flex;
     user-select: none;
     z-index: 9999;
 }

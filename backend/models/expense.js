@@ -31,6 +31,10 @@ const Expense = sequelize.define("Expense", {
     description: {
         type: DataTypes.TEXT,
         allowNull: true,
+    },
+    created_by: {
+        type: DataTypes.INTEGER,
+        allowNull: true
     }
 }, {
     tableName: 'expenses',

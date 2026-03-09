@@ -12,7 +12,7 @@ router.get(
     "/stats",
     verifyToken,
     checkSubscription,
-    allowRoles("admin"),
+    allowRoles("admin", "manager"),
     adminController.getDashboardStats
 );
 
@@ -21,7 +21,7 @@ router.get(
     "/usage",
     verifyToken,
     checkSubscription,
-    allowRoles("admin"),
+    allowRoles("admin", "manager"),
     getUsageStats
 );
 

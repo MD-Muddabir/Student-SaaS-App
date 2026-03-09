@@ -3,7 +3,7 @@
  * Professional implementation with multiple report types
  */
 
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { Link } from "react-router-dom";
 import api from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
@@ -21,6 +21,10 @@ import {
     ArcElement
 } from 'chart.js';
 import { Line, Bar, Pie } from 'react-chartjs-2';
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
+import AdminExpenses from "./Expenses";
 
 ChartJS.register(
     CategoryScale,
@@ -38,9 +42,10 @@ function Reports() {
     const { user } = useContext(AuthContext);
     const isPro = user?.features?.reports === 'advanced';
 
+    const financesRef = useRef(null);
+
     const [activeTab, setActiveTab] = useState("dashboard");
     const [dashboardData, setDashboardData] = useState(null);
-    const [attendanceReport, setAttendanceReport] = useState(null);
     const [feesReport, setFeesReport] = useState(null);
     const [monthlyTrends, setMonthlyTrends] = useState(null);
     const [classes, setClasses] = useState([]);
@@ -54,15 +59,18 @@ function Reports() {
         student_id: ""
     });
 
+    // Export Modal State
+    const [showExportModal, setShowExportModal] = useState(false);
+    const [exportType, setExportType] = useState(""); // 'PDF' or 'Excel'
+    const [exportFilter, setExportFilter] = useState("all");
+
     useEffect(() => {
         fetchClasses();
         fetchDashboardData();
     }, []);
 
     useEffect(() => {
-        if (activeTab === "attendance") {
-            fetchAttendanceReport();
-        } else if (activeTab === "fees") {
+        if (activeTab === "fees") {
             fetchFeesReport();
         } else if (activeTab === "trends") {
             fetchMonthlyTrends();
@@ -85,23 +93,6 @@ function Reports() {
             setDashboardData(response.data.data);
         } catch (error) {
             console.error("Error fetching dashboard:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchAttendanceReport = async () => {
-        setLoading(true);
-        try {
-            const params = new URLSearchParams();
-            if (filters.start_date) params.append('start_date', filters.start_date);
-            if (filters.end_date) params.append('end_date', filters.end_date);
-            if (filters.class_id) params.append('class_id', filters.class_id);
-
-            const response = await api.get(`/reports/attendance?${params}`);
-            setAttendanceReport(response.data.data);
-        } catch (error) {
-            console.error("Error fetching attendance report:", error);
         } finally {
             setLoading(false);
         }
@@ -159,7 +150,96 @@ function Reports() {
             alert(`✨ Upgrade to Pro plan to unlock Export to ${type} features!`);
             return;
         }
-        alert(`Downloading ${type}...`); // Mock download
+
+        if (activeTab === "fees") {
+            if (!feesReport?.payments || feesReport.payments.length === 0) {
+                // If there are pendings, we can still export pending ones
+                if (!feesReport?.pending_students || feesReport.pending_students.length === 0) {
+                    alert("No fees data to export.");
+                    return;
+                }
+            }
+        } else if (activeTab === "finances") {
+            if (type === "PDF") {
+                financesRef.current?.handleExportPDF();
+            } else if (type === "Excel") {
+                financesRef.current?.handleExportExcel();
+            }
+            return;
+        } else {
+            alert(`Exports are currently available for Fees and Finances reports.`);
+            return;
+        }
+
+        // Open Modal
+        setExportType(type);
+        setExportFilter("all");
+        setShowExportModal(true);
+    };
+
+    const generatePDF = (title, columns, rows) => {
+        const doc = new jsPDF();
+        doc.text(title, 14, 15);
+        autoTable(doc, {
+            head: [columns],
+            body: rows,
+            startY: 20
+        });
+        doc.save(`${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`);
+    };
+
+    const generateExcel = (title, columns, rows, sheetName) => {
+        const worksheet = XLSX.utils.aoa_to_sheet([columns, ...rows]);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+        XLSX.writeFile(workbook, `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.xlsx`);
+    };
+
+    const confirmExport = () => {
+        if (activeTab === "fees") exportFees(exportType, exportFilter);
+        setShowExportModal(false);
+    };
+
+    const exportFees = (type, filterStr) => {
+        const title = `Fees Report (${filters.start_date} to ${filters.end_date}) - ${filterStr.toUpperCase()}`;
+        const columns = ["Roll Number", "Student Name", "Status", "Date", "Amount (INR)", "Method"];
+
+        let targetRows = [];
+
+        // Build Rows depending on Paid/Pending/All
+        const getPaidRows = () => feesReport.payments.map(r => [
+            r.Student?.roll_number || "-",
+            r.Student?.User?.name || "Unknown",
+            "PAID",
+            new Date(r.payment_date).toLocaleDateString(),
+            r.amount_paid,
+            r.payment_method.toUpperCase()
+        ]);
+
+        const getPendingRows = () => feesReport.pending_students.map(r => [
+            r.roll_number || "-",
+            r.name || "Unknown",
+            "PENDING",
+            "-",
+            "-",
+            "-"
+        ]);
+
+        if (filterStr === "paid") {
+            targetRows = getPaidRows();
+        } else if (filterStr === "pending") {
+            targetRows = getPendingRows();
+        } else {
+            targetRows = [...getPaidRows(), ...getPendingRows()];
+        }
+
+        if (targetRows.length === 0) {
+            alert(`No records found for the filter: ${filterStr}`);
+            return;
+        }
+
+        if (type === "PDF") generatePDF(title, columns, targetRows);
+        else if (type === "Excel") generateExcel(title, columns, targetRows, "Fees");
     };
 
     return (
@@ -187,10 +267,10 @@ function Reports() {
                     📈 Dashboard
                 </button>
                 <button
-                    className={`tab ${activeTab === "attendance" ? "active" : ""}`}
-                    onClick={() => setActiveTab("attendance")}
+                    className={`tab ${activeTab === "finances" ? "active" : ""}`}
+                    onClick={() => setActiveTab("finances")}
                 >
-                    📋 Attendance Report
+                    📑 Finances & Transport Reports
                 </button>
                 <button
                     className={`tab ${activeTab === "fees" ? "active" : ""}`}
@@ -253,135 +333,21 @@ function Reports() {
                 </div>
             )}
 
-            {/* Attendance Report Tab */}
-            {activeTab === "attendance" && (
-                <div>
-                    {/* Filters */}
-                    <div className="card" style={{ marginBottom: "2rem" }}>
-                        <div style={{ padding: "1.5rem" }}>
-                            <h3 style={{ marginBottom: "1rem" }}>Filters</h3>
-                            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
-                                <div className="form-group">
-                                    <label className="form-label">Start Date</label>
-                                    <input
-                                        type="date"
-                                        className="form-input"
-                                        value={filters.start_date}
-                                        onChange={(e) => handleFilterChange('start_date', e.target.value)}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label className="form-label">End Date</label>
-                                    <input
-                                        type="date"
-                                        className="form-input"
-                                        value={filters.end_date}
-                                        onChange={(e) => handleFilterChange('end_date', e.target.value)}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label className="form-label">Class</label>
-                                    <select
-                                        className="form-select"
-                                        value={filters.class_id}
-                                        onChange={(e) => handleFilterChange('class_id', e.target.value)}
-                                    >
-                                        <option value="">All Classes</option>
-                                        {classes.map(cls => (
-                                            <option key={cls.id} value={cls.id}>{cls.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+            {/* Finances Report Tab */}
+            {activeTab === "finances" && (
+                <div style={{ marginTop: "-1.5rem", padding: "0" }}>
+                    <style>
+                        {`
+                           .finances-tab-wrapper .dashboard-container {
+                               padding: 0 !important;
+                               margin: 0 !important;
+                               max-width: none !important;
+                           }
+                        `}
+                    </style>
+                    <div className="finances-tab-wrapper">
+                        <AdminExpenses ref={financesRef} isReportMode={true} />
                     </div>
-
-                    {/* Summary */}
-                    {attendanceReport && (
-                        <div>
-                            <div className="stats-grid" style={{ marginBottom: "2rem", gridTemplateColumns: "repeat(5, 1fr)" }}>
-                                <div className="stat-card">
-                                    <div className="stat-content">
-                                        <h3>{attendanceReport.summary.total_days}</h3>
-                                        <p>Total Days</p>
-                                    </div>
-                                </div>
-                                <div className="stat-card">
-                                    <div className="stat-content">
-                                        <h3 style={{ color: "#10b981" }}>{attendanceReport.summary.present_days}</h3>
-                                        <p>Present</p>
-                                    </div>
-                                </div>
-                                <div className="stat-card">
-                                    <div className="stat-content">
-                                        <h3 style={{ color: "#ef4444" }}>{attendanceReport.summary.absent_days}</h3>
-                                        <p>Absent</p>
-                                    </div>
-                                </div>
-                                <div className="stat-card">
-                                    <div className="stat-content">
-                                        <h3 style={{ color: "#f59e0b" }}>{attendanceReport.summary.late_days}</h3>
-                                        <p>Late</p>
-                                    </div>
-                                </div>
-                                <div className="stat-card">
-                                    <div className="stat-content">
-                                        <h3>{attendanceReport.summary.percentage}%</h3>
-                                        <p>Percentage</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Records Table */}
-                            <div className="card">
-                                <div className="card-header">
-                                    <h3 className="card-title">Attendance Records ({attendanceReport.records.length})</h3>
-                                </div>
-                                <div className="table-container">
-                                    <table className="table">
-                                        <thead>
-                                            <tr>
-                                                <th>Date</th>
-                                                <th>Student</th>
-                                                <th>Class</th>
-                                                <th>Status</th>
-                                                <th>Remarks</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {attendanceReport.records.length === 0 ? (
-                                                <tr>
-                                                    <td colSpan="5" style={{ textAlign: "center", padding: "2rem" }}>
-                                                        No records found for selected filters
-                                                    </td>
-                                                </tr>
-                                            ) : (
-                                                attendanceReport.records.slice(0, 50).map((record, index) => (
-                                                    <tr key={index}>
-                                                        <td>{new Date(record.date).toLocaleDateString()}</td>
-                                                        <td>
-                                                            <strong>{record.Student?.User?.name}</strong>
-                                                            <br />
-                                                            <small>Roll: {record.Student?.roll_number}</small>
-                                                        </td>
-                                                        <td>{record.Class?.name}</td>
-                                                        <td>
-                                                            <span className={`badge ${record.status === 'present' ? 'badge-success' :
-                                                                record.status === 'absent' ? 'badge-danger' : 'badge-warning'
-                                                                }`}>
-                                                                {record.status}
-                                                            </span>
-                                                        </td>
-                                                        <td>{record.remarks || '-'}</td>
-                                                    </tr>
-                                                ))
-                                            )}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    )}
                 </div>
             )}
 
@@ -636,6 +602,52 @@ function Reports() {
             {loading && (
                 <div style={{ textAlign: "center", padding: "2rem" }}>
                     <div className="loading-spinner">Loading...</div>
+                </div>
+            )}
+
+            {/* Export Selection Modal */}
+            {showExportModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content" style={{ maxWidth: '400px' }}>
+                        <div className="modal-header">
+                            <h2>Export {exportType}</h2>
+                            <button onClick={() => setShowExportModal(false)} className="close-btn">&times;</button>
+                        </div>
+                        <div className="modal-body">
+                            <p style={{ marginBottom: "1rem" }}>Which records would you like to export?</p>
+
+                            <div className="form-group">
+                                <label className="form-label">Select Group</label>
+                                <select
+                                    className="form-input"
+                                    value={exportFilter}
+                                    onChange={(e) => setExportFilter(e.target.value)}
+                                >
+                                    <option value="all">All Records</option>
+
+                                    {activeTab === "attendance" && (
+                                        <>
+                                            <option value="present">Present Students Only</option>
+                                            <option value="absent">Absent Students Only</option>
+                                            <option value="late">Late Students Only</option>
+                                        </>
+                                    )}
+
+                                    {activeTab === "fees" && (
+                                        <>
+                                            <option value="paid">Paid Students Only</option>
+                                            <option value="pending">Pending Students Only</option>
+                                        </>
+                                    )}
+                                </select>
+                            </div>
+
+                        </div>
+                        <div className="modal-footer">
+                            <button onClick={() => setShowExportModal(false)} className="btn btn-secondary">Cancel</button>
+                            <button onClick={confirmExport} className="btn btn-primary">Download {exportType}</button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

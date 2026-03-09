@@ -341,3 +341,180 @@ html.theme-pro .dashboard-header-right {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 }
+
+/* =====================================================
+   TIMETABLE - PILL DESIGN (Soft Colors Theme)
+   ===================================================== */
+.timetable-table {
+    border-collapse: separate;
+    border-spacing: 8px;
+    /* Creates spacing between pills */
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.timetable-table th {
+    border: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 1rem 0.5rem;
+    color: var(--gray-600);
+    background: transparent !important;
+    /* Override primary background */
+    text-transform: capitalize;
+}
+
+.timetable-table td {
+    border: none !important;
+    /* Removes default borders */
+    padding: 0;
+    vertical-align: middle;
+}
+
+.time-slot-label {
+    text-align: center;
+    background: transparent !important;
+}
+
+.time-slot-label strong {
+    display: block;
+    color: var(--gray-800);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.time-slot-label span {
+    display: block;
+    color: var(--gray-500);
+    font-size: 0.75rem;
+}
+
+.timetable-pill {
+    padding: 12px 1rem;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 60px;
+}
+
+/* Subtle Hover Shift */
+.timetable-pill:hover {
+    filter: brightness(0.95);
+}
+
+/* Delete button hover over pill */
+.timetable-pill button {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.timetable-pill:hover button {
+    opacity: 1;
+}
+
+.pill-break {
+    background-color: transparent !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pill-break img {
+    opacity: 0.6;
+}
+
+/* Soft Colors Array (applied dynamically via JS) */
+.pill-color-0 {
+    background-color: #E6F0FF;
+    color: #3B82F6;
+}
+
+/* Blue */
+.pill-color-1 {
+    background-color: #E6FFED;
+    color: #22C55E;
+}
+
+/* Green */
+.pill-color-2 {
+    background-color: #FFF4E6;
+    color: #F59E0B;
+}
+
+/* Orange */
+.pill-color-3 {
+    background-color: #F8E6FF;
+    color: #D946EF;
+}
+
+/* Purple */
+.pill-color-4 {
+    background-color: #FFE6E6;
+    color: #EF4444;
+}
+
+/* Red */
+.pill-color-5 {
+    background-color: #E6FFFF;
+    color: #06B6D4;
+}
+
+/* Cyan */
+.pill-color-6 {
+    background-color: #F0E6FF;
+    color: #8B5CF6;
+}
+
+/* Violet */
+
+html.dark-mode .timetable-table th {
+    color: #94a3b8;
+}
+
+html.dark-mode .time-slot-label strong {
+    color: #f1f5f9;
+}
+
+html.dark-mode .time-slot-label span {
+    color: #94a3b8;
+}
+
+html.dark-mode .pill-color-0 {
+    background-color: rgba(59, 130, 246, 0.2);
+    color: #60A5FA;
+}
+
+html.dark-mode .pill-color-1 {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #4ADE80;
+}
+
+html.dark-mode .pill-color-2 {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: #FBBF24;
+}
+
+html.dark-mode .pill-color-3 {
+    background-color: rgba(217, 70, 239, 0.2);
+    color: #E879F9;
+}
+
+html.dark-mode .pill-color-4 {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #F87171;
+}
+
+html.dark-mode .pill-color-5 {
+    background-color: rgba(6, 182, 212, 0.2);
+    color: #22D3EE;
+}
+
+html.dark-mode .pill-color-6 {
+    background-color: rgba(139, 92, 246, 0.2);
+    color: #A78BFA;
+}

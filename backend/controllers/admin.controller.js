@@ -1,4 +1,4 @@
-const { Student, Faculty, Class, User } = require("../models");
+const { Student, Faculty, Class, User, StudentFee } = require("../models");
 
 exports.getDashboardStats = async (req, res) => {
     try {
@@ -38,6 +38,11 @@ exports.getDashboardStats = async (req, res) => {
             where: { institute_id }
         });
 
+        // Fees metrics
+        const studentFees = await StudentFee.findAll({ where: { institute_id } });
+        const totalDiscount = studentFees.reduce((sum, sf) => sum + parseFloat(sf.discount_amount || 0), 0);
+        const totalDue = studentFees.reduce((sum, sf) => sum + parseFloat(sf.due_amount || 0), 0);
+
         res.status(200).json({
             success: true,
             data: {
@@ -45,7 +50,9 @@ exports.getDashboardStats = async (req, res) => {
                 totalFaculty,
                 totalClasses,
                 totalAdmins,
-                activeStudents
+                activeStudents,
+                totalDiscount,
+                totalDue
             }
         });
 
@@ -194,9 +201,18 @@ exports.deleteAdmin = async (req, res) => {
             return res.status(404).json({ success: false, message: "Admin not found." });
         }
 
-        await admin.destroy();
-
-        res.status(200).json({ success: true, message: "Admin removed successfully." });
+        try {
+            await admin.destroy();
+            res.status(200).json({ success: true, message: "Admin removed successfully." });
+        } catch (dbError) {
+            if (dbError.name === 'SequelizeForeignKeyConstraintError') {
+                return res.status(400).json({
+                    success: false,
+                    message: "Cannot remove this manager because they have linked records (e.g. they marked attendance or collected fees). Please Edit and Block their account instead."
+                });
+            }
+            throw dbError;
+        }
 
     } catch (error) {
         console.error("Delete admin error:", error);

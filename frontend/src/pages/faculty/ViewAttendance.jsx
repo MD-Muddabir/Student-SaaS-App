@@ -4,10 +4,13 @@ import api from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
 import ThemeSelector from "../../components/ThemeSelector";
 import "../faculty/Dashboard"; // Reuse dashboard UI
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 function ViewAttendance() {
     const { user } = useContext(AuthContext);
-    const dashboardPath = user?.role === "admin" || user?.role === "superadmin" || user?.role === "super_admin"
+    const dashboardPath = user?.role === "admin" || user?.role === "superadmin" || user?.role === "super_admin" || user?.role === "manager"
         ? "/admin/dashboard"
         : "/faculty/dashboard";
 
@@ -29,6 +32,17 @@ function ViewAttendance() {
         lateArrivals: 0,
         absencesToday: 0
     });
+
+    // Export Modal State
+    const [showExportModal, setShowExportModal] = useState(false);
+    const [exportType, setExportType] = useState("");
+    const [exportFilter, setExportFilter] = useState("all");
+
+    // Calculate days configuration based on chosen month
+    const [y, m] = selectedMonth.split('-');
+    const daysInMonth = new Date(parseInt(y), parseInt(m), 0).getDate();
+    const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    const monthName = new Date(parseInt(y), parseInt(m) - 1, 1).toLocaleString('default', { month: 'long', year: 'numeric' });
 
     useEffect(() => {
         fetchClasses();
@@ -122,17 +136,94 @@ function ViewAttendance() {
         }
     };
 
-    // Calculate days configuration based on chosen month
-    const [y, m] = selectedMonth.split('-');
-    const daysInMonth = new Date(parseInt(y), parseInt(m), 0).getDate();
-    const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-    const monthName = new Date(parseInt(y), parseInt(m) - 1, 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+    const handleExport = (type) => {
+        if (gridData.length === 0) {
+            alert("No attendance data to export.");
+            return;
+        }
+        setExportType(type);
+        setExportFilter("all");
+        setShowExportModal(true);
+    };
+
+    const confirmExport = () => {
+        exportGridData(exportType, exportFilter);
+        setShowExportModal(false);
+    };
+
+    const exportGridData = (type, filterStr) => {
+        const className = classes.find(c => String(c.id) === String(selectedClass))?.name || "Unknown Class";
+        const subjectName = subjects.find(s => String(s.id) === String(selectedSubject))?.name || "Unknown Subject";
+        const title = `Attendance Grid - ${className} (${subjectName}) - ${monthName} - ${filterStr.toUpperCase()}`;
+
+        const columns = ["ID", "Student Name", ...daysArray.map(d => String(d)), "P", "A", "L", "H", "W"];
+
+        let targetRows = gridData;
+
+        if (filterStr === "present") {
+            targetRows = targetRows.filter(r => r.present_days > 0);
+        } else if (filterStr === "absent") {
+            targetRows = targetRows.filter(r => r.absent_days > 0);
+        } else if (filterStr === "late") {
+            targetRows = targetRows.filter(r => r.late_days > 0);
+        } else if (filterStr === "holiday") {
+            targetRows = targetRows.filter(r => r.holiday_days > 0);
+        }
+
+        if (targetRows.length === 0) {
+            alert(`No records found for the filter: ${filterStr}`);
+            return;
+        }
+
+        const rows = targetRows.map(student => {
+            const dailyStatus = daysArray.map(day => {
+                const dayString = String(day).padStart(2, '0');
+                const fullDateStr = `${y}-${m}-${dayString}`;
+                const status = student.daily[fullDateStr];
+                if (status === 'present') return 'P';
+                if (status === 'absent') return 'A';
+                if (status === 'late') return 'L';
+                if (status === 'holiday') return 'H';
+                return '-';
+            });
+
+            return [
+                student.student_id,
+                student.name,
+                ...dailyStatus,
+                student.present_days,
+                student.absent_days,
+                student.late_days,
+                student.holiday_days || 0,
+                student.working_days
+            ];
+        });
+
+        if (type === "PDF") {
+            const doc = new jsPDF('landscape');
+            doc.text(title, 14, 15);
+            autoTable(doc, {
+                head: [columns],
+                body: rows,
+                startY: 20,
+                styles: { fontSize: 7, cellPadding: 1 },
+                headStyles: { fillColor: [66, 66, 66] }
+            });
+            doc.save(`${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`);
+        } else if (type === "Excel") {
+            const worksheet = XLSX.utils.aoa_to_sheet([columns, ...rows]);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance Grid");
+            XLSX.writeFile(workbook, `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.xlsx`);
+        }
+    };
 
     const getStatusIcon = (status) => {
         if (!status) return <span style={{ color: '#d1d5db' }}>-</span>;
         if (status === 'present') return <span style={{ color: '#10b981', backgroundColor: '#d1fae5', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>✓</span>;
         if (status === 'absent') return <span style={{ color: '#ef4444', backgroundColor: '#fee2e2', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>X</span>;
         if (status === 'late') return <span style={{ color: '#f59e0b', backgroundColor: '#fef3c7', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>L</span>;
+        if (status === 'holiday') return <span style={{ color: '#3b82f6', backgroundColor: '#dbeafe', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>H</span>;
         return <span style={{ color: '#d1d5db' }}>-</span>;
     };
 
@@ -144,6 +235,8 @@ function ViewAttendance() {
                     <p style={{ color: 'var(--text-secondary)' }}>Daily presence monitoring — {monthName}</p>
                 </div>
                 <div className="dashboard-header-right" style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
+                    <button onClick={() => handleExport("PDF")} className="btn btn-primary" style={{ backgroundColor: "#ef4444", borderColor: "#ef4444", padding: '0.5rem 1rem' }}>📄 PDF</button>
+                    <button onClick={() => handleExport("Excel")} className="btn btn-primary" style={{ backgroundColor: "#10b981", borderColor: "#10b981", padding: '0.5rem 1rem' }}>📊 Excel</button>
                     <ThemeSelector />
                     <Link to={dashboardPath} className="btn btn-secondary">
                         ← Back
@@ -310,6 +403,41 @@ function ViewAttendance() {
                     </table>
                 </div>
             </div>
+
+            {/* Export Selection Modal */}
+            {showExportModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content" style={{ maxWidth: '400px' }}>
+                        <div className="modal-header">
+                            <h2>Export {exportType}</h2>
+                            <button onClick={() => setShowExportModal(false)} className="close-btn">&times;</button>
+                        </div>
+                        <div className="modal-body">
+                            <p style={{ marginBottom: "1rem" }}>Which records would you like to export?</p>
+
+                            <div className="form-group">
+                                <label className="form-label">Select Group</label>
+                                <select
+                                    className="form-input"
+                                    value={exportFilter}
+                                    onChange={(e) => setExportFilter(e.target.value)}
+                                >
+                                    <option value="all">All Students (In Selected Month)</option>
+                                    <option value="present">Students Present (≥ 1 day)</option>
+                                    <option value="absent">Students Absent (≥ 1 day)</option>
+                                    <option value="late">Students Late (≥ 1 day)</option>
+                                    <option value="holiday">Students On Holiday (≥ 1 day)</option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div className="modal-footer">
+                            <button onClick={() => setShowExportModal(false)} className="btn btn-secondary">Cancel</button>
+                            <button onClick={confirmExport} className="btn btn-primary">Download {exportType}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

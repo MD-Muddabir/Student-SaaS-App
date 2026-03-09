@@ -7,7 +7,7 @@ const Attendance = sequelize.define("Attendance", {
     class_id: DataTypes.INTEGER,
     subject_id: DataTypes.INTEGER,
     date: DataTypes.DATEONLY,
-    status: DataTypes.ENUM("present", "absent", "late"),
+    status: DataTypes.ENUM("present", "absent", "late", "holiday"),
     marked_by: DataTypes.INTEGER,
     remarks: DataTypes.TEXT,
 }, {

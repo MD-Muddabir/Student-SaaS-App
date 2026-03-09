@@ -21,7 +21,16 @@ function ViewAnnouncements() {
             }
         };
 
+        const markAsViewed = async () => {
+            try {
+                await api.post("/announcements/viewed");
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
         fetchAnnouncements();
+        markAsViewed();
     }, []);
 
     if (loading) return <div className="dashboard-container">Loading announcements...</div>;

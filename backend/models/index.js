@@ -10,6 +10,7 @@ const Student = require("./student");
 const Faculty = require("./faculty");
 const Subject = require("./subject");
 const Attendance = require("./attendance");
+const FacultyAttendance = require("./facultyAttendance");
 const FeesStructure = require("./feesStructure");
 const Payment = require("./payment");
 const Announcement = require("./announcement");
@@ -20,6 +21,17 @@ const StudentSubject = require("./studentSubject");
 const StudentClass = require("./studentClass");
 const ClassSession = require("./classSession");
 const Expense = require("./expense");
+const TimetableSlot = require("./timetableSlot");
+const Timetable = require("./timetable");
+const TransportFee = require("./transportFee");
+const StudentFee = require("./studentFee");
+const FeeDiscountLog = require("./feeDiscountLog");
+const Note = require("./note");
+const NoteDownload = require("./noteDownload");
+const ChatRoom = require("./chatRoom");
+const ChatMessage = require("./chatMessage");
+const ChatParticipant = require("./chatParticipant");
+const StudentParent = require("./studentParent");
 
 // Associations
 
@@ -82,6 +94,10 @@ Faculty.belongsTo(User, { foreignKey: "user_id" });
 User.hasOne(Student, { foreignKey: "user_id" });
 Student.belongsTo(User, { foreignKey: "user_id" });
 
+// Student <-> Parent Association
+Student.belongsToMany(User, { through: StudentParent, as: "Parents", foreignKey: "student_id", otherKey: "parent_id" });
+User.belongsToMany(Student, { through: StudentParent, as: "LinkedStudents", foreignKey: "parent_id", otherKey: "student_id" });
+
 // Fees Structure Associations
 FeesStructure.belongsTo(Class, { foreignKey: "class_id" });
 Class.hasMany(FeesStructure, { foreignKey: "class_id" });
@@ -98,6 +114,35 @@ Student.hasMany(Payment, { foreignKey: "student_id" });
 
 Payment.belongsTo(Institute, { foreignKey: "institute_id" });
 Institute.hasMany(Payment, { foreignKey: "institute_id" });
+
+Payment.belongsTo(FeesStructure, { foreignKey: "fee_structure_id" });
+FeesStructure.hasMany(Payment, { foreignKey: "fee_structure_id" });
+
+Payment.belongsTo(User, { as: "collector", foreignKey: "collected_by" });
+User.hasMany(Payment, { foreignKey: "collected_by" });
+
+// StudentFee Associations
+StudentFee.belongsTo(Student, { foreignKey: "student_id" });
+Student.hasMany(StudentFee, { foreignKey: "student_id" });
+
+StudentFee.belongsTo(Class, { foreignKey: "class_id" });
+Class.hasMany(StudentFee, { foreignKey: "class_id" });
+
+StudentFee.belongsTo(FeesStructure, { foreignKey: "fee_structure_id" });
+FeesStructure.hasMany(StudentFee, { foreignKey: "fee_structure_id" });
+
+StudentFee.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasMany(StudentFee, { foreignKey: "institute_id" });
+
+// FeeDiscountLog Associations
+FeeDiscountLog.belongsTo(StudentFee, { foreignKey: "student_fee_id" });
+StudentFee.hasMany(FeeDiscountLog, { foreignKey: "student_fee_id" });
+
+FeeDiscountLog.belongsTo(User, { as: "approver", foreignKey: "approved_by" });
+User.hasMany(FeeDiscountLog, { foreignKey: "approved_by" });
+
+FeeDiscountLog.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasMany(FeeDiscountLog, { foreignKey: "institute_id" });
 
 // Announcement Associations
 Announcement.belongsTo(User, { as: "creator", foreignKey: "created_by" });
@@ -125,6 +170,16 @@ Institute.hasMany(Attendance, { foreignKey: "institute_id" });
 Attendance.belongsTo(User, { as: "marker", foreignKey: "marked_by" });
 User.hasMany(Attendance, { foreignKey: "marked_by" });
 
+// Faculty Attendance Associations
+FacultyAttendance.belongsTo(Faculty, { foreignKey: "faculty_id" });
+Faculty.hasMany(FacultyAttendance, { foreignKey: "faculty_id" });
+
+FacultyAttendance.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasMany(FacultyAttendance, { foreignKey: "institute_id" });
+
+FacultyAttendance.belongsTo(User, { as: "marker", foreignKey: "marked_by" });
+User.hasMany(FacultyAttendance, { foreignKey: "marked_by" });
+
 // Subscription Associations
 Institute.hasMany(Subscription, { foreignKey: "institute_id" });
 Subscription.belongsTo(Institute, { foreignKey: "institute_id" });
@@ -140,11 +195,87 @@ Class.hasMany(ClassSession, { foreignKey: "class_id" });
 Institute.hasMany(Expense, { foreignKey: "institute_id" });
 Expense.belongsTo(Institute, { foreignKey: "institute_id" });
 
+Expense.belongsTo(User, { as: "creator", foreignKey: "created_by" });
+User.hasMany(Expense, { foreignKey: "created_by" });
+
+// TransportFee Associations
+TransportFee.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasMany(TransportFee, { foreignKey: "institute_id" });
+
+TransportFee.belongsTo(User, { as: "creator", foreignKey: "created_by" });
+User.hasMany(TransportFee, { foreignKey: "created_by" });
+
 ClassSession.belongsTo(Subject, { foreignKey: "subject_id" });
 Subject.hasMany(ClassSession, { foreignKey: "subject_id" });
 
 ClassSession.belongsTo(User, { as: "faculty", foreignKey: "faculty_id" });
 User.hasMany(ClassSession, { foreignKey: "faculty_id" });
+
+// Timetable Associations
+TimetableSlot.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasMany(TimetableSlot, { foreignKey: "institute_id" });
+
+Timetable.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasMany(Timetable, { foreignKey: "institute_id" });
+
+Timetable.belongsTo(Class, { foreignKey: "class_id" });
+Class.hasMany(Timetable, { foreignKey: "class_id" });
+
+Timetable.belongsTo(Subject, { foreignKey: "subject_id" });
+Subject.hasMany(Timetable, { foreignKey: "subject_id" });
+
+Timetable.belongsTo(Faculty, { foreignKey: "faculty_id" });
+Faculty.hasMany(Timetable, { foreignKey: "faculty_id" });
+
+Timetable.belongsTo(TimetableSlot, { foreignKey: "slot_id" });
+TimetableSlot.hasMany(Timetable, { foreignKey: "slot_id" });
+
+Timetable.belongsTo(User, { as: "creator", foreignKey: "created_by" });
+User.hasMany(Timetable, { foreignKey: "created_by" });
+
+// Note Associations
+Note.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasMany(Note, { foreignKey: "institute_id" });
+
+Note.belongsTo(Faculty, { foreignKey: "faculty_id" });
+Faculty.hasMany(Note, { foreignKey: "faculty_id" });
+
+Note.belongsTo(Class, { foreignKey: "class_id" });
+Class.hasMany(Note, { foreignKey: "class_id" });
+
+Note.belongsTo(Subject, { foreignKey: "subject_id" });
+Subject.hasMany(Note, { foreignKey: "subject_id" });
+
+NoteDownload.belongsTo(Note, { foreignKey: "note_id" });
+Note.hasMany(NoteDownload, { foreignKey: "note_id" });
+
+NoteDownload.belongsTo(Student, { foreignKey: "student_id" });
+Student.hasMany(NoteDownload, { foreignKey: "student_id" });
+
+// Chat Associations
+ChatRoom.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasMany(ChatRoom, { foreignKey: "institute_id" });
+
+ChatRoom.belongsTo(Class, { foreignKey: "class_id" });
+Class.hasMany(ChatRoom, { foreignKey: "class_id" });
+
+ChatRoom.belongsTo(Subject, { foreignKey: "subject_id" });
+Subject.hasMany(ChatRoom, { foreignKey: "subject_id" });
+
+ChatRoom.belongsTo(Faculty, { foreignKey: "faculty_id" });
+Faculty.hasMany(ChatRoom, { foreignKey: "faculty_id" });
+
+ChatMessage.belongsTo(ChatRoom, { foreignKey: "room_id" });
+ChatRoom.hasMany(ChatMessage, { foreignKey: "room_id" });
+
+ChatMessage.belongsTo(User, { as: "sender", foreignKey: "sender_id" });
+User.hasMany(ChatMessage, { foreignKey: "sender_id" });
+
+ChatParticipant.belongsTo(ChatRoom, { foreignKey: "room_id" });
+ChatRoom.hasMany(ChatParticipant, { foreignKey: "room_id" });
+
+ChatParticipant.belongsTo(User, { foreignKey: "user_id" });
+User.hasMany(ChatParticipant, { foreignKey: "user_id" });
 
 module.exports = {
     sequelize,
@@ -166,4 +297,16 @@ module.exports = {
     StudentClass,
     ClassSession,
     Expense,
+    TimetableSlot,
+    Timetable,
+    FacultyAttendance,
+    TransportFee,
+    StudentFee,
+    FeeDiscountLog,
+    Note,
+    NoteDownload,
+    ChatRoom,
+    ChatMessage,
+    ChatParticipant,
+    StudentParent
 };

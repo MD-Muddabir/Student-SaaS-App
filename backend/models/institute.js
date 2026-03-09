@@ -58,6 +58,10 @@ const Institute = sequelize.define("Institute", {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
+    current_feature_timetable: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
     current_feature_whatsapp: {
         type: DataTypes.BOOLEAN,
         defaultValue: false

@@ -10,6 +10,14 @@ const Payment = sequelize.define("Payment", {
     payment_method: DataTypes.STRING,
     transaction_id: DataTypes.STRING,
     status: DataTypes.ENUM("success", "failed", "pending"),
+    collected_by: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    remarks: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    }
 });
 
 module.exports = Payment;

@@ -6,6 +6,7 @@
 import { useState, useEffect } from "react";
 import api from "../../services/api";
 import BackButton from "../../components/common/BackButton";
+import ThemeSelector from "../../components/ThemeSelector";
 import "../admin/Dashboard.css";
 
 function Institutes() {
@@ -90,7 +91,10 @@ function Institutes() {
                     <h1>🏢 Institutes Management</h1>
                     <p>Manage all registered institutes</p>
                 </div>
-                <BackButton />
+                <div className="dashboard-header-right">
+                    <ThemeSelector />
+                    <BackButton />
+                </div>
             </div>
 
             {/* Filters */}

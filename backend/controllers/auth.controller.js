@@ -143,6 +143,7 @@ exports.login = async (req, res) => {
                 fees: user.Institute.current_feature_fees !== null ? user.Institute.current_feature_fees : plan.feature_fees,
                 reports: user.Institute.current_feature_reports || plan.feature_reports,
                 announcements: user.Institute.current_feature_announcements !== null ? user.Institute.current_feature_announcements : plan.feature_announcements,
+                timetable: user.Institute.current_feature_timetable !== undefined && user.Institute.current_feature_timetable !== null ? user.Institute.current_feature_timetable : plan.feature_timetable,
             };
         }
 
@@ -155,6 +156,7 @@ exports.login = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                status: user.status,
                 institute_id: user.institute_id,
                 institute_name: user.Institute?.name,
                 features,

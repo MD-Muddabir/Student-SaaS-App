@@ -11,14 +11,15 @@ const allowRoles = require("../middlewares/role.middleware");
 
 const { checkClassLimit } = require("../middlewares/planLimits.middleware");
 const checkSubscription = require("../middlewares/subscription.middleware");
+const checkManagerPermission = require("../middlewares/checkManagerPermission");
 
 // Create Class - Check Limits
-router.post("/", verifyToken, checkSubscription, allowRoles("admin"), checkClassLimit, classController.createClass);
+router.post("/", verifyToken, checkSubscription, allowRoles("admin", "manager"), checkManagerPermission("classes.create"), checkClassLimit, classController.createClass);
 
 // Other Routes
-router.get("/", verifyToken, checkSubscription, allowRoles("admin", "faculty"), classController.getAllClasses);
-router.get("/:id", verifyToken, checkSubscription, allowRoles("admin", "faculty"), classController.getClassById);
-router.put("/:id", verifyToken, checkSubscription, allowRoles("admin"), classController.updateClass);
-router.delete("/:id", verifyToken, checkSubscription, allowRoles("admin"), classController.deleteClass);
+router.get("/", verifyToken, checkSubscription, allowRoles("admin", "faculty", "manager"), checkManagerPermission("classes.read", ["fees", "attendance", "reports", "transport"]), classController.getAllClasses);
+router.get("/:id", verifyToken, checkSubscription, allowRoles("admin", "faculty", "manager"), checkManagerPermission("classes.read", ["fees", "attendance", "reports"]), classController.getClassById);
+router.put("/:id", verifyToken, checkSubscription, allowRoles("admin", "manager"), checkManagerPermission("classes.update"), classController.updateClass);
+router.delete("/:id", verifyToken, checkSubscription, allowRoles("admin", "manager"), checkManagerPermission("classes.delete"), classController.deleteClass);
 
 module.exports = router;
