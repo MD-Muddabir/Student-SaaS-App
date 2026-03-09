@@ -310,36 +310,31 @@ function ParentDashboard() {
                                                     <th>Date</th>
                                                     <th>Subject / Class</th>
                                                     <th>In Time</th>
-                                                    <th>Out Time</th>
                                                     <th>Status</th>
-                                                    <th>Remarks</th>
+                                                    <th>Marked By</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {attendance.records.map(record => {
-                                                    // Phase 7: In/Out time logic
-                                                    // "In time" = when QR was scanned (created_at)
-                                                    // "Out time" = derived from timetable end time (approximated by updatedAt if changed)
-                                                    const inTime = record.remarks && record.remarks.includes('QR')
-                                                        ? new Date(record.createdAt).toLocaleTimeString()
-                                                        : (record.status === 'present' ? '—' : null);
-                                                    const outTime = record.updatedAt && record.updatedAt !== record.createdAt
-                                                        ? new Date(record.updatedAt).toLocaleTimeString()
-                                                        : '—';
-
-                                                    return (
-                                                        <tr key={record.id}>
-                                                            <td style={{ fontWeight: 600 }}>{new Date(record.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
-                                                            <td>{record.Subject?.name || record.Class?.name || 'All Subjects'}</td>
-                                                            <td style={{ color: '#10b981', fontWeight: 600 }}>{record.status === 'present' ? inTime || '—' : '—'}</td>
-                                                            <td style={{ color: '#6366f1', fontWeight: 600 }}>{record.status === 'present' ? outTime : '—'}</td>
-                                                            <td>
-                                                                <span className={`status-badge status-${record.status}`}>{record.status}</span>
-                                                            </td>
-                                                            <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{record.remarks || '—'}</td>
-                                                        </tr>
-                                                    );
-                                                })}
+                                                {attendance.records.map(record => (
+                                                    <tr key={record.id}>
+                                                        <td style={{ fontWeight: 600 }}>{new Date(record.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                                                        <td>{record.Subject?.name || record.Class?.name || 'All Subjects'}</td>
+                                                        <td style={{ color: '#10b981', fontWeight: 600 }}>
+                                                            {record.time_in ? record.time_in.substring(0, 5) : '—'}
+                                                            {record.is_late && <span style={{ marginLeft: '0.4rem', color: '#f59e0b', fontSize: '0.75rem' }}>+{record.late_by_minutes}m late</span>}
+                                                        </td>
+                                                        <td>
+                                                            <span className={`status-badge status-${record.status}`}>
+                                                                {record.status?.replace('_', ' ')}
+                                                            </span>
+                                                        </td>
+                                                        <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                                            {record.marked_by_type === 'biometric' ? '🔐 Biometric' :
+                                                                record.marked_by_type === 'mobile_otp' ? '📱 OTP' :
+                                                                    record.marked_by_type === 'qr_code' ? '📸 QR Scan' : '📝 Manual'}
+                                                        </td>
+                                                    </tr>
+                                                ))}
                                             </tbody>
                                         </table>
                                     ) : (
@@ -506,15 +501,16 @@ function ParentDashboard() {
                                 </div>
                             )}
                         </>
-                    )}
-                </div>
+                    )
+                    }
+                </div >
             ) : (
                 <div className="dashboard-card" style={{ textAlign: "center", color: "var(--text-secondary)", padding: "3rem" }}>
                     <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>👨‍👩‍👧</div>
                     <p>No students linked to your account. Please contact administration.</p>
                 </div>
             )}
-        </div>
+        </div >
     );
 }
 

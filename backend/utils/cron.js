@@ -55,3 +55,30 @@ cron.schedule("0 9 * * *", async () => {
     }
 
 });
+
+// ─────────────────────────────────────────────────────────────────
+// PHASE 6 — BIOMETRIC ABSENT DETECTION
+// Runs every day at 11:00 PM — marks absent for enrolled students
+// who never punched in today.
+// ─────────────────────────────────────────────────────────────────
+cron.schedule("0 23 * * *", async () => {
+    console.log("🔐 Running biometric absent detection...");
+    try {
+        const { BiometricSettings, Institute } = require("../models");
+        const biometricCtrl = require("../controllers/biometric.controller");
+
+        // Get all institutes with biometric settings
+        const settings = await BiometricSettings.findAll();
+        const today = new Date().toISOString().split("T")[0];
+
+        for (const setting of settings) {
+            const marked = await biometricCtrl.markAbsentStudents(setting.institute_id, today);
+            if (marked > 0) {
+                console.log(`   ✓ Institute ${setting.institute_id}: ${marked} absent records created`);
+            }
+        }
+        console.log("✅ Biometric absent detection complete.");
+    } catch (err) {
+        console.error("❌ Absent detection cron error:", err.message);
+    }
+});

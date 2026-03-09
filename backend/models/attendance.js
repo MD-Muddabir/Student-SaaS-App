@@ -7,9 +7,20 @@ const Attendance = sequelize.define("Attendance", {
     class_id: DataTypes.INTEGER,
     subject_id: DataTypes.INTEGER,
     date: DataTypes.DATEONLY,
-    status: DataTypes.ENUM("present", "absent", "late", "holiday"),
+    status: DataTypes.ENUM("present", "absent", "late", "holiday", "half_day"),
     marked_by: DataTypes.INTEGER,
     remarks: DataTypes.TEXT,
+    // Biometric fields
+    marked_by_type: {
+        type: DataTypes.ENUM("manual", "biometric", "mobile_otp", "qr_code"),
+        defaultValue: "manual"
+    },
+    biometric_punch_id: { type: DataTypes.BIGINT, allowNull: true },
+    time_in: { type: DataTypes.TIME, allowNull: true },
+    time_out: { type: DataTypes.TIME, allowNull: true },
+    is_late: { type: DataTypes.BOOLEAN, defaultValue: false },
+    late_by_minutes: { type: DataTypes.INTEGER, defaultValue: 0 },
+    is_half_day: { type: DataTypes.BOOLEAN, defaultValue: false },
 }, {
     tableName: "attendances",
     timestamps: true,
