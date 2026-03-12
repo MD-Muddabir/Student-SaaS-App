@@ -345,22 +345,54 @@ export default function InstitutePage() {
           </div>
           <div className="pub-courses-grid">
             {data.courses.map((c, i) => {
-              let bg = "linear-gradient(135deg,var(--primary),#2563a8)";
+              let bg = "linear-gradient(135deg,#1f4b7a,#2c659e)";
+              let iconSymbol = "🏛️";
+              let badgeText = c.class_name || "Popular";
+              
               const nameLower = c.name.toLowerCase();
-              if (nameLower.includes("science") || nameLower.includes("pcm") || nameLower.includes("pcb")) bg = "linear-gradient(135deg,#1a3c5e,#2563a8)";
-              else if (nameLower.includes("jee") || nameLower.includes("neet")) bg = "linear-gradient(135deg,#7c3aed,#a855f7)";
-              else if (nameLower.includes("commerce")) bg = "linear-gradient(135deg,#065f46,#10b981)";
-              else if (nameLower.includes("mpsc") || nameLower.includes("bank")) bg = "linear-gradient(135deg,#9a3412,#f97316)";
+              if (nameLower.includes("science") || nameLower.includes("pcm") || nameLower.includes("pcb")) {
+                bg = "linear-gradient(135deg,#23608f,#1a4e7a)";
+                iconSymbol = "🔬";
+                badgeText = "Popular";
+              }
+              else if (nameLower.includes("jee") || nameLower.includes("neet")) {
+                bg = "linear-gradient(135deg,#8b5cf6,#a855f7)";
+                iconSymbol = "📐";
+                badgeText = "JEE/NEET";
+              }
+              else if (nameLower.includes("commerce")) {
+                bg = "linear-gradient(135deg,#059669,#10b981)";
+                iconSymbol = "💼";
+                badgeText = "New";
+              }
+              else if (nameLower.includes("mpsc") || nameLower.includes("bank")) {
+                bg = "linear-gradient(135deg,#ea580c,#f97316)";
+                iconSymbol = "🏛️";
+              }
 
               return (
                 <div className="pub-course-card pub-reveal" key={c.id || i} style={{ transitionDelay: `${i * 0.1}s` }} onClick={scrollToEnq}>
                   <div className="pub-course-thumb" style={{ background: bg }}>
-                    {c.class_name && <div className="pub-course-badge">{c.class_name}</div>}
-                    <div style={{ position: 'relative', zIndex: 1, color: 'white' }}>📚</div>
+                    <div className="pub-course-badge">{badgeText}</div>
+                    <div className="pub-course-icon">{iconSymbol}</div>
                   </div>
                   <div className="pub-course-content">
                     <div className="pub-course-name">{c.name}</div>
-                    {c.class_name && <div className="pub-course-class">Class: {c.class_name}</div>}
+                    <div className="pub-course-desc">
+                      {c.description || "Comprehensive coverage of all essential topics designed to build strong foundations and achieve excellent results."}
+                    </div>
+                    <div className="pub-course-meta">
+                      <span>📅 {c.duration_months ? `${Math.ceil(c.duration_months/12)} Year` : "1 Year"}</span>
+                      <span>👥 {c.max_students || "30"} Seats</span>
+                      <span>⏰ 4 hrs/day</span>
+                    </div>
+                  </div>
+                  <div className="pub-course-footer">
+                    <div className="pub-course-price">
+                      <div className="pub-course-price-val">₹{c.price ? parseInt(c.price).toLocaleString() : "18,000"}</div>
+                      <div className="pub-course-price-lbl">per year</div>
+                    </div>
+                    <button className="pub-course-enquire-btn">Enquire</button>
                   </div>
                 </div>
               );
