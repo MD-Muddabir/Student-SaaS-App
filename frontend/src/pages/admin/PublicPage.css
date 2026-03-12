@@ -1,0 +1,221 @@
+/* ══════════════════════════════════════════════
+   PUBLIC PAGE — Admin Wizard & Dashboard Styles
+   ══════════════════════════════════════════════ */
+
+.pub-page-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* ── Feature Gate Card ─────────────────────── */
+.pub-gate-card {
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(99,102,241,.12) 0%, rgba(168,85,247,.12) 100%);
+  border: 1px solid rgba(99,102,241,.35);
+  padding: 3rem 2.5rem;
+  text-align: center;
+}
+.pub-gate-card .gate-icon { font-size: 4rem; margin-bottom: 1rem; }
+.pub-gate-card h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: .5rem; }
+.pub-gate-card p { color: var(--text-secondary); max-width: 460px; margin: 0 auto 1.5rem; line-height: 1.6; }
+
+/* ── Status Banner (after publish) ─────────── */
+.pub-status-banner {
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0f2340 0%, #1e3a5f 100%);
+  color: #fff;
+  padding: 1.75rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.pub-status-banner .banner-left h2 { margin: 0 0 .25rem; font-size: 1.25rem; }
+.pub-status-banner .banner-left p { margin: 0; opacity: .8; font-size: .9rem; }
+.pub-status-banner .banner-actions { display: flex; gap: .75rem; flex-wrap: wrap; }
+.pub-status-banner .live-badge {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: rgba(16,185,129,.25); color: #10b981;
+  border: 1px solid rgba(16,185,129,.4); border-radius: 20px;
+  padding: 2px 12px; font-size: .8rem; font-weight: 700;
+}
+.pub-status-banner .live-badge::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  background: #10b981; animation: blink 1.4s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── Tab Row ────────────────────────────────── */
+.pub-tab-row {
+  display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+}
+.pub-tab-btn {
+  padding: .5rem 1.1rem; border-radius: 10px; border: 1px solid var(--border-color);
+  background: transparent; color: var(--text-secondary); cursor: pointer;
+  font-size: .875rem; font-weight: 500; transition: all .2s;
+}
+.pub-tab-btn.active, .pub-tab-btn:hover {
+  background: var(--primary, #6366f1); color: #fff; border-color: var(--primary, #6366f1);
+}
+.pub-tab-btn .badge {
+  display: inline-block; background: #ef4444; color: #fff;
+  border-radius: 10px; padding: 0 6px; font-size: .7rem; margin-left: 4px;
+}
+
+/* ── Wizard ─────────────────────────────────── */
+.wizard-wrapper { background: var(--card-bg, #fff); border-radius: 16px; border: 1px solid var(--border-color); overflow: hidden; }
+.wizard-progress { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-color); }
+.wizard-steps-bar { display: flex; gap: 0; counter-reset: step; }
+.wizard-step-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: .35rem;
+  font-size: .75rem; color: var(--text-secondary); text-align: center;
+  position: relative;
+}
+.wizard-step-item::before {
+  content: counter(step); counter-increment: step;
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: .8rem; z-index: 1;
+  background: var(--border-color); color: var(--text-secondary);
+  transition: all .3s;
+}
+.wizard-step-item.done::before { background: #10b981; color: #fff; content: '✓'; }
+.wizard-step-item.active::before { background: var(--primary, #6366f1); color: #fff; }
+.wizard-step-item + .wizard-step-item::after {
+  content: ''; position: absolute; top: 14px; right: 50%;
+  width: 100%; height: 2px; background: var(--border-color); z-index: 0;
+}
+.wizard-step-item.done + .wizard-step-item::after { background: #10b981; }
+
+.wizard-body { padding: 2rem; }
+.wizard-footer {
+  padding: 1.2rem 2rem; border-top: 1px solid var(--border-color);
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+/* ── Form rows ──────────────────────────────── */
+.form-row { margin-bottom: 1.25rem; }
+.form-row label { display: block; font-size: .85rem; font-weight: 600; margin-bottom: .4rem; color: var(--text-primary); }
+.form-row input, .form-row textarea, .form-row select {
+  width: 100%; padding: .65rem .9rem; border-radius: 10px;
+  border: 1px solid var(--border-color); background: var(--input-bg, transparent);
+  color: var(--text-primary); font-size: .9rem; box-sizing: border-box;
+  transition: border-color .2s;
+}
+.form-row input:focus, .form-row textarea:focus, .form-row select:focus {
+  outline: none; border-color: var(--primary, #6366f1);
+}
+.form-row textarea { resize: vertical; min-height: 90px; }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-hint { font-size: .78rem; color: var(--text-secondary); margin-top: .3rem; }
+
+/* ── Dynamic List (USP/Benefits) ────────────── */
+.dynamic-list-item {
+  display: flex; gap: .5rem; margin-bottom: .5rem; align-items: center;
+}
+.dynamic-list-item input { flex: 1; }
+.btn-icon-remove {
+  background: rgba(239,68,68,.12); color: #ef4444; border: none;
+  border-radius: 8px; width: 32px; height: 32px; cursor: pointer;
+  font-size: 1rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Upload area ────────────────────────────── */
+.upload-area {
+  border: 2px dashed var(--border-color); border-radius: 12px;
+  padding: 1.5rem; text-align: center; cursor: pointer; transition: all .2s;
+  color: var(--text-secondary);
+}
+.upload-area:hover { border-color: var(--primary, #6366f1); color: var(--primary, #6366f1); }
+.upload-area img { max-height: 140px; max-width: 100%; border-radius: 8px; margin-bottom: .5rem; }
+.gallery-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: .75rem; margin-top: 1rem;
+}
+.gallery-item { position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 1; background: var(--border-color); }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-item .remove-btn {
+  position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,.6);
+  color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px;
+  cursor: pointer; font-size: .75rem; display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Faculty/Course checkbox list ───────────── */
+.check-list { display: flex; flex-direction: column; gap: .5rem; max-height: 280px; overflow-y: auto; }
+.check-item {
+  display: flex; align-items: center; gap: .75rem; padding: .65rem 1rem;
+  border-radius: 10px; border: 1px solid var(--border-color); cursor: pointer; transition: all .2s;
+}
+.check-item:hover, .check-item.selected { border-color: var(--primary, #6366f1); background: rgba(99,102,241,.07); }
+.check-item input[type=checkbox] { accent-color: var(--primary, #6366f1); width: 16px; height: 16px; }
+.check-item .item-info { flex: 1; }
+.check-item .item-name { font-weight: 600; font-size: .9rem; }
+.check-item .item-sub { font-size: .78rem; color: var(--text-secondary); }
+
+/* ── Review cards ───────────────────────────── */
+.review-card {
+  border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: .75rem;
+}
+.review-card .stars { color: #f59e0b; font-size: .95rem; }
+.review-card .review-actions { display: flex; gap: .4rem; flex-shrink: 0; }
+
+/* ── Enquiry table ──────────────────────────── */
+.enquiry-table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+.enquiry-table th {
+  text-align: left; padding: .75rem 1rem; border-bottom: 2px solid var(--border-color);
+  font-weight: 600; color: var(--text-secondary); font-size: .78rem; text-transform: uppercase;
+}
+.enquiry-table td { padding: .75rem 1rem; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+.enquiry-table tr:hover td { background: rgba(99,102,241,.04); }
+.status-badge {
+  padding: 3px 10px; border-radius: 20px; font-size: .75rem; font-weight: 600;
+}
+.status-new { background: rgba(99,102,241,.15); color: #6366f1; }
+.status-contacted { background: rgba(245,158,11,.15); color: #d97706; }
+.status-enrolled { background: rgba(16,185,129,.15); color: #059669; }
+.status-closed { background: rgba(107,114,128,.15); color: #6b7280; }
+
+/* ── Publish preview card ───────────────────── */
+.publish-preview {
+  border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem;
+}
+.publish-preview .preview-hero {
+  height: 120px; background: linear-gradient(135deg, #0f2340, #1e3a5f);
+  display: flex; align-items: center; padding: 1.5rem; color: #fff; gap: 1rem;
+}
+.preview-hero .logo-circle {
+  width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,.2);
+  display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;
+}
+.publish-checklist { padding: 1.25rem 1.5rem; }
+.checklist-item {
+  display: flex; align-items: center; gap: .6rem; padding: .35rem 0;
+  font-size: .875rem;
+}
+.checklist-item .ci-icon { font-size: 1rem; }
+
+/* ── Buttons ────────────────────────────────── */
+.btn { padding: .6rem 1.2rem; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; font-size: .875rem; transition: all .2s; }
+.btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; }
+.btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+.btn-secondary { background: var(--border-color); color: var(--text-primary); }
+.btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+.btn-danger { background: rgba(239,68,68,.12); color: #ef4444; border: 1px solid rgba(239,68,68,.3); }
+.btn-sm { padding: .35rem .8rem; font-size: .8rem; }
+.btn-outline {
+  background: transparent; border: 1px solid var(--primary, #6366f1);
+  color: var(--primary, #6366f1);
+}
+.btn-outline:hover { background: var(--primary, #6366f1); color: #fff; }
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 640px) {
+  .form-grid-2 { grid-template-columns: 1fr; }
+  .pub-status-banner { flex-direction: column; }
+  .wizard-body { padding: 1.25rem; }
+  .wizard-footer { flex-direction: column; gap: .75rem; }
+  .wizard-steps-bar .wizard-step-item span { display: none; }
+}

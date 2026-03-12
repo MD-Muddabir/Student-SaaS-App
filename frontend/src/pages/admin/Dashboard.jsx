@@ -456,6 +456,18 @@ function AdminDashboard() {
                     <ActionCard path={`${basePath}/biometric`} icon="🔐" title="Biometric Attendance" />
                     <ActionCard path={`${basePath}/notes`} icon="📓" title="All Notes" />
                     <ActionCard path={`${basePath}/chat-monitor`} icon="💬" title="Chat Monitor" badge={stats.unreadChatCount || 0} />
+                    {/* Public Web Page — always visible for admin */}
+                    {isAdmin && (
+                        <div
+                            onClick={() => navigate(`${basePath}/public-page`)}
+                            className="action-card"
+                            style={{ cursor: 'pointer', position: 'relative', borderColor: '#10b981', boxShadow: '0 0 0 2px rgba(16,185,129,0.2)' }}
+                        >
+                            <span className="action-icon">🌐</span>
+                            <span className="action-title">Public Web Page</span>
+                            <span style={{ position: 'absolute', top: 5, right: 5, fontSize: '10px', background: 'rgba(16,185,129,.2)', color: '#10b981', padding: '2px 6px', borderRadius: '6px', fontWeight: 700 }}>NEW</span>
+                        </div>
+                    )}
 
                     {isAdmin && (
                         <div onClick={() => navigate(`${basePath}/settings`)} className="action-card" style={{ cursor: 'pointer' }}>

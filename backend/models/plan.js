@@ -140,6 +140,10 @@ const Plan = sequelize.define("Plan", {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
+    feature_public_page: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
 
     // Plan Status
     status: {

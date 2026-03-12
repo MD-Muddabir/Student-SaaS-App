@@ -1,0 +1,179 @@
+/* ══════════════════════════════════════════════
+   Institute Public Page — Public-Facing Styles
+   ══════════════════════════════════════════════ */
+
+/* ── Reset for public page ─── */
+.ipage-root { font-family: 'Inter', 'Segoe UI', sans-serif; color: #1a1a2e; }
+.ipage-root *, .ipage-root *::before, .ipage-root *::after { box-sizing: border-box; }
+
+/* ── Navbar ──────────────────────────────────── */
+.ipage-nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .875rem 2rem; backdrop-filter: blur(12px);
+  background: rgba(15,35,64,.92); color: #fff;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  gap: 1rem; flex-wrap: wrap;
+}
+.ipage-nav-brand { display: flex; align-items: center; gap: .75rem; }
+.ipage-nav-logo {
+  width: 44px; height: 44px; border-radius: 50%; overflow: hidden;
+  background: rgba(255,255,255,.15); display: flex; align-items: center;
+  justify-content: center; font-weight: 800; font-size: 1.1rem; color: #fff; flex-shrink: 0;
+}
+.ipage-nav-logo img { width: 100%; height: 100%; object-fit: cover; }
+.ipage-nav-name { font-weight: 700; font-size: 1.05rem; }
+.ipage-nav-actions { display: flex; gap: .65rem; align-items: center; }
+.ipage-btn-primary {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff; border: none; padding: .5rem 1.2rem; border-radius: 8px;
+  font-weight: 600; font-size: .875rem; cursor: pointer; text-decoration: none; display: inline-block;
+}
+.ipage-btn-outline {
+  background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.35);
+  padding: .5rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: .875rem; cursor: pointer; text-decoration: none; display: inline-block;
+}
+.ipage-btn-outline:hover { background: rgba(255,255,255,.1); }
+
+/* ── Hero ───────────────────────────────────── */
+.ipage-hero {
+  min-height: 520px; display: flex; align-items: center; position: relative; overflow: hidden;
+  background: linear-gradient(135deg, #0f2340 0%, #1e3a5f 100%);
+  color: #fff;
+}
+.ipage-hero-bg { position: absolute; inset: 0; object-fit: cover; width: 100%; height: 100%; opacity: .25; }
+.ipage-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(15,35,64,.9) 40%, rgba(15,35,64,.5) 100%); }
+.ipage-hero-content { position: relative; z-index: 2; padding: 4rem 2rem; max-width: 700px; }
+.ipage-badge { display: inline-block; background: rgba(99,102,241,.3); border: 1px solid rgba(99,102,241,.5); color: #a5b4fc; padding: 3px 14px; border-radius: 20px; font-size: .78rem; font-weight: 700; margin-bottom: 1rem; letter-spacing: .06em; }
+.ipage-hero h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; margin: 0 0 .5rem; line-height: 1.2; }
+.ipage-hero .tagline { font-size: 1.1rem; opacity: .85; margin-bottom: 1.5rem; font-style: italic; }
+.ipage-hero .desc { font-size: .95rem; opacity: .75; max-width: 520px; line-height: 1.7; margin-bottom: 2rem; }
+.ipage-hero-cta { display: flex; gap: .75rem; flex-wrap: wrap; }
+
+/* ── Stats strip ────────────────────────────── */
+.ipage-stats-strip {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 2rem;
+  padding: 1.5rem 2rem; color: #fff;
+}
+.ipage-stat-item { text-align: center; }
+.ipage-stat-item .stat-num { font-size: 1.8rem; font-weight: 800; }
+.ipage-stat-item .stat-lbl { font-size: .78rem; opacity: .85; letter-spacing: .05em; text-transform: uppercase; }
+
+/* ── Section base ───────────────────────────── */
+.ipage-section { padding: 5rem 2rem; }
+.ipage-section-inner { max-width: 1100px; margin: 0 auto; }
+.ipage-section-alt { background: #f8faff; }
+.ipage-section-title { text-align: center; margin-bottom: 3rem; }
+.ipage-section-title h2 { font-size: 2rem; font-weight: 800; margin: 0 0 .5rem; }
+.ipage-section-title p { color: #6b7280; font-size: .95rem; }
+.ipage-divider { width: 50px; height: 4px; background: linear-gradient(90deg, #6366f1, #8b5cf6); border-radius: 2px; margin: .75rem auto; }
+
+/* ── Courses grid ───────────────────────────── */
+.ipage-courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem; }
+.ipage-course-card {
+  border-radius: 14px; border: 1px solid #e5e7eb; padding: 1.5rem;
+  background: #fff; transition: all .25s; cursor: default;
+}
+.ipage-course-card:hover { box-shadow: 0 8px 30px rgba(99,102,241,.15); transform: translateY(-3px); border-color: #6366f1; }
+.ipage-course-card .course-icon { font-size: 2rem; margin-bottom: .75rem; }
+.ipage-course-card h3 { margin: 0 0 .25rem; font-size: 1rem; font-weight: 700; }
+.ipage-course-card .course-class { font-size: .8rem; color: #6b7280; }
+
+/* ── Faculty grid ───────────────────────────── */
+.ipage-faculty-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; }
+.ipage-faculty-card {
+  text-align: center; border-radius: 16px; padding: 1.75rem 1rem;
+  border: 1px solid #e5e7eb; background: #fff; transition: all .25s;
+}
+.ipage-faculty-card:hover { box-shadow: 0 8px 30px rgba(99,102,241,.15); transform: translateY(-3px); }
+.ipage-faculty-avatar {
+  width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 1rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; font-weight: 800; color: #fff; overflow: hidden;
+}
+.ipage-faculty-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.ipage-faculty-card h3 { margin: 0 0 .25rem; font-size: .95rem; font-weight: 700; }
+.ipage-faculty-card .fac-subject { font-size: .8rem; color: #6366f1; font-weight: 600; }
+
+/* ── Reviews ────────────────────────────────── */
+.ipage-reviews-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; }
+.ipage-review-card {
+  border-radius: 14px; border: 1px solid #e5e7eb; padding: 1.5rem; background: #fff;
+}
+.ipage-review-card .stars { color: #f59e0b; font-size: 1rem; margin-bottom: .5rem; }
+.ipage-review-card .review-text { font-size: .9rem; color: #374151; line-height: 1.6; font-style: italic; margin-bottom: .75rem; }
+.ipage-review-card .reviewer { font-weight: 700; font-size: .9rem; }
+.ipage-review-card .achievement { font-size: .78rem; color: #6366f1; font-weight: 600; }
+
+/* ── Enroll CTA ─────────────────────────────── */
+.ipage-enroll-section { background: linear-gradient(135deg, #0f2340 0%, #1e3a5f 100%); color: #fff; }
+.ipage-enroll-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+.ipage-enroll-left h2 { font-size: 2rem; font-weight: 800; margin-bottom: 1rem; }
+.ipage-benefits-list { list-style: none; padding: 0; margin: 0; }
+.ipage-benefits-list li { display: flex; align-items: center; gap: .75rem; margin-bottom: .75rem; font-size: .9rem; }
+.ipage-benefits-list li::before { content: "✅"; flex-shrink: 0; }
+.ipage-enroll-form { background: #fff; color: #1a1a2e; border-radius: 16px; padding: 2rem; }
+.ipage-enroll-form h3 { margin-top: 0; font-size: 1.2rem; }
+.ipage-field { margin-bottom: 1rem; }
+.ipage-field label { display: block; font-size: .8rem; font-weight: 600; margin-bottom: .35rem; color: #374151; }
+.ipage-field input, .ipage-field select {
+  width: 100%; padding: .6rem .85rem; border-radius: 9px; border: 1px solid #e5e7eb;
+  font-size: .9rem; color: #1a1a2e; background: #fff;
+}
+.ipage-field input:focus, .ipage-field select:focus { outline: none; border-color: #6366f1; }
+.ipage-submit-btn {
+  width: 100%; padding: .75rem; background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer;
+  transition: opacity .2s;
+}
+.ipage-submit-btn:hover { opacity: .9; }
+.ipage-submit-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+/* ── Contact section ────────────────────────── */
+.ipage-contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+.ipage-contact-info h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 1.25rem; }
+.contact-detail { display: flex; gap: .75rem; margin-bottom: 1rem; font-size: .9rem; align-items: flex-start; }
+.contact-detail .ci { font-size: 1.2rem; flex-shrink: 0; margin-top: .05rem; }
+.ipage-map { border-radius: 14px; overflow: hidden; height: 280px; background: #e5e7eb; }
+.ipage-map iframe { width: 100%; height: 100%; border: 0; }
+
+/* ── Footer ─────────────────────────────────── */
+.ipage-footer {
+  background: #0a1628; color: rgba(255,255,255,.7); padding: 3rem 2rem 1.5rem;
+}
+.ipage-footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 3rem; max-width: 1100px; margin: 0 auto 2rem; }
+.ipage-footer-brand .brand-name { color: #fff; font-size: 1.1rem; font-weight: 700; margin-bottom: .5rem; }
+.ipage-footer-brand p { font-size: .85rem; line-height: 1.6; }
+.ipage-footer h4 { color: #fff; font-size: .9rem; font-weight: 700; margin-bottom: 1rem; }
+.ipage-footer ul { list-style: none; padding: 0; margin: 0; }
+.ipage-footer ul li { margin-bottom: .5rem; font-size: .85rem; }
+.ipage-social-links { display: flex; gap: .75rem; margin-top: 1rem; }
+.ipage-social-link { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.1); color: #fff; text-decoration: none; font-size: .9rem; transition: background .2s; }
+.ipage-social-link:hover { background: #6366f1; }
+.ipage-footer-bottom { border-top: 1px solid rgba(255,255,255,.1); max-width: 1100px; margin: 0 auto; padding-top: 1.25rem; display: flex; justify-content: space-between; font-size: .78rem; flex-wrap: wrap; gap: .5rem; }
+
+/* ── WhatsApp float btn ─────────────────────── */
+.ipage-whatsapp-btn {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999;
+  width: 56px; height: 56px; border-radius: 50%; background: #25D366;
+  display: flex; align-items: center; justify-content: center; font-size: 1.6rem;
+  box-shadow: 0 4px 20px rgba(37,211,102,.5); text-decoration: none; color: #fff;
+  animation: pulse-wa 2s ease-in-out infinite;
+}
+@keyframes pulse-wa { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+
+/* ── Loading skeleton ───────────────────────── */
+.ipage-skeleton { background: #f0f0f0; border-radius: 8px; animation: shimmer 1.5s ease-in-out infinite; }
+@keyframes shimmer { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .ipage-hero-content { padding: 3rem 1.5rem; }
+  .ipage-section { padding: 3rem 1.25rem; }
+  .ipage-enroll-inner { grid-template-columns: 1fr; gap: 2rem; }
+  .ipage-contact-grid { grid-template-columns: 1fr; }
+  .ipage-footer-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  .ipage-nav { padding: .75rem 1.25rem; }
+}

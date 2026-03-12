@@ -98,6 +98,11 @@ app.use("/api/biometric", require("./routes/biometric.routes"));
 app.use("/api/notes", require("./routes/note.routes"));
 app.use("/api/assignments", require("./routes/assignment.routes"));
 
+// Public Web Page routes
+app.use("/api/admin/public-page", require("./routes/publicPage.routes"));
+app.use("/api/admin/enquiries", require("./routes/enquiry.routes"));
+app.use("/api/public", require("./routes/publicSite.routes"));
+
 // ============================================
 // 404 HANDLER
 // ============================================
@@ -265,8 +270,30 @@ const syncDatabase = async () => {
     // Modify attendance status ENUM to add half_day
     try { await sequelize.query(`ALTER TABLE attendances MODIFY COLUMN status ENUM('present','absent','late','holiday','half_day');`); } catch (e) { }
 
+    // Public Web Page feature columns
+    try { await sequelize.query(`ALTER TABLE plans ADD COLUMN feature_public_page BOOLEAN DEFAULT false;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE institutes ADD COLUMN current_feature_public_page BOOLEAN DEFAULT false;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE institute_reviews ADD COLUMN sort_order INT DEFAULT 0;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE institute_reviews ADD COLUMN is_approved BOOLEAN DEFAULT true;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE institute_gallery_photos ADD COLUMN sort_order INT DEFAULT 0;`); } catch (e) { }
+    
+    // Auto-sync other schema changes using alter for the explicit models to make sure everything matches
+    try {
+        const { InstitutePublicProfile, InstituteGalleryPhoto, InstituteReview, PublicEnquiry } = require('./models');
+        await InstitutePublicProfile.sync({ alter: true });
+        await InstituteGalleryPhoto.sync({ alter: true });
+        await InstituteReview.sync({ alter: true });
+        await PublicEnquiry.sync({ alter: true });
+    } catch (e) { console.error("Error auto-syncing public page models:", e); }
+
     await sequelize.sync({ alter: false });
     console.log("✅ Database synchronized successfully");
+
+    // Add indexes for performance (public page tables)
+    try { await sequelize.query(`CREATE INDEX idx_profile_slug ON institute_public_profiles(slug);`); } catch (e) { }
+    try { await sequelize.query(`CREATE INDEX idx_gallery_inst ON institute_gallery_photos(institute_id);`); } catch (e) { }
+    try { await sequelize.query(`CREATE INDEX idx_reviews_inst ON institute_reviews(institute_id);`); } catch (e) { }
+    try { await sequelize.query(`CREATE INDEX idx_enquiry_inst ON public_enquiries(institute_id, status, created_at);`); } catch (e) { }
 
     // Seed plans if not exists
     const seedPlans = require("./seeders/seedPlans");

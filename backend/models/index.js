@@ -41,6 +41,12 @@ const AssignmentSubmission = require("./assignmentSubmission");
 const AssignmentSubmissionHistory = require("./assignmentSubmissionHistory");
 const AssignmentSetting = require("./assignmentSetting");
 
+// Public Web Page Models
+const InstitutePublicProfile = require("./institutePublicProfile");
+const InstituteGalleryPhoto = require("./instituteGalleryPhoto");
+const InstituteReview = require("./instituteReview");
+const PublicEnquiry = require("./publicEnquiry");
+
 // Associations
 
 Plan.hasMany(Subscription, { foreignKey: "plan_id" });
@@ -337,6 +343,19 @@ AssignmentSubmission.hasMany(AssignmentSubmissionHistory, { foreignKey: "submiss
 AssignmentSetting.belongsTo(Institute, { foreignKey: "institute_id" });
 Institute.hasOne(AssignmentSetting, { foreignKey: "institute_id" });
 
+// Public Web Page Associations
+InstitutePublicProfile.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasOne(InstitutePublicProfile, { foreignKey: "institute_id" });
+
+InstituteGalleryPhoto.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasMany(InstituteGalleryPhoto, { foreignKey: "institute_id" });
+
+InstituteReview.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasMany(InstituteReview, { foreignKey: "institute_id" });
+
+PublicEnquiry.belongsTo(Institute, { foreignKey: "institute_id" });
+Institute.hasMany(PublicEnquiry, { foreignKey: "institute_id" });
+
 module.exports = {
     sequelize,
     Plan,
@@ -377,4 +396,9 @@ module.exports = {
     AssignmentSubmission,
     AssignmentSubmissionHistory,
     AssignmentSetting,
+    // Public Web Page
+    InstitutePublicProfile,
+    InstituteGalleryPhoto,
+    InstituteReview,
+    PublicEnquiry,
 };

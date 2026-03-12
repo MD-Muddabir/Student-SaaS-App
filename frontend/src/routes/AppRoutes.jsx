@@ -17,6 +17,7 @@ const Contact = lazy(() => import("../pages/public/ContactPage")); // Added Cont
 const PaymentAndCheckout = lazy(() => import("../pages/public/PaymentPage")); // Added Payment
 const Terms = lazy(() => import("../pages/public/TermsPage")); // Added Terms
 const Privacy = lazy(() => import("../pages/public/PrivacyPage")); // Added Privacy
+const InstitutePage = lazy(() => import("../pages/public/InstitutePage")); // Institute Public Page
 
 // Auth Pages
 const Login = lazy(() => import("../pages/auth/Login"));
@@ -57,6 +58,7 @@ const AdminFacultyViewAttendance = lazy(() => import("../pages/admin/AdminFacult
 const AdminManageFacultyAttendance = lazy(() => import("../pages/admin/AdminManageFacultyAttendance"));
 const AdminBiometric = lazy(() => import("../pages/admin/Biometric"));
 const AdminAssignments = lazy(() => import("../pages/admin/AdminAssignments")); // Added Assignments
+const AdminPublicPage = lazy(() => import("../pages/admin/PublicPage")); // Added Public Web Page
 const FacultyViewAttendance = lazy(() => import("../pages/faculty/ViewAttendance"));
 // Faculty Pages
 const FacultyDashboard = lazy(() => import("../pages/faculty/Dashboard"));
@@ -120,6 +122,8 @@ function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        {/* Institute Public Web Pages */}
+        <Route path="/i/:slug" element={<InstitutePage />} />
 
         {/* Super Admin Routes */}
         <Route
@@ -170,6 +174,7 @@ function AppRoutes() {
                 <Route path="notes" element={<AdminNotes />} />
                 <Route path="assignments" element={<AdminAssignments />} />
                 <Route path="biometric" element={<AdminBiometric />} />
+                <Route path="public-page" element={<AdminPublicPage />} />
                 <Route path="chat-monitor" element={<ChatApp />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="*" element={<Navigate to="/admin/dashboard" />} />

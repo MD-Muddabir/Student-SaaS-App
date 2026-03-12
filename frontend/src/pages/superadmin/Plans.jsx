@@ -57,6 +57,7 @@ function Plans() {
         feature_api_access: false,
         feature_parent_portal: false,
         feature_mobile_app: false,
+        feature_public_page: false,
 
         razorpay_plan_id: "",
         is_popular: false
@@ -439,6 +440,7 @@ function Plans() {
                                             { key: 'feature_api_access', label: 'API Access' },
                                             { key: 'feature_parent_portal', label: 'Parent Portal' },
                                             { key: 'feature_mobile_app', label: 'Mobile App' },
+                                            { key: 'feature_public_page', label: '🌐 Public Web Page' },
                                             { key: 'is_popular', label: 'Mark as Popular' },
                                         ].map(feature => (
                                             <label key={feature.key} className="feature-checkbox">
