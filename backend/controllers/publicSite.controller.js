@@ -38,6 +38,41 @@ function checkRateLimit(ip, instituteId) {
     return true;
 }
 
+// ── Convert any Google Maps URL to embed URL ─────────────────────
+function normalizeMapUrl(url) {
+    if (!url || !url.trim()) return null;
+    url = url.trim();
+
+    // Already an embed URL? Return as-is
+    if (url.includes('/maps/embed')) return url;
+
+    // Handle google.com/maps/place/ share links
+    // e.g. https://www.google.com/maps/place/Some+Place/@lat,lng,...
+    if (url.includes('google.com/maps')) {
+        // Try to extract place or coordinates and build embed URL
+        // Check for @lat,lng format
+        const coordMatch = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+        if (coordMatch) {
+            const lat = coordMatch[1];
+            const lng = coordMatch[2];
+            return `https://maps.google.com/maps?q=${lat},${lng}&output=embed`;
+        }
+
+        // Check for /place/ format 
+        const placeMatch = url.match(/\/place\/([^/@]+)/);
+        if (placeMatch) {
+            const placeName = placeMatch[1];
+            return `https://maps.google.com/maps?q=${encodeURIComponent(placeName.replace(/\+/g, ' '))}&output=embed`;
+        }
+
+        // Wrap generic google maps URL into embed
+        return `https://maps.google.com/maps?q=${encodeURIComponent(url)}&output=embed`;
+    }
+
+    // Try to use URL directly as embed (user may have given a partial/shortened link)
+    return url;
+}
+
 // ─────────────────────────────────────────────────────────────────
 // GET /api/public/:slug  — Get complete public page data
 // ─────────────────────────────────────────────────────────────────
@@ -72,7 +107,7 @@ exports.getPublicPageData = async (req, res) => {
             Faculty.findAll({
                 where: { institute_id: instituteId },
                 include: [{ model: User, attributes: ['name', 'email'] }],
-                attributes: ['id', 'user_id']
+                attributes: ['id', 'user_id', 'designation']
             }),
             Subject.findAll({
                 where: { institute_id: instituteId },
@@ -89,6 +124,9 @@ exports.getPublicPageData = async (req, res) => {
         // Filter faculty/subjects to selected ones only
         const selectedFacultyIds = parseJson(profile.selected_faculty_ids, []);
         const selectedSubjectIds = parseJson(profile.selected_subject_ids, []);
+        const facultyImages = parseJson(profile.faculty_images, {});
+        const courseMode = profile.course_mode || 'auto';
+        const manualCourses = parseJson(profile.manual_courses, []);
 
         const visibleFaculty = selectedFacultyIds.length > 0
             ? facultyList.filter(f => selectedFacultyIds.includes(f.id))
@@ -97,6 +135,28 @@ exports.getPublicPageData = async (req, res) => {
         const visibleSubjects = selectedSubjectIds.length > 0
             ? subjectList.filter(s => selectedSubjectIds.includes(s.id))
             : subjectList;
+
+        // Determine courses to show
+        let coursesToShow;
+        if (courseMode === 'manual' && manualCourses && manualCourses.length > 0) {
+            coursesToShow = manualCourses.filter(c => c.name); // Only show courses with a name
+        } else {
+            // Auto mode: use DB subjects
+            coursesToShow = visibleSubjects.map(s => ({
+                id: s.id,
+                name: s.name,
+                class_name: s.Class?.name,
+                image_url: null,
+                description: null,
+                duration_months: null,
+                max_students: null,
+                hours_per_day: null,
+                badge: null
+            }));
+        }
+
+        // Build the YouTube embed URL if provided
+        const youtubeEmbedUrl = buildYouTubeEmbedUrl(profile.youtube_intro_url);
 
         const responseData = {
             institute_id: instituteId,
@@ -127,7 +187,7 @@ exports.getPublicPageData = async (req, res) => {
                 email: profile.contact_email || profile.Institute?.email,
                 whatsapp: profile.whatsapp_number,
                 working_hours: profile.working_hours,
-                map_embed_url: profile.map_embed_url
+                map_embed_url: normalizeMapUrl(profile.map_embed_url)
             },
             social: {
                 facebook: profile.social_facebook,
@@ -147,13 +207,13 @@ exports.getPublicPageData = async (req, res) => {
                 id: f.id,
                 name: f.User?.name || 'Faculty',
                 email: f.User?.email,
-                subject: subjectList.filter(s => s.faculty_id === f.user_id).map(s => s.name).join(', ')
+                designation: f.designation || null,
+                subject: subjectList.filter(s => s.faculty_id === f.user_id).map(s => s.name).join(', '),
+                image_url: facultyImages[String(f.id)] || null
             })),
-            courses: visibleSubjects.map(s => ({
-                id: s.id,
-                name: s.name,
-                class_name: s.Class?.name
-            })),
+            courses: coursesToShow,
+            course_mode: courseMode,
+            youtube_embed_url: youtubeEmbedUrl,
             page_views: profile.page_views
         };
 
@@ -163,6 +223,41 @@ exports.getPublicPageData = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
+
+// ── Convert YouTube URL to embed URL ────────────────────────────
+function buildYouTubeEmbedUrl(url) {
+    if (!url || !url.trim()) return null;
+    url = url.trim();
+
+    // Already an embed URL
+    if (url.includes('youtube.com/embed/')) return url;
+
+    // youtu.be/VIDEO_ID
+    const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+    if (shortMatch) {
+        return `https://www.youtube.com/embed/${shortMatch[1]}?rel=0&modestbranding=1`;
+    }
+
+    // youtube.com/watch?v=VIDEO_ID
+    const watchMatch = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+    if (watchMatch) {
+        return `https://www.youtube.com/embed/${watchMatch[1]}?rel=0&modestbranding=1`;
+    }
+
+    // youtube.com/shorts/VIDEO_ID
+    const shortsMatch = url.match(/\/shorts\/([a-zA-Z0-9_-]{11})/);
+    if (shortsMatch) {
+        return `https://www.youtube.com/embed/${shortsMatch[1]}?rel=0&modestbranding=1`;
+    }
+
+    // youtube.com/live/VIDEO_ID
+    const liveMatch = url.match(/\/live\/([a-zA-Z0-9_-]{11})/);
+    if (liveMatch) {
+        return `https://www.youtube.com/embed/${liveMatch[1]}?rel=0&modestbranding=1`;
+    }
+
+    return null; // Cannot parse
+}
 
 // ─────────────────────────────────────────────────────────────────
 // POST /api/public/:slug/enquiry  — Submit enquiry form

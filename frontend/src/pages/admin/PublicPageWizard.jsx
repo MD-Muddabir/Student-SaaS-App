@@ -1,8 +1,11 @@
 /**
- * Admin Public Page — 6-Step Wizard
- * Handles create / edit / publish of institute public web page
+ * Admin Public Page — 7-Step Wizard (Phases 1-4 implemented)
+ * Phase 1: Auto/Manual course toggle with full manual course form
+ * Phase 2: Faculty image upload
+ * Phase 3: Map embed URL helper
+ * Phase 4: YouTube intro video URL field
  */
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import "./PublicPage.css";
@@ -25,7 +28,32 @@ const STEPS = [
 ];
 
 const AFFILIATION_OPTIONS = ["CBSE", "State Board", "ICSE", "IB", "University", "Other"];
-const CLASS_OPTIONS = ["8th", "9th", "10th", "11th", "12th", "Dropper", "Other"];
+
+// 10 built-in course stock images (emojis & gradients as fallbacks)
+const STOCK_COURSE_IMAGES = [
+  { label: "Science", gradient: "linear-gradient(135deg,#1a6fa8,#1e88e5)", emoji: "🔬" },
+  { label: "Mathematics", gradient: "linear-gradient(135deg,#6a1b9a,#9c27b0)", emoji: "📐" },
+  { label: "Commerce", gradient: "linear-gradient(135deg,#00695c,#26a69a)", emoji: "💼" },
+  { label: "Arts", gradient: "linear-gradient(135deg,#bf360c,#e64a19)", emoji: "🎨" },
+  { label: "JEE/NEET", gradient: "linear-gradient(135deg,#283593,#3f51b5)", emoji: "🏆" },
+  { label: "Languages", gradient: "linear-gradient(135deg,#4e342e,#795548)", emoji: "📖" },
+  { label: "Computer", gradient: "linear-gradient(135deg,#006064,#00acc1)", emoji: "💻" },
+  { label: "History", gradient: "linear-gradient(135deg,#e65100,#f57c00)", emoji: "🏛️" },
+  { label: "Biology", gradient: "linear-gradient(135deg,#1b5e20,#43a047)", emoji: "🧬" },
+  { label: "Physics", gradient: "linear-gradient(135deg,#1565c0,#1976d2)", emoji: "⚛️" },
+];
+
+const EMPTY_MANUAL_COURSE = {
+  id: null,
+  name: "",
+  description: "",
+  image_url: null,
+  stock_image_idx: 0,
+  duration_months: 12,
+  max_students: 30,
+  hours_per_day: 4,
+  badge: "",
+};
 
 export default function PublicPageWizard({ onDone, existingData }) {
   const navigate = useNavigate();
@@ -46,6 +74,10 @@ export default function PublicPageWizard({ onDone, existingData }) {
     social_facebook: "", social_instagram: "", social_youtube: "",
     footer_description: "", seo_title: "", seo_description: "",
     theme_color: "0F2340",
+    // Phase 1: Courses
+    course_mode: "auto",
+    // Phase 4: YouTube
+    youtube_intro_url: "",
   });
 
   const [logoFile, setLogoFile] = useState(null);
@@ -57,6 +89,14 @@ export default function PublicPageWizard({ onDone, existingData }) {
   const [newReview, setNewReview] = useState({ student_name: "", review_text: "", rating: 5, achievement: "" });
   const [subjects, setSubjects] = useState([]);
   const [faculty, setFaculty] = useState([]);
+
+  // Phase 1: Manual courses state
+  const [manualCourses, setManualCourses] = useState([{ ...EMPTY_MANUAL_COURSE, id: Date.now() }]);
+  const [courseImageFiles, setCourseImageFiles] = useState({}); // idx -> File
+
+  // Phase 2: Faculty image uploads
+  const [facultyImageUploading, setFacultyImageUploading] = useState({}); // id -> bool
+  const [facultyImageMsg, setFacultyImageMsg] = useState({});
 
   // Pre-fill from existing data
   useEffect(() => {
@@ -92,11 +132,17 @@ export default function PublicPageWizard({ onDone, existingData }) {
         theme_color: existingData.theme_color || "0F2340",
         logo_url: existingData.logo_url || "",
         cover_photo_url: existingData.cover_photo_url || "",
+        course_mode: existingData.course_mode || "auto",
+        youtube_intro_url: existingData.youtube_intro_url || "",
       }));
       if (existingData.logo_url) setLogoPreview(existingData.logo_url);
       if (existingData.cover_photo_url) setCoverPreview(existingData.cover_photo_url);
       if (existingData.gallery) setGallery(existingData.gallery);
       if (existingData.reviews) setReviews(existingData.reviews);
+      // Pre-fill manual courses
+      if (existingData.manual_courses?.length) {
+        setManualCourses(existingData.manual_courses.map(c => ({ ...EMPTY_MANUAL_COURSE, ...c, id: c.id || Date.now() + Math.random() })));
+      }
     }
   }, [existingData]);
 
@@ -119,7 +165,24 @@ export default function PublicPageWizard({ onDone, existingData }) {
     return { ...prev, [key]: arr.includes(id) ? arr.filter(x => x !== id) : [...arr, id] };
   });
 
-  // Save current step data to backend
+  // ── Manual course helpers ───────────────────────────────────────
+  const updateManualCourse = (idx, key, val) => {
+    setManualCourses(prev => {
+      const arr = [...prev];
+      arr[idx] = { ...arr[idx], [key]: val };
+      return arr;
+    });
+  };
+  const addManualCourse = () => {
+    if (manualCourses.length >= 10) return;
+    setManualCourses(prev => [...prev, { ...EMPTY_MANUAL_COURSE, id: Date.now() }]);
+  };
+  const removeManualCourse = (idx) => {
+    setManualCourses(prev => prev.filter((_, i) => i !== idx));
+    setCourseImageFiles(prev => { const n = { ...prev }; delete n[idx]; return n; });
+  };
+
+  // ── Save current step data to backend ──────────────────────────
   const saveStep = useCallback(async (publish = false) => {
     setSaving(true);
     setMsg("");
@@ -131,8 +194,22 @@ export default function PublicPageWizard({ onDone, existingData }) {
         if (jsonFields.includes(k)) fd.append(k, JSON.stringify(v));
         else if (v !== "") fd.append(k, v);
       });
+
+      // Append manual courses (with stock image idx info; actual files below)
+      const coursesPayload = manualCourses.map((c, idx) => ({
+        ...c,
+        // If there's a new file for this index, don't store image_url (backend will update it)
+        image_url: courseImageFiles[idx] ? null : c.image_url,
+      }));
+      fd.append("manual_courses", JSON.stringify(coursesPayload));
+
       if (logoFile) fd.append("logo", logoFile);
       if (coverFile) fd.append("cover_photo", coverFile);
+
+      // Append course image files
+      Object.entries(courseImageFiles).forEach(([idx, file]) => {
+        fd.append(`manual_course_img_${idx}`, file);
+      });
 
       await api.post("/admin/public-page", fd, { headers: { "Content-Type": "multipart/form-data" } });
 
@@ -147,7 +224,7 @@ export default function PublicPageWizard({ onDone, existingData }) {
     } finally {
       setSaving(false);
     }
-  }, [form, logoFile, coverFile, onDone]);
+  }, [form, logoFile, coverFile, onDone, manualCourses, courseImageFiles]);
 
   const handleNext = async () => {
     await saveStep();
@@ -186,6 +263,38 @@ export default function PublicPageWizard({ onDone, existingData }) {
       await api.delete(`/admin/public-page/reviews/${id}`);
       setReviews(prev => prev.filter(r => r.id !== id));
     } catch (e) { alert("Delete failed"); }
+  };
+
+  // Phase 2: Upload faculty image directly
+  const handleFacultyImageUpload = async (facultyId, file) => {
+    if (!file) return;
+    setFacultyImageUploading(prev => ({ ...prev, [facultyId]: true }));
+    setFacultyImageMsg(prev => ({ ...prev, [facultyId]: "" }));
+    try {
+      const fd = new FormData();
+      fd.append("photo", file);
+      const r = await api.post(`/admin/public-page/faculty-image/${facultyId}`, fd, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      // Update local faculty list
+      setFaculty(prev => prev.map(f =>
+        f.id === facultyId ? { ...f, image_url: r.data.data?.image_url } : f
+      ));
+      setFacultyImageMsg(prev => ({ ...prev, [facultyId]: "✅ Uploaded!" }));
+    } catch (e) {
+      setFacultyImageMsg(prev => ({ ...prev, [facultyId]: "❌ " + (e.response?.data?.message || "Upload failed") }));
+    } finally {
+      setFacultyImageUploading(prev => ({ ...prev, [facultyId]: false }));
+    }
+  };
+
+  const handleFacultyImageDelete = async (facultyId) => {
+    if (!window.confirm("Remove this faculty photo?")) return;
+    try {
+      await api.delete(`/admin/public-page/faculty-image/${facultyId}`);
+      setFaculty(prev => prev.map(f => f.id === facultyId ? { ...f, image_url: null } : f));
+      setFacultyImageMsg(prev => ({ ...prev, [facultyId]: "" }));
+    } catch (e) { alert("Failed to remove"); }
   };
 
   const renderFileInput = (label, file, preview, setFile, setPreview, accept = ".jpg,.jpeg,.png,.webp") => (
@@ -326,29 +435,193 @@ export default function PublicPageWizard({ onDone, existingData }) {
     </div>
   );
 
+  // ── PHASE 1: Course Step ───────────────────────────────────────
   const renderStep3 = () => (
     <div>
-      <h3 style={{ marginTop: 0 }}>📚 Select Courses to Show</h3>
-      {subjects.length === 0
-        ? <div style={{ padding: "2rem", textAlign: "center", color: "var(--text-secondary)", background: "var(--border-color)", borderRadius: "12px" }}>
-            ⚠️ No courses/subjects found. Please add subjects from the <strong>Subjects</strong> section first.
+      <h3 style={{ marginTop: 0 }}>📚 Courses to Show</h3>
+
+      {/* Auto / Manual Toggle */}
+      <div className="course-mode-toggle" style={{ marginBottom: "1.5rem" }}>
+        <div className="form-hint" style={{ marginBottom: ".75rem", fontSize: ".85rem", color: "var(--text-secondary)" }}>
+          Choose how to display courses on your public page:
+        </div>
+        <div style={{ display: "flex", gap: ".75rem" }}>
+          <button
+            type="button"
+            className={`mode-btn ${form.course_mode === "auto" ? "mode-btn-active" : ""}`}
+            onClick={() => set("course_mode", "auto")}
+            style={{
+              flex: 1, padding: ".85rem 1rem", borderRadius: "12px", border: "2px solid",
+              borderColor: form.course_mode === "auto" ? "var(--primary,#6366f1)" : "var(--border-color)",
+              background: form.course_mode === "auto" ? "rgba(99,102,241,.1)" : "transparent",
+              cursor: "pointer", transition: "all .2s", textAlign: "left"
+            }}>
+            <div style={{ fontWeight: 700, fontSize: ".95rem", color: form.course_mode === "auto" ? "var(--primary,#6366f1)" : "var(--text-primary)" }}>
+              🔄 Auto (Recommended)
+            </div>
+            <div style={{ fontSize: ".8rem", color: "var(--text-secondary)", marginTop: ".25rem" }}>
+              Automatically displays all subjects from your database
+            </div>
+          </button>
+          <button
+            type="button"
+            className={`mode-btn ${form.course_mode === "manual" ? "mode-btn-active" : ""}`}
+            onClick={() => set("course_mode", "manual")}
+            style={{
+              flex: 1, padding: ".85rem 1rem", borderRadius: "12px", border: "2px solid",
+              borderColor: form.course_mode === "manual" ? "var(--primary,#6366f1)" : "var(--border-color)",
+              background: form.course_mode === "manual" ? "rgba(99,102,241,.1)" : "transparent",
+              cursor: "pointer", transition: "all .2s", textAlign: "left"
+            }}>
+            <div style={{ fontWeight: 700, fontSize: ".95rem", color: form.course_mode === "manual" ? "var(--primary,#6366f1)" : "var(--text-primary)" }}>
+              ✏️ Manual (Custom)
+            </div>
+            <div style={{ fontSize: ".8rem", color: "var(--text-secondary)", marginTop: ".25rem" }}>
+              Add custom course cards with images, descriptions & details
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* AUTO MODE */}
+      {form.course_mode === "auto" && (
+        <>
+          {subjects.length === 0
+            ? <div style={{ padding: "2rem", textAlign: "center", color: "var(--text-secondary)", background: "var(--border-color)", borderRadius: "12px" }}>
+                ⚠️ No courses/subjects found. Please add subjects from the <strong>Subjects</strong> section first.
+              </div>
+            : <div className="check-list">
+                {subjects.map(s => (
+                  <label className={`check-item ${form.selected_subject_ids.includes(s.id) ? "selected" : ""}`} key={s.id}>
+                    <input type="checkbox" checked={form.selected_subject_ids.includes(s.id)} onChange={() => toggleId("selected_subject_ids", s.id)} />
+                    <div className="item-info">
+                      <div className="item-name">{s.name}</div>
+                      <div className="item-sub">Class: {s.Class?.name || "—"}</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+          }
+          <p className="form-hint" style={{ marginTop: "1rem" }}>Selected: {form.selected_subject_ids.length} of {subjects.length}. Leave all unchecked to show all.</p>
+        </>
+      )}
+
+      {/* MANUAL MODE */}
+      {form.course_mode === "manual" && (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+            <div className="form-hint">Add up to 10 custom courses. Choose an image for each.</div>
+            {manualCourses.length < 10 && (
+              <button className="btn btn-sm btn-primary" onClick={addManualCourse}>+ Add Course</button>
+            )}
           </div>
-        : <div className="check-list">
-            {subjects.map(s => (
-              <label className={`check-item ${form.selected_subject_ids.includes(s.id) ? "selected" : ""}`} key={s.id}>
-                <input type="checkbox" checked={form.selected_subject_ids.includes(s.id)} onChange={() => toggleId("selected_subject_ids", s.id)} />
-                <div className="item-info">
-                  <div className="item-name">{s.name}</div>
-                  <div className="item-sub">Class: {s.Class?.name || "—"}</div>
+
+          {manualCourses.map((course, idx) => (
+            <div key={course.id} className="manual-course-card" style={{
+              border: "1px solid var(--border-color)", borderRadius: "14px", padding: "1.25rem",
+              marginBottom: "1rem", background: "var(--card-bg,#fff)", position: "relative"
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                <div style={{ fontWeight: 700, fontSize: ".9rem", color: "var(--text-secondary)" }}>Course #{idx + 1}</div>
+                {manualCourses.length > 1 && (
+                  <button className="btn-icon-remove" onClick={() => removeManualCourse(idx)} style={{ position: "static" }}>✕</button>
+                )}
+              </div>
+
+              <div className="form-grid-2">
+                {/* Course Image picker */}
+                <div className="form-row">
+                  <label>Course Image</label>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: ".4rem", marginBottom: ".75rem" }}>
+                    {STOCK_COURSE_IMAGES.map((img, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        title={img.label}
+                        onClick={() => { updateManualCourse(idx, "stock_image_idx", i); updateManualCourse(idx, "image_url", null); setCourseImageFiles(prev => { const n = { ...prev }; delete n[idx]; return n; }); }}
+                        style={{
+                          background: img.gradient, border: "3px solid",
+                          borderColor: (!courseImageFiles[idx] && !course.image_url && course.stock_image_idx === i) ? "#fff" : "transparent",
+                          borderRadius: "8px", aspectRatio: "1", cursor: "pointer",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: "1.2rem", boxShadow: (!courseImageFiles[idx] && !course.image_url && course.stock_image_idx === i) ? "0 0 0 3px var(--primary,#6366f1)" : "none",
+                          transition: "all .15s"
+                        }}>
+                        {img.emoji}
+                      </button>
+                    ))}
+                  </div>
+                  {/* Custom image upload */}
+                  <label className="upload-area" style={{ display: "flex", alignItems: "center", gap: ".75rem", padding: ".75rem 1rem", cursor: "pointer" }}>
+                    {(courseImageFiles[idx] || course.image_url) ? (
+                      <img
+                        src={courseImageFiles[idx] ? URL.createObjectURL(courseImageFiles[idx]) : resolveImg(course.image_url)}
+                        alt="course"
+                        style={{ width: 50, height: 50, borderRadius: "8px", objectFit: "cover" }}
+                      />
+                    ) : (
+                      <span style={{ fontSize: "1.5rem" }}>📁</span>
+                    )}
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: ".85rem" }}>Upload Custom Image</div>
+                      <div className="form-hint">JPG/PNG · Max 5MB (overrides selection above)</div>
+                    </div>
+                    <input type="file" accept=".jpg,.jpeg,.png,.webp" style={{ display: "none" }}
+                      onChange={e => {
+                        const f = e.target.files[0];
+                        if (!f) return;
+                        setCourseImageFiles(prev => ({ ...prev, [idx]: f }));
+                        updateManualCourse(idx, "image_url", null);
+                      }} />
+                  </label>
                 </div>
-              </label>
-            ))}
-          </div>
-      }
-      <p className="form-hint" style={{ marginTop: "1rem" }}>Selected: {form.selected_subject_ids.length} of {subjects.length}. Leave all unchecked to show all.</p>
+
+                {/* Course details */}
+                <div>
+                  <div className="form-row">
+                    <label>Course Name *</label>
+                    <input placeholder="e.g. Science Foundation" value={course.name} onChange={e => updateManualCourse(idx, "name", e.target.value)} />
+                  </div>
+                  <div className="form-row">
+                    <label>Badge Label</label>
+                    <input placeholder="e.g. Popular / New / JEE/NEET" value={course.badge} onChange={e => updateManualCourse(idx, "badge", e.target.value)} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <label>Course Description</label>
+                <textarea rows={2} placeholder="Brief overview of this course..." value={course.description} onChange={e => updateManualCourse(idx, "description", e.target.value)} />
+              </div>
+
+              <div className="form-grid-2" style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+                <div className="form-row">
+                  <label>Duration (months)</label>
+                  <input type="number" min={1} max={60} value={course.duration_months} onChange={e => updateManualCourse(idx, "duration_months", parseInt(e.target.value) || 12)} />
+                </div>
+                <div className="form-row">
+                  <label>Seats Available</label>
+                  <input type="number" min={1} max={500} value={course.max_students} onChange={e => updateManualCourse(idx, "max_students", parseInt(e.target.value) || 30)} />
+                </div>
+                <div className="form-row">
+                  <label>Hours per Day</label>
+                  <input type="number" min={1} max={12} step={0.5} value={course.hours_per_day} onChange={e => updateManualCourse(idx, "hours_per_day", parseFloat(e.target.value) || 4)} />
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {manualCourses.length < 10 && (
+            <button className="btn btn-secondary" style={{ width: "100%", padding: ".85rem" }} onClick={addManualCourse}>
+              + Add Another Course ({manualCourses.length}/10)
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 
+  // ── PHASE 2: Faculty Step with image upload ──────────────────
   const renderStep4 = () => (
     <div>
       <h3 style={{ marginTop: 0 }}>👩‍🏫 Select Faculty to Show</h3>
@@ -356,23 +629,89 @@ export default function PublicPageWizard({ onDone, existingData }) {
         ? <div style={{ padding: "2rem", textAlign: "center", color: "var(--text-secondary)", background: "var(--border-color)", borderRadius: "12px" }}>
             ⚠️ No faculty found. Please add faculty from the <strong>Faculty</strong> section first.
           </div>
-        : <div className="check-list">
+        : <div style={{ display: "flex", flexDirection: "column", gap: ".75rem" }}>
             {faculty.map(f => (
-              <label className={`check-item ${form.selected_faculty_ids.includes(f.id) ? "selected" : ""}`} key={f.id}>
-                <input type="checkbox" checked={form.selected_faculty_ids.includes(f.id)} onChange={() => toggleId("selected_faculty_ids", f.id)} />
-                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, flexShrink: 0 }}>
-                  {(f.name || "F")[0].toUpperCase()}
+              <div
+                key={f.id}
+                className={`faculty-wizard-card ${form.selected_faculty_ids.includes(f.id) ? "selected" : ""}`}
+                style={{
+                  border: "1px solid",
+                  borderColor: form.selected_faculty_ids.includes(f.id) ? "var(--primary,#6366f1)" : "var(--border-color)",
+                  borderRadius: "14px", padding: "1rem 1.25rem",
+                  background: form.selected_faculty_ids.includes(f.id) ? "rgba(99,102,241,.06)" : "var(--card-bg,#fff)",
+                  transition: "all .2s"
+                }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+                  {/* Checkbox */}
+                  <input
+                    type="checkbox"
+                    checked={form.selected_faculty_ids.includes(f.id)}
+                    onChange={() => toggleId("selected_faculty_ids", f.id)}
+                    style={{ width: 18, height: 18, accentColor: "var(--primary,#6366f1)", flexShrink: 0 }}
+                  />
+
+                  {/* Faculty Avatar / Photo */}
+                  <div style={{ position: "relative", flexShrink: 0 }}>
+                    <div style={{
+                      width: 56, height: 56, borderRadius: "50%", overflow: "hidden",
+                      background: f.image_url ? "transparent" : "linear-gradient(135deg,#6366f1,#8b5cf6)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      color: "#fff", fontWeight: 700, fontSize: "1.2rem", flexShrink: 0
+                    }}>
+                      {f.image_url
+                        ? <img src={resolveImg(f.image_url)} alt={f.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        : (f.name || "F")[0].toUpperCase()
+                      }
+                    </div>
+                  </div>
+
+                  {/* Faculty Info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: ".95rem" }}>{f.name}</div>
+                    <div style={{ fontSize: ".8rem", color: "var(--text-secondary)" }}>{f.email}</div>
+                    {f.designation && <div style={{ fontSize: ".78rem", color: "var(--text-secondary)" }}>{f.designation}</div>}
+                  </div>
+
+                  {/* Image Upload */}
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: ".4rem", flexShrink: 0 }}>
+                    <label
+                      className="btn btn-sm btn-secondary"
+                      style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: ".35rem" }}
+                      title="Upload faculty photo">
+                      {facultyImageUploading[f.id] ? "Uploading..." : f.image_url ? "📸 Change Photo" : "📸 Upload Photo"}
+                      <input
+                        type="file"
+                        accept=".jpg,.jpeg,.png,.webp"
+                        style={{ display: "none" }}
+                        disabled={facultyImageUploading[f.id]}
+                        onChange={e => {
+                          const file = e.target.files[0];
+                          if (file) handleFacultyImageUpload(f.id, file);
+                        }}
+                      />
+                    </label>
+                    {f.image_url && (
+                      <button
+                        className="btn btn-sm btn-danger"
+                        style={{ fontSize: ".75rem" }}
+                        onClick={() => handleFacultyImageDelete(f.id)}>
+                        🗑 Remove
+                      </button>
+                    )}
+                    {facultyImageMsg[f.id] && (
+                      <div style={{ fontSize: ".75rem", color: facultyImageMsg[f.id].startsWith("✅") ? "#10b981" : "#ef4444" }}>
+                        {facultyImageMsg[f.id]}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="item-info">
-                  <div className="item-name">{f.name}</div>
-                  <div className="item-sub">{f.email}</div>
-                </div>
-              </label>
+              </div>
             ))}
           </div>
       }
       <p className="form-hint" style={{ marginTop: "1rem" }}>Selected: {form.selected_faculty_ids.length} of {faculty.length}. Leave all unchecked to show all.</p>
 
+      {/* Student Reviews */}
       <div className="form-row" style={{ marginTop: "1.5rem" }}>
         <label>Student Reviews / Testimonials</label>
         {reviews.map(r => (
@@ -444,10 +783,61 @@ export default function PublicPageWizard({ onDone, existingData }) {
           <input placeholder="Mon–Sat 7AM–9PM" value={form.working_hours} onChange={e => set("working_hours", e.target.value)} />
         </div>
       </div>
+
+      {/* Phase 3 – Map embed URL with helper */}
       <div className="form-row">
-        <label>Google Maps Embed URL</label>
-        <input placeholder="Paste embed URL from Google Maps" value={form.map_embed_url} onChange={e => set("map_embed_url", e.target.value)} />
+        <label>Google Maps URL or Embed URL</label>
+        <input
+          placeholder="Paste Google Maps link or embed URL"
+          value={form.map_embed_url}
+          onChange={e => set("map_embed_url", e.target.value)}
+        />
+        <div className="form-hint" style={{ marginTop: ".5rem" }}>
+          💡 <strong>How to get your map link:</strong> Open <a href="https://maps.google.com" target="_blank" rel="noreferrer" style={{ color: "var(--primary,#6366f1)" }}>Google Maps</a>
+          &nbsp;→ Search your institute → Click <strong>Share</strong> → Copy any link. We will automatically convert it to an embed URL.
+        </div>
+        {form.map_embed_url && (
+          <div style={{ marginTop: ".75rem", borderRadius: "12px", overflow: "hidden", height: 200, border: "1px solid var(--border-color)" }}>
+            <iframe
+              src={buildPreviewMapUrl(form.map_embed_url)}
+              title="Map Preview"
+              style={{ width: "100%", height: "100%", border: 0 }}
+              allowFullScreen
+              loading="lazy"
+            />
+          </div>
+        )}
       </div>
+
+      {/* Phase 4 – YouTube intro video */}
+      <div className="form-row" style={{ marginTop: "1rem" }}>
+        <label>🎬 YouTube Intro Video</label>
+        <input
+          placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+          value={form.youtube_intro_url}
+          onChange={e => set("youtube_intro_url", e.target.value)}
+        />
+        <div className="form-hint">
+          Paste any YouTube video link. Supports watch, youtu.be, Shorts, and Live URLs.
+        </div>
+        {form.youtube_intro_url && buildYtPreviewUrl(form.youtube_intro_url) && (
+          <div style={{ marginTop: ".75rem", borderRadius: "12px", overflow: "hidden", aspectRatio: "16/9", maxHeight: 240, border: "1px solid var(--border-color)" }}>
+            <iframe
+              src={buildYtPreviewUrl(form.youtube_intro_url)}
+              title="YouTube Preview"
+              style={{ width: "100%", height: "100%", border: 0 }}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        )}
+        {form.youtube_intro_url && !buildYtPreviewUrl(form.youtube_intro_url) && (
+          <div style={{ color: "#f59e0b", fontSize: ".83rem", marginTop: ".4rem" }}>
+            ⚠️ Could not parse YouTube URL. Please use a standard YouTube link.
+          </div>
+        )}
+      </div>
+
       <div className="form-grid-2">
         <div className="form-row">
           <label>Facebook URL</label>
@@ -458,7 +848,7 @@ export default function PublicPageWizard({ onDone, existingData }) {
           <input placeholder="https://instagram.com/..." value={form.social_instagram} onChange={e => set("social_instagram", e.target.value)} />
         </div>
         <div className="form-row">
-          <label>YouTube URL</label>
+          <label>YouTube Channel URL</label>
           <input placeholder="https://youtube.com/..." value={form.social_youtube} onChange={e => set("social_youtube", e.target.value)} />
         </div>
         <div className="form-row">
@@ -486,7 +876,8 @@ export default function PublicPageWizard({ onDone, existingData }) {
       { label: "Logo uploaded", done: !!(logoPreview || form.logo_url) },
       { label: "Contact phone added", done: !!form.contact_phone },
       { label: "Address added", done: !!form.contact_address },
-      { label: "At least 1 course selected", done: form.selected_subject_ids.length > 0 || subjects.length === 0 },
+      { label: form.course_mode === "manual" ? "At least 1 manual course added" : "At least 1 course selected",
+        done: form.course_mode === "manual" ? manualCourses.some(c => c.name.trim()) : (form.selected_subject_ids.length > 0 || subjects.length === 0) },
     ];
     const allGood = checks.every(c => c.done);
     return (
@@ -560,4 +951,33 @@ export default function PublicPageWizard({ onDone, existingData }) {
       </div>
     </div>
   );
+}
+
+// ── Client-side YouTube embed URL builder (for preview) ──────────
+function buildYtPreviewUrl(url) {
+  if (!url || !url.trim()) return null;
+  url = url.trim();
+  if (url.includes('youtube.com/embed/')) return url;
+  const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}?rel=0`;
+  const watchMatch = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+  if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}?rel=0`;
+  const shortsMatch = url.match(/\/shorts\/([a-zA-Z0-9_-]{11})/);
+  if (shortsMatch) return `https://www.youtube.com/embed/${shortsMatch[1]}?rel=0`;
+  const liveMatch = url.match(/\/live\/([a-zA-Z0-9_-]{11})/);
+  if (liveMatch) return `https://www.youtube.com/embed/${liveMatch[1]}?rel=0`;
+  return null;
+}
+
+// ── Client-side map URL normalizer (for preview) ─────────────────
+function buildPreviewMapUrl(url) {
+  if (!url || !url.trim()) return '';
+  url = url.trim();
+  if (url.includes('/maps/embed')) return url;
+  const coordMatch = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if (coordMatch) return `https://maps.google.com/maps?q=${coordMatch[1]},${coordMatch[2]}&output=embed`;
+  const placeMatch = url.match(/\/place\/([^/@?]+)/);
+  if (placeMatch) return `https://maps.google.com/maps?q=${encodeURIComponent(placeMatch[1].replace(/\+/g, ' '))}&output=embed`;
+  if (url.includes('google.com/maps')) return `https://maps.google.com/maps?q=${encodeURIComponent(url)}&output=embed`;
+  return url;
 }

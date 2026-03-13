@@ -164,8 +164,97 @@
   font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: white; border: 3px solid var(--pub-accent2);
 }
 .pub-faculty-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.pub-fac-name { font-size: 15px; font-weight: 700; color: var(--pub-primary); margin-bottom: 4px; }
+.pub-fac-name { font-size: 15px; font-weight: 700; color: var(--pub-primary); margin-bottom: 2px; }
+.pub-fac-designation { font-size: 12px; color: var(--pub-accent); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
 .pub-fac-sub { font-size: 13px; color: var(--pub-muted); font-weight: 500; }
+
+/* ── Phase 4: YouTube Intro Section ─────────────────────────── */
+.pub-yt-section {
+  padding: 80px 48px;
+  background: linear-gradient(160deg, #f0f6ff 0%, #fff 60%, #f8faff 100%);
+  position: relative;
+  overflow: hidden;
+}
+.pub-yt-section::before {
+  content: '';
+  position: absolute;
+  width: 700px; height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(26,60,94,.05) 0%, transparent 70%);
+  top: -200px; right: -200px;
+  pointer-events: none;
+}
+.pub-yt-inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+.pub-yt-subtitle {
+  text-align: center;
+  font-size: 17px;
+  color: var(--pub-muted);
+  margin: 0 auto 48px;
+  max-width: 580px;
+  line-height: 1.7;
+}
+.pub-yt-embed-wrap {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(26,60,94,.18);
+}
+.pub-yt-frame-container {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 */
+  background: #000;
+  border-radius: 24px;
+  overflow: hidden;
+}
+.pub-yt-frame-container iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 24px;
+}
+.pub-yt-glow {
+  position: absolute;
+  inset: -20px;
+  z-index: -1;
+  filter: blur(40px);
+  border-radius: 40px;
+  pointer-events: none;
+}
+
+/* ── Map iframe min-height fix ───────────────────────────────── */
+.pub-contact-grid iframe {
+  min-height: 340px;
+  display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .pub-nav { padding: 14px 20px; }
+  .pub-nav-links { display: none; }
+  .pub-hero { padding: 40px 20px; flex-direction: column; align-items: flex-start; }
+  .pub-hero-card { margin-top: 40px; }
+  .pub-courses-section, .pub-enroll-cta, .pub-achievements-strip { margin: 0 20px; padding: 40px 20px; }
+  .pub-enroll-cta { grid-template-columns: 1fr; }
+  .pub-about-grid, .pub-contact-grid { grid-template-columns: 1fr; }
+  .pub-gallery-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto; }
+  .pub-gallery-item:first-child { grid-column: span 1; grid-row: span 1; }
+  .pub-gallery-item:nth-child(2) { grid-column: span 1; }
+  .pub-footer-grid { grid-template-columns: 1fr 1fr; }
+  .pub-section { padding: 60px 20px; }
+  .pub-yt-section { padding: 60px 20px; }
+}
+@media (max-width: 600px) {
+  .pub-footer-grid { grid-template-columns: 1fr; }
+  .pub-form-row { grid-template-columns: 1fr; }
+  .pub-hero-stats { flex-wrap: wrap; }
+  .pub-yt-section { padding: 40px 16px; }
+}
 
 /* 7 Gallery & Reviews */
 .pub-gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 200px 200px; gap: 14px; max-width: 1200px; margin: 0 auto; }
@@ -245,23 +334,4 @@ footer { background: var(--pub-primary); color: rgba(255,255,255,.8); padding: 6
 }
 .pub-whatsapp-fab:hover { transform: scale(1.1); }
 
-/* Responsive adjustments */
-@media (max-width: 900px) {
-  .pub-nav { padding: 14px 20px; }
-  .pub-nav-links { display: none; }
-  .pub-hero { padding: 40px 20px; flex-direction: column; align-items: flex-start; }
-  .pub-hero-card { margin-top: 40px; }
-  .pub-courses-section, .pub-enroll-cta, .pub-achievements-strip { margin: 0 20px; padding: 40px 20px; }
-  .pub-enroll-cta { grid-template-columns: 1fr; }
-  .pub-about-grid, .pub-contact-grid { grid-template-columns: 1fr; }
-  .pub-gallery-grid { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto; }
-  .pub-gallery-item:first-child { grid-column: span 1; grid-row: span 1; }
-  .pub-gallery-item:nth-child(2) { grid-column: span 1; }
-  .pub-footer-grid { grid-template-columns: 1fr 1fr; }
-  .pub-section { padding: 60px 20px; }
-}
-@media (max-width: 600px) {
-  .pub-footer-grid { grid-template-columns: 1fr; }
-  .pub-form-row { grid-template-columns: 1fr; }
-  .pub-hero-stats { flex-wrap: wrap; }
-}
+

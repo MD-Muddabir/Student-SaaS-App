@@ -148,6 +148,29 @@ const InstitutePublicProfile = sequelize.define("InstitutePublicProfile", {
         allowNull: true,
         defaultValue: []
     },
+    // Course display mode: 'auto' (from DB subjects) or 'manual' (custom entries)
+    course_mode: {
+        type: DataTypes.STRING(10),
+        allowNull: false,
+        defaultValue: 'auto'
+    },
+    // Manual courses: JSON array of { id, name, description, image_url, duration_months, max_students, hours_per_day, badge }
+    manual_courses: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: null
+    },
+    // YouTube intro video URL (will be converted to embed URL)
+    youtube_intro_url: {
+        type: DataTypes.STRING(500),
+        allowNull: true
+    },
+    // Faculty profile images: JSON object { "faculty_id": "/uploads/public/..." }
+    faculty_images: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: null
+    },
     // Page view counter
     page_views: {
         type: DataTypes.INTEGER,

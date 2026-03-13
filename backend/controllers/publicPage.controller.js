@@ -83,6 +83,8 @@ exports.getPublicPage = async (req, res) => {
         profileJson.enrollment_benefits = parseJson(profileJson.enrollment_benefits, []);
         profileJson.selected_faculty_ids = parseJson(profileJson.selected_faculty_ids, []);
         profileJson.selected_subject_ids = parseJson(profileJson.selected_subject_ids, []);
+        profileJson.manual_courses = parseJson(profileJson.manual_courses, []);
+        profileJson.faculty_images = parseJson(profileJson.faculty_images, {});
 
         return res.json({
             success: true,
@@ -100,7 +102,7 @@ exports.getPublicPage = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────────────────────────
-// POST /api/admin/public-page  — Create public page (Step save)
+// POST /api/admin/public-page  — Create / update public page
 // ─────────────────────────────────────────────────────────────────
 exports.createOrUpdatePublicPage = async (req, res) => {
     try {
@@ -123,6 +125,46 @@ exports.createOrUpdatePublicPage = async (req, res) => {
             try { return typeof val === 'string' ? JSON.parse(val) : val; } catch (e) { return val; }
         };
 
+        // Build manual_courses array — preserve existing if not sent
+        let manualCourses = existing?.manual_courses || [];
+        if (req.body.manual_courses !== undefined) {
+            manualCourses = parseJson(req.body.manual_courses, []);
+        }
+
+        // Handle manual course image uploads (field names: manual_course_img_0, manual_course_img_1, ...)
+        if (req.files) {
+            Object.keys(req.files).forEach(fieldName => {
+                const match = fieldName.match(/^manual_course_img_(\d+)$/);
+                if (match) {
+                    const idx = parseInt(match[1]);
+                    const file = req.files[fieldName][0];
+                    if (file && manualCourses[idx]) {
+                        manualCourses[idx].image_url = `/uploads/public/${file.filename}`;
+                    }
+                }
+            });
+        }
+
+        // Handle faculty_images updates
+        let facultyImages = parseJson(existing?.faculty_images, {});
+        if (req.body.faculty_images !== undefined) {
+            const incoming = parseJson(req.body.faculty_images, {});
+            facultyImages = { ...facultyImages, ...incoming };
+        }
+        // Handle faculty image file uploads (field: faculty_img_<id>)
+        if (req.files) {
+            Object.keys(req.files).forEach(fieldName => {
+                const match = fieldName.match(/^faculty_img_(\d+)$/);
+                if (match) {
+                    const facultyId = match[1];
+                    const file = req.files[fieldName][0];
+                    if (file) {
+                        facultyImages[facultyId] = `/uploads/public/${file.filename}`;
+                    }
+                }
+            });
+        }
+
         const profileData = {
             institute_id: instituteId,
             slug,
@@ -136,7 +178,7 @@ exports.createOrUpdatePublicPage = async (req, res) => {
             years_of_excellence: req.body.years_of_excellence || existing?.years_of_excellence,
             total_students_display: req.body.total_students_display || existing?.total_students_display,
             whatsapp_number: req.body.whatsapp_number || existing?.whatsapp_number,
-            map_embed_url: req.body.map_embed_url || existing?.map_embed_url,
+            map_embed_url: req.body.map_embed_url !== undefined ? req.body.map_embed_url : existing?.map_embed_url,
             working_hours: req.body.working_hours || existing?.working_hours,
             admission_status: req.body.admission_status || existing?.admission_status,
             enrollment_benefits: req.body.enrollment_benefits !== undefined ? parseJson(req.body.enrollment_benefits, []) : (existing?.enrollment_benefits || []),
@@ -153,6 +195,11 @@ exports.createOrUpdatePublicPage = async (req, res) => {
             contact_email: req.body.contact_email || existing?.contact_email,
             selected_faculty_ids: req.body.selected_faculty_ids !== undefined ? parseJson(req.body.selected_faculty_ids, []) : (existing?.selected_faculty_ids || []),
             selected_subject_ids: req.body.selected_subject_ids !== undefined ? parseJson(req.body.selected_subject_ids, []) : (existing?.selected_subject_ids || []),
+            // New Phase fields
+            course_mode: req.body.course_mode || existing?.course_mode || 'auto',
+            manual_courses: manualCourses,
+            youtube_intro_url: req.body.youtube_intro_url !== undefined ? req.body.youtube_intro_url : existing?.youtube_intro_url,
+            faculty_images: facultyImages,
         };
 
         // Handle logo/cover photo uploads
@@ -265,6 +312,78 @@ exports.deleteGalleryPhoto = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────────────────────────
+// POST /api/admin/public-page/faculty-image/:id  — Upload faculty photo
+// ─────────────────────────────────────────────────────────────────
+exports.uploadFacultyImage = async (req, res) => {
+    try {
+        const instituteId = req.user.institute_id;
+        const facultyId = req.params.id;
+
+        // Verify faculty belongs to this institute
+        const faculty = await Faculty.findOne({
+            where: { id: facultyId, institute_id: instituteId }
+        });
+        if (!faculty) return res.status(404).json({ success: false, message: "Faculty not found" });
+
+        if (!req.file) return res.status(400).json({ success: false, message: "No file uploaded" });
+
+        const imageUrl = `/uploads/public/${req.file.filename}`;
+
+        // Update or create profile faculty_images map
+        let profile = await InstitutePublicProfile.findOne({ where: { institute_id: instituteId } });
+        if (!profile) {
+            return res.status(404).json({ success: false, message: "Public page not found. Please create your page first." });
+        }
+
+        const existingImages = profile.faculty_images || {};
+        const updatedImages = { ...existingImages, [facultyId]: imageUrl };
+
+        // Delete old file if exists
+        if (existingImages[facultyId]) {
+            const oldPath = path.join(__dirname, '..', existingImages[facultyId]);
+            if (fs.existsSync(oldPath)) {
+                try { fs.unlinkSync(oldPath); } catch (_) {}
+            }
+        }
+
+        await profile.update({ faculty_images: updatedImages });
+
+        return res.json({ success: true, data: { faculty_id: facultyId, image_url: imageUrl }, message: "Faculty image uploaded" });
+    } catch (error) {
+        console.error("uploadFacultyImage error:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+// ─────────────────────────────────────────────────────────────────
+// DELETE /api/admin/public-page/faculty-image/:id  — Remove faculty photo
+// ─────────────────────────────────────────────────────────────────
+exports.deleteFacultyImage = async (req, res) => {
+    try {
+        const instituteId = req.user.institute_id;
+        const facultyId = req.params.id;
+
+        let profile = await InstitutePublicProfile.findOne({ where: { institute_id: instituteId } });
+        if (!profile) return res.status(404).json({ success: false, message: "Public page not found" });
+
+        const existingImages = profile.faculty_images || {};
+        if (existingImages[facultyId]) {
+            const oldPath = path.join(__dirname, '..', existingImages[facultyId]);
+            if (fs.existsSync(oldPath)) {
+                try { fs.unlinkSync(oldPath); } catch (_) {}
+            }
+            delete existingImages[facultyId];
+            await profile.update({ faculty_images: existingImages });
+        }
+
+        return res.json({ success: true, message: "Faculty image removed" });
+    } catch (error) {
+        console.error("deleteFacultyImage error:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+// ─────────────────────────────────────────────────────────────────
 // POST /api/admin/public-page/reviews  — Add review
 // ─────────────────────────────────────────────────────────────────
 exports.addReview = async (req, res) => {
@@ -347,14 +466,21 @@ exports.getFacultyList = async (req, res) => {
         const facultyList = await Faculty.findAll({
             where: { institute_id: instituteId },
             include: [{ model: User, attributes: ['name', 'email', 'phone'] }],
-            attributes: ['id', 'user_id']
+            attributes: ['id', 'user_id', 'designation']
         });
+
+        // Get faculty_images from the profile
+        const profile = await InstitutePublicProfile.findOne({ where: { institute_id: instituteId } });
+        const facultyImages = profile?.faculty_images || {};
+
         const data = facultyList.map(f => ({
             id: f.id,
             user_id: f.user_id,
             name: f.User?.name || 'Unknown',
             email: f.User?.email || '',
-            phone: f.User?.phone || ''
+            phone: f.User?.phone || '',
+            designation: f.designation || '',
+            image_url: facultyImages[f.id] || null
         }));
         return res.json({ success: true, data });
     } catch (error) {

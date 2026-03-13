@@ -1,7 +1,10 @@
 /**
  * Institute Public Page — Public-facing component
  * Route: /i/:slug
- * Fetches data from /api/public/:slug and renders the full page
+ * Phase 1: Manual/Auto courses with images + details
+ * Phase 2: Faculty photos displayed
+ * Phase 3: Map URL auto-fixed on backend
+ * Phase 4: YouTube intro video section before About
  */
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -14,6 +17,21 @@ const resolveImg = (url) => {
   return API_BASE.replace('/api', '') + url;
 };
 const CLASS_OPTIONS = ["8th", "9th", "10th", "11th", "12th", "Dropper", "Other"];
+
+// Stock course gradients matching wizard
+const STOCK_GRADIENTS = [
+  "linear-gradient(135deg,#1a6fa8,#1e88e5)",
+  "linear-gradient(135deg,#6a1b9a,#9c27b0)",
+  "linear-gradient(135deg,#00695c,#26a69a)",
+  "linear-gradient(135deg,#bf360c,#e64a19)",
+  "linear-gradient(135deg,#283593,#3f51b5)",
+  "linear-gradient(135deg,#4e342e,#795548)",
+  "linear-gradient(135deg,#006064,#00acc1)",
+  "linear-gradient(135deg,#e65100,#f57c00)",
+  "linear-gradient(135deg,#1b5e20,#43a047)",
+  "linear-gradient(135deg,#1565c0,#1976d2)",
+];
+const STOCK_EMOJIS = ["🔬", "📐", "💼", "🎨", "🏆", "📖", "💻", "🏛️", "🧬", "⚛️"];
 
 // ── Scroll Reveal Hook ────────────────────────────────────────────
 function useScrollReveal() {
@@ -138,7 +156,6 @@ export default function InstitutePage() {
     }
   }, [data]);
 
-
   const scrollToEnq = () => enqRef.current?.scrollIntoView({ behavior: "smooth" });
 
   const handleEnqSubmit = async (e) => {
@@ -172,6 +189,9 @@ export default function InstitutePage() {
   if (!data) return null;
 
   const logoInitial = (data.name || "I").split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  const hasCourses = data.courses?.length > 0;
+  const hasFaculty = data.faculty?.length > 0;
+  const hasYoutube = !!data.youtube_embed_url;
 
   return (
     <div className="ipage-root" ref={contentRef}>
@@ -189,14 +209,15 @@ export default function InstitutePage() {
 
         <ul className="pub-nav-links">
           <li><a href="#about">About</a></li>
-          {data.courses?.length > 0 && <li><a href="#courses">Courses</a></li>}
-          {data.faculty?.length > 0 && <li><a href="#faculty">Faculty</a></li>}
+          {hasYoutube && <li><a href="#video">Video</a></li>}
+          {hasCourses && <li><a href="#courses">Courses</a></li>}
+          {hasFaculty && <li><a href="#faculty">Faculty</a></li>}
           {data.gallery?.length > 0 && <li><a href="#gallery">Gallery</a></li>}
           <li><a href="#contact">Contact</a></li>
         </ul>
 
         <div className="pub-nav-cta">
-          <a href="/login" className="pub-btn-outline">Login</a>
+          {/* <a href="/login" className="pub-btn-outline">Login</a> */}
           <button className="pub-btn-primary" onClick={scrollToEnq}>Enroll Now</button>
         </div>
       </nav>
@@ -277,6 +298,35 @@ export default function InstitutePage() {
         </div>
       </section>
 
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          PHASE 4 — YouTube Intro Video Section
+          Appears BEFORE the About (pub-section) section
+       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {hasYoutube && (
+        <section className="pub-yt-section pub-reveal" id="video">
+          <div className="pub-yt-inner">
+            <div className="pub-section-label" style={{ textAlign: 'center' }}>WATCH & LEARN</div>
+            <h2 className="pub-section-title" style={{ textAlign: 'center' }}>See What We're About</h2>
+            <p className="pub-yt-subtitle pub-reveal" style={{ transitionDelay: '.1s' }}>
+              Get a glimpse of our campus, teaching style, and student achievements.
+            </p>
+            <div className="pub-yt-embed-wrap pub-reveal" style={{ transitionDelay: '.2s' }}>
+              <div className="pub-yt-frame-container">
+                <iframe
+                  src={data.youtube_embed_url}
+                  title={`${data.name} — Introduction Video`}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  loading="lazy"
+                />
+              </div>
+              <div className="pub-yt-glow" style={{ background: `radial-gradient(ellipse at center, #${data.theme_color || '1a3c5e'}55 0%, transparent 70%)` }} />
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── About ── */}
       <section className="pub-section" id="about">
         <div className="pub-section-label pub-reveal">ABOUT US</div>
@@ -307,16 +357,12 @@ export default function InstitutePage() {
                     const parts = parsed.split("||");
                     icon = parts[0] || "✨";
                     parsed = parts.slice(1).join("||");
-                  } else if (parsed.includes(":")) {
-                    // Try to guess an icon if they didn't use || format but used Title: Description format
                   }
-
                   let title = parsed;
                   let desc = "";
                   if (parsed.includes(":")) {
                     [title, desc] = parsed.split(":");
                   }
-
                   return (
                     <li key={i} className="pub-value-item pub-reveal" style={{ transitionDelay: `${0.4 + i * 0.1}s` }}>
                       <div className="pub-value-icon">{icon}</div>
@@ -325,7 +371,7 @@ export default function InstitutePage() {
                         {desc && <p>{desc.trim()}</p>}
                       </div>
                     </li>
-                  )
+                  );
                 })}
               </ul>
             )}
@@ -333,8 +379,8 @@ export default function InstitutePage() {
         </div>
       </section>
 
-      {/* ── Courses ── */}
-      {data.courses?.length > 0 && (
+      {/* ── Courses (Phase 1 — auto + manual with images) ── */}
+      {hasCourses && (
         <section className="pub-courses-section pub-reveal" id="courses">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '48px' }}>
             <div>
@@ -345,36 +391,34 @@ export default function InstitutePage() {
           </div>
           <div className="pub-courses-grid">
             {data.courses.map((c, i) => {
-              let bg = "linear-gradient(135deg,#1f4b7a,#2c659e)";
-              let iconSymbol = "🏛️";
-              let badgeText = c.class_name || "Popular";
-              
-              const nameLower = c.name.toLowerCase();
-              if (nameLower.includes("science") || nameLower.includes("pcm") || nameLower.includes("pcb")) {
-                bg = "linear-gradient(135deg,#23608f,#1a4e7a)";
-                iconSymbol = "🔬";
-                badgeText = "Popular";
-              }
-              else if (nameLower.includes("jee") || nameLower.includes("neet")) {
-                bg = "linear-gradient(135deg,#8b5cf6,#a855f7)";
-                iconSymbol = "📐";
-                badgeText = "JEE/NEET";
-              }
-              else if (nameLower.includes("commerce")) {
-                bg = "linear-gradient(135deg,#059669,#10b981)";
-                iconSymbol = "💼";
-                badgeText = "New";
-              }
-              else if (nameLower.includes("mpsc") || nameLower.includes("bank")) {
-                bg = "linear-gradient(135deg,#ea580c,#f97316)";
-                iconSymbol = "🏛️";
+              // For manual courses: use uploaded image_url or stock_image_idx
+              const isManual = data.course_mode === 'manual';
+              const hasCustomImg = isManual && c.image_url;
+              const stockIdx = (c.stock_image_idx !== undefined && c.stock_image_idx !== null) ? c.stock_image_idx : (i % 10);
+              const bgGradient = STOCK_GRADIENTS[stockIdx] || STOCK_GRADIENTS[i % 10];
+              const emoji = STOCK_EMOJIS[stockIdx] || STOCK_EMOJIS[i % 10];
+
+              // Auto mode: guess theme from name
+              let autoBg = "linear-gradient(135deg,#1f4b7a,#2c659e)";
+              let autoIcon = "🏛️";
+              let autoBadge = c.class_name || "Popular";
+              if (!isManual) {
+                const nl = c.name.toLowerCase();
+                if (nl.includes("science") || nl.includes("pcm") || nl.includes("pcb")) { autoBg = "linear-gradient(135deg,#23608f,#1a4e7a)"; autoIcon = "🔬"; autoBadge = "Popular"; }
+                else if (nl.includes("jee") || nl.includes("neet")) { autoBg = "linear-gradient(135deg,#8b5cf6,#a855f7)"; autoIcon = "📐"; autoBadge = "JEE/NEET"; }
+                else if (nl.includes("commerce")) { autoBg = "linear-gradient(135deg,#059669,#10b981)"; autoIcon = "💼"; autoBadge = "New"; }
+                else if (nl.includes("mpsc") || nl.includes("bank")) { autoBg = "linear-gradient(135deg,#ea580c,#f97316)"; autoIcon = "🏛️"; }
               }
 
               return (
                 <div className="pub-course-card pub-reveal" key={c.id || i} style={{ transitionDelay: `${i * 0.1}s` }} onClick={scrollToEnq}>
-                  <div className="pub-course-thumb" style={{ background: bg }}>
-                    <div className="pub-course-badge">{badgeText}</div>
-                    <div className="pub-course-icon">{iconSymbol}</div>
+                  <div className="pub-course-thumb" style={{ background: isManual ? bgGradient : autoBg, overflow: 'hidden', position: 'relative' }}>
+                    {hasCustomImg && (
+                      <img src={resolveImg(c.image_url)} alt={c.name}
+                        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: .85 }} />
+                    )}
+                    <div className="pub-course-badge">{isManual ? (c.badge || "Course") : autoBadge}</div>
+                    <div className="pub-course-icon" style={{ position: 'relative', zIndex: 1 }}>{isManual ? emoji : autoIcon}</div>
                   </div>
                   <div className="pub-course-content">
                     <div className="pub-course-name">{c.name}</div>
@@ -382,16 +426,22 @@ export default function InstitutePage() {
                       {c.description || "Comprehensive coverage of all essential topics designed to build strong foundations and achieve excellent results."}
                     </div>
                     <div className="pub-course-meta">
-                      <span>📅 {c.duration_months ? `${Math.ceil(c.duration_months/12)} Year` : "1 Year"}</span>
-                      <span>👥 {c.max_students || "30"} Seats</span>
-                      <span>⏰ 4 hrs/day</span>
+                      {isManual ? (
+                        <>
+                          <span>📅 {c.duration_months ? `${c.duration_months >= 12 ? Math.round(c.duration_months / 12) + ' Year' : c.duration_months + ' Mo'}` : "1 Year"}</span>
+                          <span>👥 {c.max_students || "30"} Seats</span>
+                          <span>⏰ {c.hours_per_day || 4} hrs/day</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>📅 {c.duration_months ? `${Math.ceil(c.duration_months / 12)} Year` : "1 Year"}</span>
+                          <span>👥 {c.max_students || "30"} Seats</span>
+                          <span>⏰ 4 hrs/day</span>
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="pub-course-footer">
-                    <div className="pub-course-price">
-                      <div className="pub-course-price-val">₹{c.price ? parseInt(c.price).toLocaleString() : "18,000"}</div>
-                      <div className="pub-course-price-lbl">per year</div>
-                    </div>
                     <button className="pub-course-enquire-btn">Enquire</button>
                   </div>
                 </div>
@@ -411,8 +461,8 @@ export default function InstitutePage() {
         </div>
       )}
 
-      {/* ── Faculty ── */}
-      {data.faculty?.length > 0 && (
+      {/* ── Faculty (Phase 2 — show photo if uploaded) ── */}
+      {hasFaculty && (
         <section className="pub-section" id="faculty" style={{ paddingTop: 0 }}>
           <div className="pub-section-label pub-reveal">MENTORS</div>
           <h2 className="pub-section-title pub-reveal">Our Expert Faculty</h2>
@@ -421,10 +471,14 @@ export default function InstitutePage() {
               const facInitials = f.name?.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'F';
               return (
                 <div className="pub-faculty-card pub-reveal" key={f.id || i} style={{ transitionDelay: `${i * 0.1}s` }}>
-                  <div className="pub-faculty-avatar">
-                    {facInitials}
+                  <div className="pub-faculty-avatar" style={{ overflow: f.image_url ? 'hidden' : 'visible', background: f.image_url ? 'transparent' : 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
+                    {f.image_url
+                      ? <img src={resolveImg(f.image_url)} alt={f.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                      : facInitials
+                    }
                   </div>
                   <div className="pub-fac-name">{f.name}</div>
+                  {f.designation && <div className="pub-fac-designation">{f.designation}</div>}
                   {f.subject && <div className="pub-fac-sub">{f.subject}</div>}
                 </div>
               );
@@ -549,7 +603,7 @@ export default function InstitutePage() {
         </div>
       </section>
 
-      {/* ── Contact ── */}
+      {/* ── Contact (Phase 3 — map fix handled on backend) ── */}
       <section className="pub-section" id="contact">
         <div className="pub-section-label pub-reveal">LOCATION</div>
         <h2 className="pub-section-title pub-reveal">Find Us</h2>
@@ -592,11 +646,20 @@ export default function InstitutePage() {
               </div>
             )}
           </div>
+
+          {/* Phase 3: Map — backend already normalizes the URL */}
           <div className="pub-reveal" style={{ transitionDelay: '0.2s', width: '100%', height: '100%', minHeight: '340px' }}>
             {data.contact?.map_embed_url ? (
-              <iframe src={data.contact.map_embed_url} title="Map" allowFullScreen loading="lazy" style={{ width: '100%', height: '100%', border: 0, borderRadius: '16px' }} />
+              <iframe
+                src={data.contact.map_embed_url}
+                title="Map"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                style={{ width: '100%', height: '100%', border: 0, borderRadius: '16px', minHeight: '340px' }}
+              />
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)', flexDirection: 'column', gap: '16px', background: 'var(--border)', borderRadius: '16px', height: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)', flexDirection: 'column', gap: '16px', background: 'var(--border)', borderRadius: '16px', height: '100%', minHeight: '340px' }}>
                 <span style={{ fontSize: '48px' }}>🗺️</span>
                 <p style={{ margin: 0, fontWeight: 600 }}>Map not provided</p>
               </div>
@@ -622,7 +685,7 @@ export default function InstitutePage() {
               </div>
             )}
           </div>
-          {data.courses?.length > 0 && (
+          {hasCourses && (
             <div className="pub-footer-col">
               <h4>Our Courses</h4>
               <ul className="pub-footer-links">
@@ -635,12 +698,12 @@ export default function InstitutePage() {
             <ul className="pub-footer-links">
               <li><a href="#home">Home</a></li>
               <li><a href="#about">About</a></li>
-              <li><a href="#courses">Courses</a></li>
-              <li><a href="#faculty">Faculty</a></li>
-              <li><a href="#gallery">Gallery</a></li>
+              {hasCourses && <li><a href="#courses">Courses</a></li>}
+              {hasFaculty && <li><a href="#faculty">Faculty</a></li>}
+              {data.gallery?.length > 0 && <li><a href="#gallery">Gallery</a></li>}
             </ul>
           </div>
-          <div className="pub-footer-col" id="contact">
+          <div className="pub-footer-col" id="contact-footer">
             <h4>Contact Details</h4>
             <ul className="pub-footer-links" style={{ color: 'rgba(255,255,255,.7)' }}>
               {data.contact?.phone && <li style={{ marginBottom: '8px' }}>{data.contact.phone}</li>}
@@ -659,7 +722,7 @@ export default function InstitutePage() {
       {data.contact?.whatsapp && (
         <a href={`https://wa.me/91${data.contact.whatsapp}?text=Hi! I want to know more about the courses.`}
           target="_blank" rel="noopener noreferrer" className="pub-whatsapp-fab" title="Chat on WhatsApp">
-          <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M12.031 21.144c-1.637 0-3.238-.431-4.639-1.25l-.333-.196-3.447.904.922-3.361-.215-.342c-.895-1.425-1.368-3.076-1.368-4.786 0-4.99 4.062-9.053 9.051-9.053 2.422 0 4.698.943 6.41 2.656 1.711 1.71 2.654 3.987 2.654 6.402 0 4.99-4.062 9.051-9.05 9.051h.015zm0-16.536c-4.129 0-7.489 3.361-7.489 7.49 0 1.319.344 2.607 1 3.738l.107.17-.615 2.247 2.301-.603.164.098c1.096.634 2.348.968 3.633.968 4.129 0 7.49-3.36 7.49-7.489 0-1.999-.778-3.879-2.192-5.293s-3.292-2.193-5.292-2.193zm4.113 10.218c-.226-.113-1.339-.661-1.547-.737-.206-.075-.357-.112-.507.113-.151.226-.583.737-.714.888-.131.15-.262.17-.488.056-.226-.113-.956-.353-1.821-1.127-.674-.602-1.128-1.345-1.26-1.571-.132-.227-.014-.35.099-.463.102-.102.226-.264.339-.396.113-.131.151-.226.226-.376.075-.15.038-.282-.019-.396-.056-.113-.507-1.223-.695-1.674-.183-.439-.37-.379-.508-.386-.131-.007-.282-.007-.433-.007s-.395.056-.603.282c-.207.226-.79.771-.79 1.881 0 1.111.809 2.185.922 2.336s1.594 2.433 3.863 3.414c.54.232.962.37 1.291.474.542.171 1.036.147 1.425.089.436-.065 1.339-.547 1.527-1.074.188-.528.188-.981.132-1.074-.056-.094-.207-.151-.433-.264z"/></svg>
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M12.031 21.144c-1.637 0-3.238-.431-4.639-1.25l-.333-.196-3.447.904.922-3.361-.215-.342c-.895-1.425-1.368-3.076-1.368-4.786 0-4.99 4.062-9.053 9.051-9.053 2.422 0 4.698.943 6.41 2.656 1.711 1.71 2.654 3.987 2.654 6.402 0 4.99-4.062 9.051-9.05 9.051h.015zm0-16.536c-4.129 0-7.489 3.361-7.489 7.49 0 1.319.344 2.607 1 3.738l.107.17-.615 2.247 2.301-.603.164.098c1.096.634 2.348.968 3.633.968 4.129 0 7.49-3.36 7.49-7.489 0-1.999-.778-3.879-2.192-5.293s-3.292-2.193-5.292-2.193zm4.113 10.218c-.226-.113-1.339-.661-1.547-.737-.206-.075-.357-.112-.507.113-.151.226-.583.737-.714.888-.131.15-.262.17-.488.056-.226-.113-.956-.353-1.821-1.127-.674-.602-1.128-1.345-1.26-1.571-.132-.227-.014-.35.099-.463.102-.102.226-.264.339-.396.113-.131.151-.226.226-.376.075-.15.038-.282-.019-.396-.056-.113-.507-1.223-.695-1.674-.183-.439-.37-.379-.508-.386-.131-.007-.282-.007-.433-.007s-.395.056-.603.282c-.207.226-.79.771-.79 1.881 0 1.111.809 2.185.922 2.336s1.594 2.433 3.863 3.414c.54.232.962.37 1.291.474.542.171 1.036.147 1.425.089.436-.065 1.339-.547 1.527-1.074.188-.528.188-.981.132-1.074-.056-.094-.207-.151-.433-.264z" /></svg>
         </a>
       )}
     </div>
