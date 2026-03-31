@@ -524,25 +524,60 @@ a:hover {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .container {
         padding: 0 var(--spacing-md);
     }
+}
 
-    h1 {
-        font-size: 1.875rem;
+@media (max-width: 768px) {
+    .container {
+        padding: 0 var(--spacing-sm);
     }
 
-    h2 {
-        font-size: 1.5rem;
-    }
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.25rem; }
+    h3 { font-size: 1.05rem; }
 
-    h3 {
-        font-size: 1.25rem;
+    /* Modal becomes bottom sheet */
+    .modal-overlay {
+        align-items: flex-end !important;
     }
 
     .modal {
-        width: 95%;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 1.25rem 1.25rem 0 0 !important;
+        max-height: 92vh !important;
+        overflow-y: auto !important;
+    }
+
+    /* Table horizontal scroll */
+    .table-container {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    /* Form grid collapse */
+    .form-row-2col {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 0.5rem 0.9rem;
+        font-size: 0.82rem;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 { font-size: 1.25rem; }
+    h2 { font-size: 1.05rem; }
+    h3 { font-size: 0.95rem; }
+
+    .btn {
+        font-size: 0.78rem;
+        padding: 0.4rem 0.75rem;
     }
 }
 

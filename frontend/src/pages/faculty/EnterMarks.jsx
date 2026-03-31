@@ -173,7 +173,7 @@ function EnterMarks() {
                         <div style={{ padding: "2rem", textAlign: "center" }}>Loading students...</div>
                     ) : (
                         <div className="table-container">
-                            <table className="table">
+                            <table className="table mobile-keep">
                                 <thead>
                                     <tr>
                                         <th>Roll No</th>

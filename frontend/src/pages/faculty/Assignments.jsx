@@ -473,7 +473,7 @@ export default function FacultyAssignments() {
                     {/* Submissions Table */}
                     <div className="card">
                         <div className="table-container">
-                            <table className="table">
+                            <table className="table mobile-keep">
                                 <thead>
                                     <tr>
                                         <th>Student</th>

@@ -10,6 +10,7 @@ import MobileShell from "mobile-shell";
 import WebAppRoutes from "./routes/WebAppRoutes";
 import NetworkStatus from "./components/NetworkStatus";
 import "./styles/global.css";
+import "./styles/responsive.css";       // Always-on responsive design (media queries)
 import "./themes/pro/pro-theme.css";   // Pro theme — activated by html.theme-pro
 import "./styles/public-theme-overrides.css"; // Public theme fixes
 import { Toaster } from "react-hot-toast";

@@ -319,6 +319,46 @@ function Faculty() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* ── MOBILE CARD LIST (shown on mobile via responsive.css) ── */}
+                <div className="admin-mobile-cards card-stagger">
+                    {filteredFaculty.length === 0 ? (
+                        <div className="empty-state-mobile">
+                            <div className="empty-icon">👩‍🏫</div>
+                            <div className="empty-title">No Faculty Found</div>
+                            <div className="empty-desc">No faculty members match your search.</div>
+                        </div>
+                    ) : (
+                        filteredFaculty.map((fm) => (
+                            <div key={fm.id} className="admin-item-card" style={{ borderLeftColor: '#10b981' }}>
+                                <div className="aic-info">
+                                    <div className="aic-name">
+                                        {fm.User?.name}
+                                        <span className="aic-badge">
+                                            <span className={`badge badge-${fm.User?.status === 'active' ? 'success' : 'danger'}`}>
+                                                {fm.User?.status}
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div className="aic-sub">{fm.User?.email} · {fm.designation || 'Faculty'}</div>
+                                    <div className="aic-sub">
+                                        {fm.Subjects?.length > 0
+                                            ? fm.Subjects.map(s => `${s.Class?.name ? s.Class.name + ': ' : ''}${s.name}`).join(' · ')
+                                            : 'No subjects assigned'}
+                                    </div>
+                                </div>
+                                <div className="aic-actions">
+                                    {canUpdate && (
+                                        <button className="btn btn-sm btn-primary" onClick={() => handleEdit(fm)}>Edit</button>
+                                    )}
+                                    {canDelete && (
+                                        <button className="btn btn-sm btn-danger" onClick={() => handleDelete(fm.id)}>Del</button>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
 
             {/* Add/Edit Faculty Modal */}

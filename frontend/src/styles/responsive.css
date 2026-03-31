@@ -1,0 +1,1800 @@
+/* ==========================================================================
+   RESPONSIVE.CSS — EduManagePro Complete Web Responsive System
+   Version 1.1.0  |  Always loaded — applies via @media queries only
+   Covers: Admin · Student · Faculty · Parent · SuperAdmin dashboards
+   ========================================================================== */
+
+/* ──────────────────────────────────────────────────────────────────────────
+   BREAKPOINTS
+   lg  : > 1024px  → desktop (default, no overrides)
+   md  : ≤ 1024px  → tablet landscape
+   sm  : ≤ 768px   → tablet portrait / large phone
+   xs  : ≤ 480px   → phone
+   xxs : ≤ 360px   → small phone
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* ==========================================================================
+   1.  TABLET (≤1024px) — subtle adjustments
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .dashboard-container {
+    padding: 1.5rem !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1rem !important;
+  }
+
+  .action-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 1rem !important;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.6rem !important;
+  }
+}
+
+/* ==========================================================================
+   2.  SMALL TABLET / LARGE PHONE (≤768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+
+  /* ── 2.1 BASE & BODY ── */
+  html, body {
+    overflow-x: hidden;
+  }
+
+  /* ── 2.2 DASHBOARD CONTAINER ── */
+  .dashboard-container,
+  .parent-dashboard-container {
+    padding: 1rem !important;
+    max-width: 100% !important;
+  }
+
+  /* ── 2.3 DASHBOARD HEADER — stack vertically ── */
+  .dashboard-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+    margin-bottom: 1rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.35rem !important;
+    margin-bottom: 0.25rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .dashboard-header p {
+    font-size: 0.85rem !important;
+    margin: 0 !important;
+  }
+
+  .dashboard-header-right {
+    width: 100% !important;
+    justify-content: flex-end !important;
+    flex-wrap: wrap !important;
+    gap: 0.4rem !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* ── 2.4 STATS GRID — 2 columns ── */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.65rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* Override inline style on stats-grid that forces auto-fit */
+  .stats-grid[style] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .stat-card {
+    padding: 0.8rem 0.75rem !important;
+    gap: 0.6rem !important;
+    border-radius: 12px !important;
+  }
+
+  .stat-icon {
+    font-size: 1.4rem !important;
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 10px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .stat-content h3,
+  .stat-card .info h3 {
+    font-size: 1.2rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .stat-content p,
+  .stat-card .info p {
+    font-size: 0.72rem !important;
+    margin: 0 !important;
+  }
+
+  .stat-card .info small {
+    font-size: 0.68rem !important;
+  }
+
+  /* ── 2.5 ACTION GRID — 3 columns ── */
+  .action-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+
+  .action-card {
+    padding: 0.85rem 0.5rem !important;
+    gap: 0.35rem !important;
+    border-radius: 12px !important;
+  }
+
+  .action-icon {
+    font-size: 1.6rem !important;
+  }
+
+  .action-title {
+    font-size: 0.72rem !important;
+    line-height: 1.3 !important;
+    text-align: center !important;
+  }
+
+  /* ── 2.6 QUICK ACTIONS SECTION ── */
+  .quick-actions {
+    margin-top: 1rem !important;
+  }
+
+  .quick-actions h2 {
+    font-size: 1.1rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  /* ── 2.7 CARDS ── */
+  .card {
+    padding: 1rem !important;
+    border-radius: 12px !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .card-header {
+    padding-bottom: 0.75rem !important;
+    margin-bottom: 0.75rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+
+  .card-title {
+    font-size: 1rem !important;
+  }
+
+  .dashboard-card {
+    border-radius: 12px !important;
+    padding: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* ── 2.8 TABLES — horizontal scroll ── */
+  .table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    border-radius: 10px !important;
+    /* Subtle scroll hint */
+    background:
+      linear-gradient(to right, white 30%, rgba(255,255,255,0)),
+      linear-gradient(to right, rgba(255,255,255,0), white 70%) 100% 0,
+      radial-gradient(farthest-side at 0 50%, rgba(0,0,0,.08), transparent),
+      radial-gradient(farthest-side at 100% 50%, rgba(0,0,0,.08), transparent) 100% 0;
+    background-repeat: no-repeat;
+    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+
+  .table {
+    min-width: 600px;
+  }
+
+  .table th {
+    padding: 0.6rem 0.75rem !important;
+    font-size: 0.72rem !important;
+    white-space: nowrap !important;
+  }
+
+  .table td {
+    padding: 0.65rem 0.75rem !important;
+    font-size: 0.82rem !important;
+    white-space: nowrap !important;
+  }
+
+  /* Data table (used in parent dashboard) */
+  .data-table {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.55rem 0.7rem !important;
+    font-size: 0.8rem !important;
+    white-space: nowrap !important;
+  }
+
+  /* Wrap data-table in scrollable container */
+  .parent-att-table,
+  .parent-fee-table {
+    min-width: 520px !important;
+  }
+
+  /* ── 2.9 MODALS — full-width bottom sheet ── */
+  .modal-overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  .modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 92vh !important;
+    border-radius: 1.25rem 1.25rem 0 0 !important;
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    margin: 0 !important;
+    overflow-y: auto !important;
+    animation: slideUpModal 0.28s cubic-bezier(0.34, 1.3, 0.64, 1) !important;
+  }
+
+  @keyframes slideUpModal {
+    from { transform: translateY(100%); opacity: 0.8; }
+    to   { transform: translateY(0);    opacity: 1;   }
+  }
+
+  /* Add a drag handle visual */
+  .modal::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: rgba(0,0,0,0.15);
+    border-radius: 2px;
+    margin: 0.75rem auto 0;
+  }
+
+  .modal-header {
+    padding: 1rem 1.25rem 0.75rem !important;
+  }
+
+  .modal-body {
+    padding: 1rem 1.25rem !important;
+  }
+
+  .modal-footer {
+    padding: 0.75rem 1.25rem 1.25rem !important;
+    flex-direction: row !important;
+    gap: 0.5rem !important;
+  }
+
+  .modal-footer .btn {
+    flex: 1 !important;
+  }
+
+  /* Modal content used in some pages (not .modal class) */
+  .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 90vh !important;
+    border-radius: 1.25rem 1.25rem 0 0 !important;
+    overflow-y: auto !important;
+  }
+
+  /* ── 2.10 FORM LAYOUTS ── */
+
+  /* Override inline 2-column grids in forms */
+  .modal-body form [style*="grid-template-columns"],
+  .modal-body [style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Form inputs */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    font-size: 16px !important; /* prevents iOS auto-zoom */
+    padding: 0.625rem 0.875rem !important;
+  }
+
+  .form-group {
+    margin-bottom: 0.875rem !important;
+  }
+
+  /* ── 2.11 BUTTONS ── */
+  .btn {
+    padding: 0.5rem 0.9rem !important;
+    font-size: 0.82rem !important;
+    min-height: 38px !important;
+    gap: 0.3rem !important;
+  }
+
+  .btn-sm {
+    padding: 0.35rem 0.65rem !important;
+    font-size: 0.75rem !important;
+    min-height: 32px !important;
+  }
+
+  .btn-lg {
+    padding: 0.7rem 1.2rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  /* Button groups inline */
+  .btn + .btn {
+    margin-top: 0 !important;
+  }
+
+  /* LOGOUT button */
+  .btn-logout {
+    min-height: 36px !important;
+    padding: 0.4rem 0.9rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* ── 2.12 TABS — horizontal scroll ── */
+  .tabs,
+  .tabs-container {
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none !important;
+    gap: 0.3rem !important;
+    padding-bottom: 0.25rem !important;
+  }
+
+  .tabs::-webkit-scrollbar,
+  .tabs-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab,
+  .tab-btn {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    padding: 0.45rem 0.9rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* Inline style tab buttons (used in Fees, etc.) */
+  [style*="borderBottom"][style*="marginBottom"][style*="display: flex"] {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none !important;
+  }
+
+  /* ── 2.13 STUDENT SELECTOR (Parent Dashboard) ── */
+  .student-selector {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    gap: 0.65rem !important;
+    padding-bottom: 0.5rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .student-selector::-webkit-scrollbar { display: none; }
+
+  .student-card-btn {
+    min-width: 175px !important;
+    flex-shrink: 0 !important;
+    padding: 0.85rem 1rem !important;
+    border-radius: 12px !important;
+  }
+
+  .student-card-btn h3 {
+    font-size: 0.9rem !important;
+    margin: 0 !important;
+  }
+
+  .student-card-btn small {
+    font-size: 0.72rem !important;
+  }
+
+  /* ── 2.14 BADGES ── */
+  .badge {
+    font-size: 0.68rem !important;
+    padding: 0.2rem 0.5rem !important;
+  }
+
+  .status-badge {
+    font-size: 0.68rem !important;
+    padding: 0.2rem 0.5rem !important;
+  }
+
+  /* ── 2.15 HEADERS inside pages ── */
+  h1 { font-size: 1.5rem !important; }
+  h2 { font-size: 1.25rem !important; }
+  h3 { font-size: 1.05rem !important; }
+  h4 { font-size: 0.95rem !important; }
+
+  /* ── 2.16 SEARCH + FILTER BARS ── */
+  /* Make filter rows wrap on mobile */
+  [style*="display: flex"][style*="gap"][style*="flexWrap: wrap"],
+  [style*="display: flex"][style*="gap"][style*="flex-wrap: wrap"] {
+    flex-wrap: wrap !important;
+  }
+
+  /* Search input full width */
+  .form-input[style*="flex: 1"] {
+    min-width: 100% !important;
+  }
+
+  /* ── 2.17 INLINED 2-COLUMN GRIDS (Students, Faculty forms) ── */
+  /* Target style-attributed grid containers */
+  div[style*="gridTemplateColumns: '1fr 1fr'"],
+  div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── 2.18 MANAGER BANNER (Admin Dashboard) ── */
+  [style*="flexWrap: wrap"][style*="justifyContent: space-between"] {
+    flex-direction: column !important;
+  }
+
+  /* ── 2.19 PARENT DASHBOARD CARDS ── */
+  .parent-att-cards,
+  .parent-fee-cards {
+    display: block !important;
+  }
+
+  /* Show mobile card view for parent att/fee */
+  .parent-att-table,
+  .parent-fee-table {
+    display: none !important;
+  }
+
+  .parent-att-cards,
+  .parent-fee-cards {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.6rem !important;
+  }
+
+  /* ── 2.20 TIMETABLE TABLE ── */
+  .timetable-table {
+    display: block !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    border-spacing: 4px !important;
+    min-width: 600px !important;
+  }
+
+  /* Wrap timetable in scrollable div via CSS trick */
+  .card > .timetable-table,
+  .dashboard-container > .timetable-table {
+    display: block !important;
+  }
+
+  /* ── 2.21 FEE FILTER BUTTONS (Fees page) ── */
+  /* Make the status filter pills wrap/scroll */
+  div[style*="display: flex"][style*="gap: '4px'"] {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none !important;
+  }
+
+  /* ── 2.22 REPORTS/ANALYTICS section ── */
+  div[style*="gridTemplateColumns: 'repeat(auto-fit"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── 2.23 TRIAL BANNERS ── */
+  div[style*="padding: '1.5rem'"][style*="justifyContent: 'space-between'"] {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  /* ── 2.24 RESULT CARDS (Parent / Student marks) ── */
+  .result-card {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    padding: 1rem !important;
+  }
+
+  .result-card-right {
+    text-align: left !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+  }
+
+  .result-card-right h2 {
+    font-size: 1.4rem !important;
+    margin: 0 !important;
+  }
+
+  /* ── 2.25 QUICK ACTIONS (Parent) ── */
+  div[style*="display: \"flex\""][style*="flexWrap: \"wrap\""] {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+
+  /* ── 2.26 ATTENDANCE / BIOMETRIC special ── */
+  .section-header,
+  .page-header {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+
+  /* ── 2.27 FULL-PAGE FILTER BARS ── */
+  .filters-row,
+  .filter-bar {
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+
+  /* ── 2.28 LANDING / PUBLIC NAV ── */
+  .public-navbar {
+    padding: 0.75rem 1rem !important;
+  }
+
+  .nav-links {
+    display: none !important;
+  }
+
+  /* ── 2.29 MANAGE ADMINS PAGE ── */
+  .admins-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── 2.30 REPORTS chart rows ── */
+  .reports-grid,
+  .chart-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  /* ── 2.31 PROFILE PAGE ── */
+  .profile-container,
+  .profile-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── 2.32 SUPERADMIN — recent institutes table ── */
+  .card .table-container .table {
+    min-width: 540px !important;
+  }
+
+  /* ── 2.33 MANAGE ADMINS permission chips ── */
+  .permission-chips,
+  .perm-grid {
+    flex-wrap: wrap !important;
+    gap: 0.35rem !important;
+  }
+
+  /* ── 2.34 FEE STRUCTURE inline grid ── */
+  div[style*="gridTemplateColumns: 'repeat(auto-fit, minmax(400px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── 2.35 BIOMETRIC / ATTENDANCE form rows ── */
+  .form-row,
+  .input-row {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  /* ── 2.36 EMPTY STATES ── */
+  .empty-state-mobile {
+    padding: 2rem 1rem !important;
+    text-align: center !important;
+  }
+
+  /* ── 2.37 SCROLL HINT for overflowing tables ── */
+  .table-container::after {
+    content: 'Scroll →';
+    position: sticky;
+    right: 0;
+    padding: 2px 8px;
+    background: linear-gradient(to right, transparent, rgba(0,0,0,0.07));
+    font-size: 0.65rem;
+    color: #888;
+    pointer-events: none;
+  }
+
+  /* ── 2.38 EXPENSES PAGE ── */
+  .expense-summary-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* ── 2.39 SUBJECTS PAGE ── */
+  .subjects-table .table {
+    min-width: 480px !important;
+  }
+
+  /* ── 2.40 FIXED position modals for collect/discount ── */
+  .modal-overlay .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 1.25rem 1.25rem 0 0 !important;
+    max-height: 92vh !important;
+    overflow-y: auto !important;
+  }
+
+  /* ─── ANNOUNCEMENTS page ─── */
+  .ann-card,
+  .announcement-card {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  /* ─── FACULTY NOTES form ─── */
+  .note-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ─── FACULTY ASSIGNMENTS filter row ─── */
+  .assignment-filters {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  /* ─── MARK ATTENDANCE — section header ─── */
+  .mark-att-header {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  /* ─── CHAT messages ─── */
+  .chat-container {
+    flex-direction: column !important;
+  }
+
+  .chat-sidebar {
+    width: 100% !important;
+    max-height: 200px !important;
+  }
+
+  /* ─── BACK BUTTON — prominent on mobile ─── */
+  .btn-back {
+    display: inline-flex !important;
+  }
+
+  /* ─── PLAN / PRICING CARDS ─── */
+  .pricing-grid,
+  .plans-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ─── INSTITUTE LIMITS ─── */
+  .limits-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ─── RESPONSIVE FORM GRIDS — collapse 2-col on mobile ─── */
+  .responsive-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ─── FILTER CARD — search + dropdowns ─── */
+  .card > div[style*="padding: \"1.5rem\""],
+  .card > div[style*="padding: '1.5rem'"] {
+    padding: 0.875rem !important;
+  }
+
+  /* Ensure search input never overflows */
+  .form-input[style*="minWidth"] {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Select inputs full width on mobile */
+  .form-select[style*="minWidth"] {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* ==========================================================================
+   3.  PHONE (≤480px) — tighten further
+   ========================================================================== */
+@media (max-width: 480px) {
+
+  .dashboard-container,
+  .parent-dashboard-container {
+    padding: 0.75rem !important;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.15rem !important;
+  }
+
+  /* Stats: stay 2-col but tighter */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+
+  .stat-card {
+    padding: 0.65rem !important;
+    gap: 0.45rem !important;
+  }
+
+  .stat-icon {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 1.1rem !important;
+  }
+
+  .stat-content h3,
+  .stat-card .info h3 {
+    font-size: 1.05rem !important;
+  }
+
+  .stat-content p,
+  .stat-card .info p {
+    font-size: 0.65rem !important;
+  }
+
+  /* Action grid: 2 columns on very small phones */
+  .action-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.45rem !important;
+  }
+
+  .action-icon {
+    font-size: 1.4rem !important;
+  }
+
+  .action-title {
+    font-size: 0.65rem !important;
+  }
+
+  .action-card {
+    padding: 0.7rem 0.4rem !important;
+    gap: 0.3rem !important;
+  }
+
+  /* Card tighter */
+  .card {
+    padding: 0.75rem !important;
+  }
+
+  .card-title {
+    font-size: 0.9rem !important;
+  }
+
+  /* Buttons full-width inside modals */
+  .modal-footer .btn,
+  .modal-footer button {
+    flex: 1 !important;
+    justify-content: center !important;
+  }
+
+  /* Typography tighter */
+  h1 { font-size: 1.3rem !important; }
+  h2 { font-size: 1.1rem !important; }
+  h3 { font-size: 0.95rem !important; }
+
+  /* Student selector cards smaller */
+  .student-card-btn {
+    min-width: 150px !important;
+    padding: 0.7rem 0.85rem !important;
+  }
+
+  /* Tabs smaller */
+  .tab,
+  .tab-btn {
+    padding: 0.4rem 0.75rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Quick action parent buttons wrap to 2 per row */
+  div[style*="display: \"flex\""][style*="flexWrap: \"wrap\""] button {
+    flex: 1 1 calc(50% - 0.5rem) !important;
+    min-width: 140px !important;
+    font-size: 0.8rem !important;
+    padding: 0.55rem 0.75rem !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  /* Fee summary badges (parent) */
+  div[style*="flexWrap: \"wrap\""][style*="marginBottom: \"1.5rem\""] > div {
+    flex: 1 1 calc(50% - 0.5rem) !important;
+    min-width: 120px !important;
+    padding: 0.65rem 0.85rem !important;
+  }
+
+  div[style*="flexWrap: \"wrap\""][style*="marginBottom: \"1.5rem\""] > div > div:first-child {
+    font-size: 1.15rem !important;
+  }
+}
+
+/* ==========================================================================
+   4.  SMALL PHONE (≤360px)
+   ========================================================================== */
+@media (max-width: 360px) {
+
+  .dashboard-container,
+  .parent-dashboard-container {
+    padding: 0.5rem !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.4rem !important;
+  }
+
+  .action-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.35rem !important;
+  }
+
+  .stat-card {
+    flex-direction: column !important;
+    text-align: center !important;
+    align-items: center !important;
+    padding: 0.6rem 0.4rem !important;
+  }
+
+  .stat-icon {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 1rem !important;
+  }
+
+  .stat-content h3,
+  .stat-card .info h3 {
+    font-size: 0.95rem !important;
+  }
+
+  .action-card {
+    padding: 0.6rem 0.3rem !important;
+  }
+
+  .action-icon {
+    font-size: 1.25rem !important;
+  }
+
+  .action-title {
+    font-size: 0.6rem !important;
+  }
+
+  .tab, .tab-btn {
+    padding: 0.35rem 0.6rem !important;
+    font-size: 0.7rem !important;
+  }
+
+  .btn {
+    font-size: 0.75rem !important;
+    padding: 0.4rem 0.75rem !important;
+  }
+}
+
+/* ==========================================================================
+   5.  PARENT DASHBOARD SPECIFIC MOBILE STYLES
+   ========================================================================== */
+
+/* Mobile parent att card */
+.parent-att-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  border-left: 4px solid #94a3b8;
+}
+
+.parent-att-card.present { border-left-color: #10b981; }
+.parent-att-card.absent  { border-left-color: #ef4444; }
+.parent-att-card.late    { border-left-color: #f59e0b; }
+.parent-att-card.holiday { border-left-color: #3b82f6; }
+
+.parent-att-date {
+  font-size: 0.8rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.parent-att-subject {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 2px 0;
+}
+
+.parent-att-marked {
+  font-size: 0.7rem;
+  color: #9ca3af;
+}
+
+.parent-att-time {
+  font-size: 0.78rem;
+  color: #10b981;
+  font-weight: 600;
+}
+
+/* Mobile fee card */
+.fee-mobile-card {
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  border-left: 4px solid #94a3b8;
+}
+
+.fee-mobile-card.paid    { border-left-color: #10b981; background: rgba(16,185,129,0.04); }
+.fee-mobile-card.partial { border-left-color: #f59e0b; background: rgba(245,158,11,0.04); }
+.fee-mobile-card.pending { border-left-color: #ef4444; background: rgba(239,68,68,0.04); }
+
+.fee-type {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.fee-amounts {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.fee-amount-item {
+  font-size: 0.82rem;
+  color: #374151;
+}
+
+/* Show/hide mobile vs desktop views */
+@media (min-width: 769px) {
+  .parent-att-cards,
+  .parent-fee-cards {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .parent-att-table,
+  .parent-fee-table {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   6.  DARK MODE responsive overrides
+   ========================================================================== */
+@media (max-width: 768px) {
+  html.dark-mode .parent-att-card,
+  html.dark-mode .fee-mobile-card {
+    background: #1e293b !important;
+    border-bottom-color: #334155 !important;
+    color: #f1f5f9 !important;
+  }
+
+  html.dark-mode .parent-att-date,
+  html.dark-mode .parent-att-subject {
+    color: #f1f5f9 !important;
+  }
+
+  html.dark-mode .parent-att-marked {
+    color: #94a3b8 !important;
+  }
+
+  html.dark-mode .fee-type {
+    color: #f1f5f9 !important;
+  }
+
+  html.dark-mode .fee-amount-item {
+    color: #cbd5e1 !important;
+  }
+
+  html.dark-mode .table-container {
+    background:
+      linear-gradient(to right, #1e293b 30%, rgba(30,41,59,0)),
+      linear-gradient(to right, rgba(30,41,59,0), #1e293b 70%) 100% 0,
+      radial-gradient(farthest-side at 0 50%, rgba(0,0,0,.2), transparent),
+      radial-gradient(farthest-side at 100% 50%, rgba(0,0,0,.2), transparent) 100% 0;
+    background-repeat: no-repeat;
+    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+
+  html.dark-mode .modal::before {
+    background: rgba(255,255,255,0.15);
+  }
+}
+
+/* ==========================================================================
+   7.  PRO THEME responsive overrides
+   ========================================================================== */
+@media (max-width: 768px) {
+  html.theme-pro .parent-att-card,
+  html.theme-pro .fee-mobile-card {
+    background: rgba(255,255,255,0.1) !important;
+    border-color: rgba(255,255,255,0.2) !important;
+    color: #fff !important;
+  }
+}
+
+/* ==========================================================================
+   8.  UTILITY HELPERS — mobile only
+   ========================================================================== */
+@media (max-width: 768px) {
+
+  /* Show/hide helpers */
+  .hide-mobile   { display: none !important; }
+  .show-mobile   { display: block !important; }
+  .show-mobile-flex { display: flex !important; }
+
+  /* Full width on mobile */
+  .full-width-mobile {
+    width: 100% !important;
+  }
+
+  /* Stack flex items on mobile */
+  .stack-mobile {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  /* Scrollable horizontal list */
+  .scroll-x-mobile {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none !important;
+  }
+
+  .scroll-x-mobile::-webkit-scrollbar { display: none; }
+}
+
+@media (min-width: 769px) {
+  .hide-desktop { display: none !important; }
+}
+
+/* ==========================================================================
+   9. SMOOTH FIX: Prevent horizontal overflow globally on mobile
+   ========================================================================== */
+@media (max-width: 768px) {
+  body,
+  #root,
+  .App,
+  main {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+  }
+
+  /* Ensure overflowing flex containers wrap */
+  .dashboard-container > div[style*="display: flex"],
+  .parent-dashboard-container > div[style*="display: flex"] {
+    flex-wrap: wrap !important;
+  }
+
+  /* Images never overflow */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
+
+/* ==========================================================================
+   10.  TIMETABLE — horizontal scroll wrapper
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* Student timetable table */
+  .table-wrapper,
+  .timetable-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .timetable-table {
+    min-width: 640px !important;
+  }
+
+  .timetable-pill {
+    min-width: 90px !important;
+    padding: 8px 0.5rem !important;
+    font-size: 0.72rem !important;
+    min-height: 50px !important;
+  }
+}
+
+/* ==========================================================================
+   11. SUPERADMIN — action card text fix on mobile
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* SuperAdmin action cards have extra h3/p inside — hide p on mobile */
+  .action-card h3 {
+    font-size: 0.75rem !important;
+    margin: 0 !important;
+    text-align: center !important;
+  }
+
+  .action-card p {
+    display: none !important;
+  }
+
+  /* Landing page Preview grid in SA dashboard */
+  div[style*="gridTemplateColumns: 'repeat(auto-fill, minmax(160px,1fr))'"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ==========================================================================
+   12.  ASSIGNMENT / NOTES pages adjust
+   ========================================================================== */
+@media (max-width: 768px) {
+
+  /* Assignment card grid */
+  .assignment-grid,
+  .notes-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Assignment status pill row */
+  .assignment-filters-row {
+    flex-wrap: wrap !important;
+    gap: 0.4rem !important;
+  }
+
+  /* Assignment detail expand */
+  .assignment-detail {
+    flex-direction: column !important;
+  }
+}
+
+/* ==========================================================================
+   13.  REPORT CARDS / ANALYTICS — adjust for mobile
+   ========================================================================== */
+@media (max-width: 768px) {
+
+  /* Gauge / chart container */
+  .chart-container,
+  .report-chart {
+    height: 220px !important;
+  }
+
+  /* Report filter bar */
+  .report-filters {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Attendance Summary row in reports */
+  .att-summary-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ==========================================================================
+   14.  FEES PAGE — mobile filter pills scroll
+   ========================================================================== */
+@media (max-width: 768px) {
+
+  /* Fee filter button strip */
+  .fee-filter-strip {
+    display: flex !important;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none !important;
+    gap: 0.35rem !important;
+  }
+
+  .fee-filter-strip::-webkit-scrollbar { display: none; }
+
+  /* Fee record card layout */
+  .fee-record-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.6rem !important;
+  }
+
+  /* Fee action buttons inline */
+  .fee-actions {
+    align-self: stretch !important;
+    justify-content: flex-end !important;
+  }
+}
+
+/* ==========================================================================
+   15.  MARK ATTENDANCE (Faculty) — student list compact on mobile
+   ========================================================================== */
+@media (max-width: 768px) {
+
+  /* Student attendance toggle rows */
+  .att-student-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Attendance status buttons strip */
+  .att-status-btns {
+    display: flex !important;
+    gap: 0.35rem !important;
+    flex-wrap: wrap !important;
+  }
+
+  .att-status-btn {
+    padding: 0.3rem 0.65rem !important;
+    font-size: 0.75rem !important;
+  }
+}
+
+/* ==========================================================================
+   16.  MANAGE ADMINS — permission checkboxes grid
+   ========================================================================== */
+@media (max-width: 768px) {
+  .permissions-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+}
+
+/* ==========================================================================
+   17.  CHAT PAGE — single panel mobile
+   ========================================================================== */
+@media (max-width: 768px) {
+  .chat-layout {
+    flex-direction: column !important;
+  }
+
+  .chat-rooms-panel {
+    width: 100% !important;
+    max-height: 200px !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--gray-200) !important;
+    overflow-y: auto !important;
+  }
+
+  .chat-messages-panel {
+    flex: 1 !important;
+    width: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .chat-mobile-back {
+    display: flex !important;
+  }
+}
+
+/* ==========================================================================
+   18.  BIOMETRIC PAGE
+   ========================================================================== */
+@media (max-width: 768px) {
+  .biometric-scanner {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .biometric-options {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ==========================================================================
+   19.  PUBLIC PAGE / LANDING PAGE
+   ========================================================================== */
+@media (max-width: 768px) {
+
+  .hero-title {
+    font-size: 2rem !important;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem !important;
+  }
+
+  .hero-buttons {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .pricing-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .public-footer-links {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+}
+
+/* ==========================================================================
+   20.  SCROLLBAR — thin on mobile to save space
+   ========================================================================== */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+}
+
+/* ==========================================================================
+   21.  MOBILE CARD TOGGLE SYSTEM
+   Mirrors mobile-base.css logic — works for MOBILE WEB BROWSERS too
+   ========================================================================== */
+
+/* ── Desktop: hide mobile cards, show table ── */
+.mobile-table-card,
+.mobile-card-list {
+  display: none;
+}
+
+/* Filter chips: always shown (they're used on both) */
+.subject-filter,
+.filter-chips,
+.student-asgn-filter {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  margin-bottom: 12px;
+  flex-wrap: nowrap;
+}
+.subject-filter::-webkit-scrollbar,
+.filter-chips::-webkit-scrollbar,
+.student-asgn-filter::-webkit-scrollbar { display: none; }
+
+/* Filter chip buttons */
+.chip {
+  flex-shrink: 0;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  border: 1.5px solid #e0e0e0;
+  background: #f8f9fa;
+  color: #666;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.chip.active,
+.chip:hover {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 3px 10px rgba(79,70,229,0.3);
+}
+
+/* ── Mobile: show cards, hide table ── */
+@media (max-width: 768px) {
+
+  /* Show card list, hide traditional table */
+  .mobile-table-card,
+  .mobile-card-list {
+    display: block;
+  }
+
+  /* ── Attendance mobile card (Student ViewAttendance) ── */
+  .att-mobile-card {
+    background: var(--card-bg, #fff);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-left: 4px solid #667eea;
+    transition: transform 0.15s;
+    cursor: default;
+  }
+  .att-mobile-card:active   { transform: scale(0.98); }
+  .att-mobile-card.present  { border-left-color: #10b981; }
+  .att-mobile-card.absent   { border-left-color: #ef4444; }
+  .att-mobile-card.holiday  { border-left-color: #3b82f6; }
+  .att-mobile-card.half_day { border-left-color: #f59e0b; }
+
+  .att-card-left   { flex: 1; }
+  .att-card-date   { font-size: 12px; color: #888; margin-bottom: 2px; }
+  .att-card-subject{ font-size: 14px; font-weight: 600; color: var(--text-primary, #1a1a1a); }
+  .att-card-right  { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+  .att-card-time   { font-size: 11px; color: #888; }
+
+  /* ── Marks mobile card (Student ViewMarks) ── */
+  .marks-mobile-card {
+    background: var(--card-bg, #fff);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    border-left: 4px solid #4f46e5;
+  }
+
+  .marks-info          { flex: 1; }
+  .marks-exam-name     { font-size: 15px; font-weight: 700; color: var(--text-primary, #1a1a1a); }
+  .marks-subject       { font-size: 12px; color: #667eea; font-weight: 600; margin-top: 2px; }
+  .marks-date          { font-size: 11px; color: #888; margin-top: 2px; }
+
+  .marks-score         { text-align: right; flex-shrink: 0; }
+  .marks-score .score  { font-size: 1.25rem; font-weight: 800; color: #4f46e5; }
+  .marks-score .result {
+    font-size: 12px; font-weight: 700;
+    padding: 2px 8px; border-radius: 10px;
+    display: inline-block; margin-top: 3px;
+  }
+  .marks-score .result.pass { background: #d1fae5; color: #065f46; }
+  .marks-score .result.fail { background: #fee2e2; color: #991b1b; }
+
+  /* ── Generic mobile record card ── */
+  .mobile-record-card {
+    background: var(--card-bg, #fff);
+    padding: 14px 16px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    border-left: 4px solid #667eea;
+    transition: transform 0.15s;
+  }
+  .mobile-record-card:active { transform: scale(0.98); }
+  .mobile-record-card .record-meta  { font-size: 12px; color: #888; margin-bottom: 3px; }
+  .mobile-record-card .record-title { font-size: 15px; font-weight: 600; color: var(--text-primary, #1a1a1a); }
+  .mobile-record-card .record-badge { font-size: 11px; font-weight: 700; margin-top: 4px; }
+
+  /* ── Empty state ── */
+  .empty-state-mobile {
+    padding: 2.5rem 1rem;
+    text-align: center;
+    color: var(--text-secondary, #888);
+  }
+  .empty-icon  { font-size: 3rem; margin-bottom: 0.75rem; }
+  .empty-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-primary, #333); }
+  .empty-desc  { font-size: 0.85rem; color: var(--text-secondary, #888); }
+
+  /* ── Admin Students mobile card ── */
+  .student-mobile-card {
+    background: var(--card-bg, #fff);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.65rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-left: 4px solid #4f46e5;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .student-mobile-card .sm-name    { font-size: 0.95rem; font-weight: 700; color: var(--text-primary, #111); }
+  .student-mobile-card .sm-detail  { font-size: 0.78rem; color: var(--text-secondary, #666); margin-top: 2px; }
+  .student-mobile-card .sm-actions { display: flex; flex-direction: column; gap: 0.3rem; align-items: flex-end; }
+
+  /* ── Faculty mobile card ── */
+  .faculty-mobile-card {
+    background: var(--card-bg, #fff);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.65rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-left: 4px solid #10b981;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .faculty-mobile-card .fm-name    { font-size: 0.95rem; font-weight: 700; color: var(--text-primary, #111); }
+  .faculty-mobile-card .fm-detail  { font-size: 0.78rem; color: var(--text-secondary, #666); margin-top: 2px; }
+  .faculty-mobile-card .fm-actions { display: flex; flex-direction: column; gap: 0.3rem; align-items: flex-end; }
+
+  /* ── Spinner / loading ── */
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #4f46e5;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 1rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .mobile-loading-page {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    min-height: 60vh; text-align: center;
+  }
+
+  /* ── Back button on mobile ── */
+  .mobile-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4f46e5;
+  }
+
+  /* ── Day chips (timetable) ── */
+  .day-chip {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1.5px solid #e0e0e0;
+    background: var(--card-bg, #fff);
+    color: var(--text-secondary, #666);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .day-chip.active {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #fff; border-color: transparent;
+    box-shadow: 0 3px 10px rgba(79,70,229,0.35);
+  }
+  .day-chip.today { border-color: #4f46e5; color: #4f46e5; }
+
+  /* ── Timetable pill on mobile ── */
+  .timetable-pill {
+    min-width: 90px !important;
+    min-height: 50px !important;
+    padding: 8px 6px !important;
+    font-size: 0.72rem !important;
+    border-radius: 8px !important;
+  }
+
+}
+
+/* ==========================================================================
+   22.  DARK MODE — mobile card dark styles
+   ========================================================================== */
+@media (max-width: 768px) {
+  html.dark-mode .att-mobile-card,
+  html.dark-mode .marks-mobile-card,
+  html.dark-mode .mobile-record-card,
+  html.dark-mode .student-mobile-card,
+  html.dark-mode .faculty-mobile-card {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25) !important;
+  }
+
+  html.dark-mode .att-card-date,
+  html.dark-mode .att-card-time,
+  html.dark-mode .marks-date,
+  html.dark-mode .sm-detail,
+  html.dark-mode .fm-detail,
+  html.dark-mode .record-meta {
+    color: #64748b !important;
+  }
+
+  html.dark-mode .att-card-subject,
+  html.dark-mode .marks-exam-name,
+  html.dark-mode .sm-name,
+  html.dark-mode .fm-name,
+  html.dark-mode .record-title {
+    color: #f1f5f9 !important;
+  }
+
+  html.dark-mode .marks-subject { color: #818cf8 !important; }
+
+  html.dark-mode .empty-title { color: #f1f5f9 !important; }
+  html.dark-mode .empty-desc  { color: #94a3b8 !important; }
+
+  html.dark-mode .chip {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #94a3b8 !important;
+  }
+  html.dark-mode .chip.active {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+    color: #fff !important;
+    border-color: transparent !important;
+  }
+
+  html.dark-mode .day-chip {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #94a3b8 !important;
+  }
+  html.dark-mode .day-chip.active {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+    color: #fff !important;
+  }
+  html.dark-mode .day-chip.today { border-color: #818cf8 !important; color: #818cf8 !important; }
+
+  /* table-container dark scroll hint */
+  html.dark-mode .table-container {
+    background:
+      linear-gradient(to right, #1e293b 30%, rgba(30,41,59,0)),
+      linear-gradient(to right, rgba(30,41,59,0), #1e293b 70%) 100% 0,
+      radial-gradient(farthest-side at 0 50%, rgba(0,0,0,.2), transparent),
+      radial-gradient(farthest-side at 100% 50%, rgba(0,0,0,.2), transparent) 100% 0 !important;
+    background-repeat: no-repeat !important;
+    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100% !important;
+    background-attachment: local, local, scroll, scroll !important;
+  }
+}
+
+/* ==========================================================================
+   23.  PRO THEME — mobile card glassmorphism
+   ========================================================================== */
+@media (max-width: 768px) {
+  html.theme-pro .att-mobile-card,
+  html.theme-pro .marks-mobile-card,
+  html.theme-pro .mobile-record-card,
+  html.theme-pro .student-mobile-card,
+  html.theme-pro .faculty-mobile-card {
+    background: rgba(255,255,255,0.07) !important;
+    border-left-color: rgba(255,255,255,0.3) !important;
+    color: #f1f5f9 !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+  }
+
+  html.theme-pro .att-card-subject,
+  html.theme-pro .marks-exam-name,
+  html.theme-pro .sm-name,
+  html.theme-pro .fm-name {
+    color: #fff !important;
+  }
+
+  html.theme-pro .att-card-date,
+  html.theme-pro .att-card-time,
+  html.theme-pro .marks-date,
+  html.theme-pro .marks-subject,
+  html.theme-pro .sm-detail,
+  html.theme-pro .fm-detail {
+    color: rgba(255,255,255,0.55) !important;
+  }
+
+  html.theme-pro .chip {
+    background: rgba(255,255,255,0.08) !important;
+    border-color: rgba(255,255,255,0.2) !important;
+    color: rgba(255,255,255,0.75) !important;
+  }
+  html.theme-pro .chip.active {
+    background: linear-gradient(135deg,rgba(79,70,229,0.8),rgba(124,58,237,0.8)) !important;
+    color: #fff !important;
+    border-color: transparent !important;
+  }
+
+  html.theme-pro .day-chip {
+    background: rgba(255,255,255,0.08) !important;
+    border-color: rgba(255,255,255,0.15) !important;
+    color: rgba(255,255,255,0.7) !important;
+  }
+  html.theme-pro .day-chip.active {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
+    color: #fff !important;
+    border-color: transparent !important;
+  }
+}
+
+/* ==========================================================================
+   24.  ADMIN PAGES — STUDENTS & FACULTY table-to-card transformation
+   ========================================================================== */
+
+/* Desktop: tables show, mobile cards hidden */
+.admin-table-view   { display: table-row-group; }   /* tbody */
+.admin-mobile-cards { display: none; }
+
+@media (max-width: 768px) {
+  /* Hide desktop table body on small screens */
+  .admin-table-view {
+    display: none !important;
+  }
+  /* Show mobile cards instead */
+  .admin-mobile-cards {
+    display: block !important;
+    padding: 0.5rem 0;
+  }
+
+  /* Card in admin list */
+  .admin-item-card {
+    background: var(--card-bg, #fff);
+    border-radius: 12px;
+    padding: 0.875rem 1rem;
+    margin-bottom: 0.6rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-left: 4px solid #4f46e5;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    transition: box-shadow 0.15s;
+  }
+  .admin-item-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+
+  .aic-info    { flex: 1; min-width: 0; }
+  .aic-name    { font-size: 0.9rem; font-weight: 700; color: var(--text-primary,#111); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .aic-sub     { font-size: 0.75rem; color: var(--text-secondary,#666); line-height: 1.5; }
+  .aic-badge   { margin-left: 0.5rem; vertical-align: middle; }
+  .aic-actions { display: flex; flex-direction: column; gap: 0.3rem; align-items: flex-end; flex-shrink: 0; }
+  .aic-actions .btn { min-width: 58px; }
+
+  html.dark-mode .admin-item-card {
+    background: #1e293b !important;
+  }
+  html.dark-mode .aic-name { color: #f1f5f9 !important; }
+  html.dark-mode .aic-sub  { color: #94a3b8 !important; }
+}
+
+/* ==========================================================================
+   25.  FEES PAGE — mobile-friendly card rows
+   ========================================================================== */
+@media (max-width: 768px) {
+
+  /* Fee row cards */
+  .fee-row-card {
+    background: var(--card-bg, #fff);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.65rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-left: 4px solid #94a3b8;
+  }
+  .fee-row-card.paid    { border-left-color: #10b981; }
+  .fee-row-card.partial { border-left-color: #f59e0b; }
+  .fee-row-card.pending { border-left-color: #ef4444; }
+
+  .frc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+  }
+  .frc-name { font-size: 0.9rem; font-weight: 700; color: var(--text-primary,#111); }
+  .frc-amounts { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.35rem; }
+  .frc-amount-item { font-size: 0.78rem; color: var(--text-secondary,#666); }
+  .frc-actions { display: flex; gap: 0.4rem; justify-content: flex-end; margin-top: 0.6rem; flex-wrap: wrap; }
+
+  html.dark-mode .fee-row-card { background: #1e293b !important; }
+  html.dark-mode .frc-name { color: #f1f5f9 !important; }
+  html.dark-mode .frc-amount-item { color: #94a3b8 !important; }
+}
+
+/* ==========================================================================
+   26.  CARD ANIMATION — stagger for card lists
+   ========================================================================== */
+@media (max-width: 768px) {
+  .card-stagger > * {
+    animation: cardFadeUp 0.25s ease both;
+  }
+  .card-stagger > *:nth-child(1) { animation-delay: 0.03s; }
+  .card-stagger > *:nth-child(2) { animation-delay: 0.06s; }
+  .card-stagger > *:nth-child(3) { animation-delay: 0.09s; }
+  .card-stagger > *:nth-child(4) { animation-delay: 0.12s; }
+  .card-stagger > *:nth-child(5) { animation-delay: 0.15s; }
+  .card-stagger > *:nth-child(n+6) { animation-delay: 0.18s; }
+
+  @keyframes cardFadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
+
