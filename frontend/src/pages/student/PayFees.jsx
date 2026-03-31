@@ -148,7 +148,7 @@ function PayFees() {
                     <h3 className="card-title">Pending Fee Structures</h3>
                 </div>
                 <div className="table-container">
-                    <table className="table">
+                    <table className="table mobile-keep">
                         <thead>
                             <tr>
                                 <th>Fee Type</th>
@@ -221,7 +221,7 @@ function PayFees() {
                     <h3 className="card-title">Payment History</h3>
                 </div>
                 <div className="table-container">
-                    <table className="table">
+                    <table className="table mobile-keep">
                         <thead>
                             <tr>
                                 <th>Transaction ID</th>

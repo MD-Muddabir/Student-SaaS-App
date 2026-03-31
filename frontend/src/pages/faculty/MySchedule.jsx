@@ -79,7 +79,7 @@ function FacultySchedule() {
                                 <h3>📚 Timetable - {ct.class_name}</h3>
                             </div>
                             <div style={{ overflowX: "auto", padding: "1rem" }}>
-                                <table className="table timetable-table" style={{ minWidth: "800px", borderCollapse: "collapse", width: "100%" }}>
+                                <table className="table timetable-table mobile-keep" style={{ minWidth: "800px", borderCollapse: "collapse", width: "100%" }}>
                                     <thead>
                                         <tr>
                                             <th style={{ width: "120px", borderBottom: "2px solid #e5e7eb", padding: "10px" }}>Time</th>
