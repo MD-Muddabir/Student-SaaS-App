@@ -174,7 +174,7 @@ function StudentNotes() {
                     </div>
                 ) : (
                     <div className="table-container">
-                        <table className="table">
+                        <table className="table mobile-keep">
                             <thead>
                                 <tr>
                                     <th>Title</th>

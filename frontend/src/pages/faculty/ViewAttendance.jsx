@@ -329,7 +329,7 @@ function ViewAttendance() {
                     <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>Monthly Attendance Grid</h3>
                 </div>
                 <div style={{ overflowX: "auto" }}>
-                    <table className="table" style={{ borderCollapse: "collapse", minWidth: "1200px" }}>
+                    <table className="table mobile-keep" style={{ borderCollapse: "collapse", minWidth: "1200px" }}>
                         <thead>
                             <tr>
                                 <th style={{

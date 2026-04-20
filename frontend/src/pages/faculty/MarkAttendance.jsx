@@ -280,7 +280,7 @@ function MarkAttendance() {
                         <h3 className="card-title" style={{ color: "#f59e0b" }}>⏳ Pending Attendance for Today</h3>
                     </div>
                     <div className="table-container">
-                        <table className="table">
+                        <table className="table mobile-keep">
                             <thead>
                                 <tr>
                                     <th>Class</th>
@@ -386,7 +386,7 @@ function MarkAttendance() {
                         ) : (
                             <form onSubmit={handleSubmit}>
                                 <div className="table-container">
-                                    <table className="table">
+                                    <table className="table mobile-keep">
                                         <thead>
                                             <tr>
                                                 <th>Roll No</th>
@@ -504,7 +504,7 @@ function MarkAttendance() {
                                 <h3 className="card-title">✅ Marked Attendance ({students.filter(s => attendanceData[s.student_id]?.isExisting).length} students)</h3>
                             </div>
                             <div className="table-container">
-                                <table className="table">
+                                <table className="table mobile-keep">
                                     <thead>
                                         <tr>
                                             <th>Roll No</th>
@@ -562,7 +562,7 @@ function MarkAttendance() {
                             )}
 
                             <div className="table-container">
-                                <table className="table">
+                                <table className="table mobile-keep">
                                     <thead>
                                         <tr>
                                             <th>Roll No</th>

@@ -446,6 +446,47 @@ function Students() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* ── MOBILE CARD LIST (shown on mobile via responsive.css) ── */}
+                <div className="admin-mobile-cards card-stagger">
+                    {filteredStudents.length === 0 ? (
+                        <div className="empty-state-mobile">
+                            <div className="empty-icon">🎓</div>
+                            <div className="empty-title">No Students Found</div>
+                            <div className="empty-desc">No students match your search or filter.</div>
+                        </div>
+                    ) : (
+                        filteredStudents.map((student) => (
+                            <div key={student.id} className="admin-item-card">
+                                <div className="aic-info">
+                                    <div className="aic-name">
+                                        {student.User?.name}
+                                        <span className="aic-badge">
+                                            <span className={`badge badge-${student.User?.status === 'active' ? 'success' : 'danger'}`}>
+                                                {student.User?.status}
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div className="aic-sub">
+                                        Roll: <strong>{student.roll_number}</strong> · {student.User?.email}
+                                    </div>
+                                    <div className="aic-sub">
+                                        {student.Classes?.map(c => `${c.name}${c.section ? ` - ${c.section}` : ''}`).join(', ') || 'Unassigned'}
+                                        {student.is_full_course && ' · Full Course'}
+                                    </div>
+                                </div>
+                                <div className="aic-actions">
+                                    {canUpdate && (
+                                        <button className="btn btn-sm btn-primary" onClick={() => handleEdit(student)}>Edit</button>
+                                    )}
+                                    {canDelete && (
+                                        <button className="btn btn-sm btn-danger" onClick={() => handleDelete(student.id)}>Del</button>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
 
             {/* Add/Edit Student Modal */}
@@ -460,7 +501,7 @@ function Students() {
                         </div>
                         <div className="modal-body">
                             <form onSubmit={handleSubmit}>
-                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }} className="responsive-form-grid">
                                     <div className="form-group">
                                         <label className="form-label">Full Name *</label>
                                         <input

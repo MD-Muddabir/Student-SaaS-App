@@ -657,7 +657,7 @@ function Fees() {
                     <div className="card">
                         <h3 style={{ marginBottom: '1rem' }}>💵 Payment Logs</h3>
                         <div className="table-container" style={{ maxHeight: '500px', overflowY: 'auto' }}>
-                            <table className="table">
+                            <table className="table mobile-keep">
                                 <thead>
                                     <tr>
                                         <th>Date</th>
@@ -687,7 +687,7 @@ function Fees() {
                     <div className="card">
                         <h3 style={{ marginBottom: '1rem' }}>🎉 Discount Logs</h3>
                         <div className="table-container" style={{ maxHeight: '500px', overflowY: 'auto' }}>
-                            <table className="table">
+                            <table className="table mobile-keep">
                                 <thead>
                                     <tr>
                                         <th>Date</th>
@@ -720,7 +720,7 @@ function Fees() {
             {validTab === 'structure' && hasPerm('fees', 'read') && (
                 <div className="card">
                     <div className="table-container">
-                        <table className="table">
+                        <table className="table mobile-keep">
                             <thead>
                                 <tr>
                                     <th>Class & Subject</th>

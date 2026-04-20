@@ -259,6 +259,39 @@ function SuperAdminDashboard() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* ── MOBILE CARD LIST ── */}
+                <div className="admin-mobile-cards card-stagger">
+                    {recentInstitutes.length === 0 ? (
+                        <div className="empty-state-mobile">
+                            <div className="empty-icon">🏢</div>
+                            <div className="empty-title">No Institutes</div>
+                            <div className="empty-desc">No institutes have been registered yet.</div>
+                        </div>
+                    ) : (
+                        recentInstitutes.map((inst) => (
+                            <div key={inst.id} className="admin-item-card">
+                                <div className="aic-info">
+                                    <div className="aic-name">
+                                        {inst.name}
+                                        <span className="aic-badge">
+                                            <span className={`badge badge-${inst.status === 'active' ? 'success' : inst.status === 'suspended' ? 'warning' : 'danger'}`}>
+                                                {inst.status}
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div className="aic-sub">{inst.email}</div>
+                                    <div className="aic-sub">Plan: {inst.Plan?.name || 'No Plan'} · {new Date(inst.createdAt || inst.created_at).toLocaleDateString()}</div>
+                                </div>
+                                <div className="aic-actions">
+                                    <Link to={`/superadmin/institute-limits?id=${inst.id}`} className="btn btn-sm btn-primary">
+                                        View
+                                    </Link>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
         </div>
     );

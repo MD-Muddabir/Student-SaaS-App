@@ -114,6 +114,38 @@ function ViewStudents() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* ── MOBILE CARD LIST (shown on mobile via responsive.css) ── */}
+                <div className="admin-mobile-cards card-stagger">
+                    {filteredStudents.length === 0 ? (
+                        <div className="empty-state-mobile">
+                            <div className="empty-icon">👨‍🎓</div>
+                            <div className="empty-title">No Students Found</div>
+                            <div className="empty-desc">No students match your search or filter.</div>
+                        </div>
+                    ) : (
+                        filteredStudents.map((student) => (
+                            <div key={student.id} className="admin-item-card" style={{ borderLeftColor: '#4f46e5' }}>
+                                <div className="aic-info">
+                                    <div className="aic-name">
+                                        {student.User?.name}
+                                        <span className="aic-badge">
+                                            <span className={`badge badge-${student.User?.status === 'active' ? 'success' : 'danger'}`}>
+                                                {student.User?.status}
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div className="aic-sub">
+                                        Roll: <strong>{student.roll_number}</strong> · {student.User?.email}
+                                    </div>
+                                    <div className="aic-sub">
+                                        {student.Classes?.map(c => `${c.name}${c.section ? ` - ${c.section}` : ''}`).join(', ') || 'Unassigned'}
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
         </div>
     );

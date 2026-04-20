@@ -143,7 +143,7 @@ function ParentTimetable() {
                     </div>
                 ) : (
                     <div className="dashboard-card" style={{ overflowX: "auto" }}>
-                        <table className="table timetable-table" style={{ minWidth: "800px", width: "100%", borderCollapse: "collapse" }}>
+                        <table className="table timetable-table mobile-keep" style={{ minWidth: "800px", width: "100%", borderCollapse: "collapse" }}>
                             <thead>
                                 <tr>
                                     <th style={{ width: "120px", padding: "1rem", borderBottom: "2px solid var(--border-color)" }}></th>

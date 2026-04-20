@@ -185,7 +185,7 @@ function AdminTimetable() {
                     </div>
                 ) : (
                     <div className="card" style={{ overflowX: "auto" }}>
-                        <table className="table timetable-table" style={{ minWidth: "800px" }}>
+                        <table className="table timetable-table mobile-keep" style={{ minWidth: "800px" }}>
                             <thead>
                                 <tr>
                                     <th style={{ width: "120px" }}></th>
